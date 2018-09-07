@@ -1,0 +1,17 @@
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\configuration.json
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\WhatsNew.txt
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\birth_probability.csv
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\death_probability.csv
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\general_probability.csv
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\SHELite.dll
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\SHELite.pdb
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\Common.dll
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\CsvHelper.dll
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\Newtonsoft.Json.dll
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\Common.pdb
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\CsvHelper.xml
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\bin\Debug\Newtonsoft.Json.xml
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\obj\Debug\SOSIEL_EX1.csprojResolveAssemblyReference.cache
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\obj\Debug\SOSIEL_EX1.csproj.CoreCompileInputs.cache
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\obj\Debug\SHELite.dll
+D:\projects\Garry_publication\SOSIEL EX1\SOSIEL_EX1\obj\Debug\SHELite.pdb
