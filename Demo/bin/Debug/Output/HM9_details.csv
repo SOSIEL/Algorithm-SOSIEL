@@ -1,0 +1,10 @@
+Iteration,AgentId,Age,IsAlive,NumberOfDO,Income,Expenses,Savings
+2,HM9,0,True,0,0,0,26300
+3,HM9,1,True,0,0,0,42600
+4,HM9,2,True,0,0,0,58900
+5,HM9,3,True,0,0,0,75200
+6,HM9,4,True,1,0,0,107000
+7,HM9,5,True,2,0,0,202800
+8,HM9,6,True,2,0,0,298600
+9,HM9,7,True,2,0,0,394400
+10,HM9,8,True,2,0,0,490200
