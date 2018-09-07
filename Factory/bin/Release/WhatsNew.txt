@@ -1,0 +1,5 @@
+﻿SOSIEL EX1 1.0.4.6762
+
+New features:
+ - Implement Demographic processes
+ - Changes in goal prioritizing 
