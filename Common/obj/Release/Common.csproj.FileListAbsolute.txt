@@ -1,0 +1,9 @@
+D:\projects\Garry_publication\SOSIEL EX1\Common\bin\Release\Common.dll
+D:\projects\Garry_publication\SOSIEL EX1\Common\bin\Release\Common.pdb
+D:\projects\Garry_publication\SOSIEL EX1\Common\bin\Release\CsvHelper.dll
+D:\projects\Garry_publication\SOSIEL EX1\Common\bin\Release\Newtonsoft.Json.dll
+D:\projects\Garry_publication\SOSIEL EX1\Common\bin\Release\CsvHelper.xml
+D:\projects\Garry_publication\SOSIEL EX1\Common\bin\Release\Newtonsoft.Json.xml
+D:\projects\Garry_publication\SOSIEL EX1\Common\obj\Release\Common.csproj.CoreCompileInputs.cache
+D:\projects\Garry_publication\SOSIEL EX1\Common\obj\Release\Common.dll
+D:\projects\Garry_publication\SOSIEL EX1\Common\obj\Release\Common.pdb
