@@ -318,8 +318,7 @@ namespace SOSIEL_EX1
                     Expenses = agent[AlgorithmVariables.AgentExpenses],
                     Savings = agent[AlgorithmVariables.HouseholdSavings],
                     NumberOfDO = agent.AssignedDecisionOptions.Count
-                    ChosenDecisionOption = agentState != null ? string.Join("|", agentState.DecisionOptionsHistories[Site.
-                    DefaultSite].Activated.Select(opt => opt.Id)) : string.Empty
+                    ChosenDecisionOption = agentState != null ? string.Join("|", agentState.DecisionOptionsHistories[Site.DefaultSite].Activated.Select(opt => opt.Id)) : string.Empty
                 };
 
                 CSVHelper.AppendTo(_outputFolder + string.Format(AgentDetailsOutput.FileName, agent.Id), details);
