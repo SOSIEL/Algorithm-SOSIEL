@@ -33,5 +33,8 @@ namespace SOSIEL_EX1.Output
 
 	// Property definition
         public double Savings { get; set; }
+	
+	// Property definition
+	public string ChosenDecisionOption { get; set; }
     }
 }
