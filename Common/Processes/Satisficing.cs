@@ -87,8 +87,7 @@ namespace Common.Processes
         /// <param name="rankedGoals"></param>
         /// <param name="processedDecisionOptions"></param>
         /// <param name="site"></param>
-        public void ExecutePartI(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState>> lastIteration,
-            Dictionary<IAgent, Goal[]> rankedGoals, DecisionOption[] processedDecisionOptions, Site site)
+        public void ExecutePartI(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState>> lastIteration, Dictionary<IAgent, Goal[]> rankedGoals, DecisionOption[] processedDecisionOptions, Site site)
         {
             decisionOptionForActivating = null;
 
@@ -127,8 +126,14 @@ namespace Common.Processes
             if (processedDecisionOptions.First().Layer.Set.Layers.Count > 1)
                 decisionOptionForActivating.Apply(agent);
 
+            if (decisionOptionForActivating != null)
+            {
+                history.Activated.Add(decisionOptionForActivating);
+            }
 
-            if (decisionOptionForActivating.IsCollectiveAction)
+            history.Matched.AddRange(matchedDecisionOptions);
+
+            if (decisionOptionForActivating != null && decisionOptionForActivating.IsCollectiveAction)
             {
                 var agents = SignalingInterest(agent, decisionOptionForActivating, lastIteration.Value);
 
@@ -151,13 +156,6 @@ namespace Common.Processes
                     }
                 }
             }
-
-            if (decisionOptionForActivating != null)
-            {
-                history.Activated.Add(decisionOptionForActivating);
-            }
-
-            history.Matched.AddRange(matchedDecisionOptions);
         }
 
         /// <summary>
@@ -168,8 +166,7 @@ namespace Common.Processes
         /// <param name="rankedGoals"></param>
         /// <param name="processedDecisionOptions"></param>
         /// <param name="site"></param>
-        public void ExecutePartII(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState>> lastIteration,
-            Dictionary<IAgent, Goal[]> rankedGoals, DecisionOption[] processedDecisionOptions, Site site)
+        public void ExecutePartII(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState>> lastIteration, Dictionary<IAgent, Goal[]> rankedGoals, DecisionOption[] processedDecisionOptions, Site site)
         {
             AgentState agentState = lastIteration.Value[agent];
 
