@@ -1,8 +1,4 @@
-﻿// Copyright 2018 Garry Sotnik
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this software except in compliance with the License.
-// You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
-
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -34,4 +30,4 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.5.6762")]
+[assembly: AssemblyVersion("1.0.7.6842")]

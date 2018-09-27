@@ -1,4 +1,16 @@
-﻿SOSIEL EX1 1.0.5.6762
+﻿SOSIEL EX1 1.0.7.6842
+
+Fixed bugs:
+ - Agent selected a wrong decision option
+
+
+SOSIEL EX1 1.0.6.6835
+
+New features:
+ - Add 'ChosenDecisionOption' result data to the output
+
+
+SOSIEL EX1 1.0.5.6762
 
 New features:
  - Implement Demographic processes
