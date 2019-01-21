@@ -4,7 +4,7 @@
 #define AppPublisher "Garry Sotnik"
 
 ; Build directory
-#define BuildDir "..\..\SOSIEL EX1\Demo\bin\Release\netcoreapp2.0\win-x86"
+#define BuildDir "..\..\SOSIEL EX1\Demo\bin\Release\netcoreapp2.0\publish"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -19,8 +19,8 @@ AppPublisher={#AppPublisher}
 ;AppPublisherURL={#AppURL}
 ;AppSupportURL={#AppURL}
 ;AppUpdatesURL={#AppURL}
-DefaultDirName={pf}\{#ExtensionName}
-;DisableDirPage=yes
+DefaultDirName=D:\{#ExtensionName}
+DisableDirPage=no
 DefaultGroupName={#ExtensionName}
 DisableProgramGroupPage=yes
 LicenseFile=THE SOSIEL PLATFORM LICENSE AGREEMENT.rtf
@@ -38,7 +38,7 @@ Source: {#BuildDir}\*; DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
 Root: "HKCU"; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; \
-    ValueType: String; ValueName: "{app}\Demo.exe"; ValueData: "RUNASADMIN"; \
+    ValueType: String; ValueName: "{app}\Run.bat"; ValueData: "RUNASADMIN"; \
     Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
 
 ;[Run]

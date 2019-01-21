@@ -1,8 +1,9 @@
 SET Solution=SOSIEL_EX1.sln
 SET Configuration=Release
-SET Runtime=win-x86
 
 
-dotnet clean --configuration %Configuration% --runtime %Runtime%
+dotnet clean --configuration %Configuration%
 
-dotnet build --configuration %Configuration% --runtime %Runtime% /p:DebugType=None
+dotnet restore
+
+dotnet publish --configuration %Configuration% /p:DebugType=None
