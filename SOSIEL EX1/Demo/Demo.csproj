@@ -27,4 +27,10 @@
     <ProjectReference Include="..\SOSIEL\SOSIEL.csproj" />
     <ProjectReference Include="..\SOSIEL_EX1\SOSIEL_EX1.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Run.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
