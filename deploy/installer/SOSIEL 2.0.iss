@@ -32,14 +32,11 @@ SolidCompression=yes
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Dirs]
+Name: {app}; Permissions: users-modify
 
 [Files]
 Source: {#BuildDir}\*; DestDir: "{app}"; Flags: ignoreversion
-
-[Registry]
-Root: "HKCU"; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"; \
-    ValueType: String; ValueName: "{app}\Run.bat"; ValueData: "RUNASADMIN"; \
-    Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
 
 ;[Run]
 
