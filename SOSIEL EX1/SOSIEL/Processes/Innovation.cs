@@ -30,7 +30,7 @@ namespace SOSIEL.Processes
 
             //gets prior period activated decision options
             DecisionOptionsHistory history = priorIteration[agent].DecisionOptionsHistories[site];
-            DecisionOption protDecisionOption = history.Activated.FirstOrDefault(r=>r.Layer == layer);
+            DecisionOption protDecisionOption = history.Activated.FirstOrDefault(r => r.Layer == layer);
 
             LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> tempNode = lastIteration.Previous;
 
@@ -70,8 +70,10 @@ namespace SOSIEL.Processes
 
                 double newConsequent = consequentValue;
 
-                var probabilityTable =
-                    probabilities.GetProbabilityTable<int>(SosielProbabilityTables.GeneralProbabilityTable);
+                ExtendedProbabilityTable<int> probabilityTable =
+                    probabilities.GetExtendedProbabilityTable<int>(SosielProbabilityTables.GeneralProbabilityTable);
+
+                double minStep = Math.Pow(0.1d, parameters.ConsequentPrecisionDigitsAfterDecimalPoint);
 
                 switch (selectedGoalState.AnticipatedDirection)
                 {
@@ -81,13 +83,13 @@ namespace SOSIEL.Processes
                             {
                                 if (consequentValue == max) return;
 
-                                newConsequent = probabilityTable.GetRandomValue((int)consequentValue + 1, max, false);
+                                newConsequent = probabilityTable.GetRandomValue(consequentValue + minStep, max, false);
                             }
                             if (DecisionOptionLayerConfiguration.ConvertSign(parameters.ConsequentRelationshipSign[goal.Name]) == ConsequentRelationship.Negative)
                             {
                                 if (consequentValue == min) return;
 
-                                newConsequent = probabilityTable.GetRandomValue(min, (int)consequentValue - 1, true);
+                                newConsequent = probabilityTable.GetRandomValue(min, consequentValue - minStep, true);
                             }
 
                             break;
@@ -98,13 +100,13 @@ namespace SOSIEL.Processes
                             {
                                 if (consequentValue == min) return;
 
-                                newConsequent = probabilityTable.GetRandomValue(min, (int)consequentValue - 1, true);
+                                newConsequent = probabilityTable.GetRandomValue(min, consequentValue - minStep, true);
                             }
                             if (DecisionOptionLayerConfiguration.ConvertSign(parameters.ConsequentRelationshipSign[goal.Name]) == ConsequentRelationship.Negative)
                             {
                                 if (consequentValue == max) return;
 
-                                newConsequent = probabilityTable.GetRandomValue((int)consequentValue + 1, max, false);
+                                newConsequent = probabilityTable.GetRandomValue(consequentValue + minStep, max, false);
                             }
 
                             break;
@@ -114,6 +116,8 @@ namespace SOSIEL.Processes
                             throw new Exception("Not implemented for AnticipatedDirection == 'stay'");
                         }
                 }
+
+                newConsequent = Math.Round(newConsequent, parameters.ConsequentPrecisionDigitsAfterDecimalPoint);
 
                 DecisionOptionConsequent consequent = DecisionOptionConsequent.Renew(protDecisionOption.Consequent, newConsequent);
                 #endregion
@@ -150,27 +154,23 @@ namespace SOSIEL.Processes
                     consequentChangeProportion = Math.Abs(newDecisionOption.Consequent.Value - consequentValue) / consequentValue;
                 }
 
-                
                 Dictionary<Goal, double> baseAI = agent.AnticipationInfluence[protDecisionOption];
 
                 Dictionary<Goal, double> proportionalAI = new Dictionary<Goal, double>();
-
-
 
                 agent.AssignedGoals.ForEach(g =>
                 {
                     double ai = baseAI[g];
 
-                    ConsequentRelationship relationship = DecisionOptionLayerConfiguration.ConvertSign(protDecisionOption.Layer.LayerConfiguration.ConsequentRelationshipSign[g.Name]);
+                    // ConsequentRelationship relationship = DecisionOptionLayerConfiguration.ConvertSign(protDecisionOption.Layer.LayerConfiguration.ConsequentRelationshipSign[g.Name]);
 
-                    double difference = Math.Abs(ai * consequentChangeProportion);
+                    double difference = ai * consequentChangeProportion;
 
-
-                    switch(selectedGoalState.AnticipatedDirection)
+                    switch (selectedGoalState.AnticipatedDirection)
                     {
                         case AnticipatedDirection.Up:
                             {
-                                if (relationship == ConsequentRelationship.Positive)
+                                if (ai >= 0)
                                 {
                                     ai += difference;
                                 }
@@ -183,7 +183,7 @@ namespace SOSIEL.Processes
                             }
                         case AnticipatedDirection.Down:
                             {
-                                if (relationship == ConsequentRelationship.Positive)
+                                if (ai >= 0)
                                 {
                                     ai -= difference;
                                 }
