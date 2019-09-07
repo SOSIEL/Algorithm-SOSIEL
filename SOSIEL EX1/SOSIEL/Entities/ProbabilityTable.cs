@@ -6,9 +6,12 @@ namespace SOSIEL.Entities
     {
         private Dictionary<T, double> _probabilityTable;
 
+        public ICollection<T> Keys { get; }
+
         public ProbabilityTable(Dictionary<T, double> pairs)
         {
             _probabilityTable = new Dictionary<T, double>(pairs);
+            Keys = _probabilityTable.Keys;
         }
 
         public double GetProbability(T value)
