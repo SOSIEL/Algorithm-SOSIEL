@@ -22,6 +22,13 @@ namespace SOSIEL.Entities
 
         public bool IsCumulative { get; private set; }
 
+        public double MaxGoalValue { get; private set; }
+
+        public double MinGoalValue { get; private set; }
+
+        public string MaxGoalReferenceVariable { get; private set; }
+
+        public string MinGoalReferenceVariable { get; private set; }
 
         public Goal()
         {

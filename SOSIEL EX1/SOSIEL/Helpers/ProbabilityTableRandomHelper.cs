@@ -25,9 +25,9 @@ namespace SOSIEL.Helpers
         {
             var potentialValues = Enumerable.Range(min, max - min).ToList();
 
-            var batchSize = (int)Math.Ceiling(potentialValues.Count / _batchCount);
+            var batchSize = potentialValues.Count / _batchCount;
 
-            var potentialValuesTable = potentialValues.GroupBy(v => v / batchSize + 1)
+            var potentialValuesTable = potentialValues.GroupBy(v => (v - min) / batchSize + 1)
                 .SelectMany(g => g.Select(v => new { Value = v, Probability = table.GetProbability(GetBatchNumber((int)g.Key, isReversed)) })).ToList();
 
             var randomTable = potentialValuesTable

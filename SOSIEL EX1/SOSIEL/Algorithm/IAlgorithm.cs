@@ -1,9 +1,11 @@
 ﻿namespace SOSIEL.Algorithm
 {
-    public interface IAlgorithm
+    public interface IAlgorithm<TData>
     {
         string Name { get; }
 
-        string Run();
+        void Initialize(TData data);
+
+        TData Run(TData data);
     }
 }

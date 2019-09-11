@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Entities;
+using SOSIEL.Enums;
 using SOSIEL.Helpers;
 
 namespace SOSIEL.Processes
@@ -46,6 +48,18 @@ namespace SOSIEL.Processes
 
                 decisionOptionForActivating = selected.RandomizeOne();
             }
+        }
+
+        protected override void MaintainAtValue()
+        {
+            DecisionOption[] selected = matchedDecisionOptions;
+
+            if (matchedDecisionOptions.Length > 0)
+            {
+                selected = matchedDecisionOptions.GroupBy(r => Math.Abs(goalState.Value + anticipatedInfluence[r][processedGoal] - goalState.FocalValue)).OrderBy(hg => hg.Key).First().ToArray();
+            }
+
+            decisionOptionForActivating = selected.RandomizeOne();
         }
         #endregion
 

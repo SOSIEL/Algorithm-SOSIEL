@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Entities;
+using SOSIEL.Enums;
 
 namespace SOSIEL.Processes
 {
@@ -10,8 +11,6 @@ namespace SOSIEL.Processes
     /// </summary>
     public class CounterfactualThinking<TSite> : VolatileProcess
     {
-        bool confidence;
-
         Goal selectedGoal;
         GoalState selectedGoalState;
         Dictionary<DecisionOption, Dictionary<Goal, double>> anticipatedInfluences;
@@ -28,13 +27,13 @@ namespace SOSIEL.Processes
             //If 0 decision options are identified, then counterfactual thinking(t) = unsuccessful.
             if (decisionOptions.Length == 0)
             {
-                confidence = false;
+                selectedGoalState.Confidence = false;
             }
             else
             {
                 decisionOptions = decisionOptions.GroupBy(r => anticipatedInfluences[r][selectedGoal]).OrderBy(h => h.Key).First().ToArray();
 
-                confidence = decisionOptions.Any(r => r != activatedDecisionOption);
+                selectedGoalState.Confidence = decisionOptions.Any(r => r != activatedDecisionOption);
             }
         }
 
@@ -46,13 +45,13 @@ namespace SOSIEL.Processes
             //If 0 decision options are identified, then counterfactual thinking(t) = unsuccessful.
             if (decisionOptions.Length == 0)
             {
-                confidence = false;
+                selectedGoalState.Confidence = false;
             }
             else
             {
                 decisionOptions = decisionOptions.GroupBy(r => anticipatedInfluences[r][selectedGoal]).OrderByDescending(h => h.Key).First().ToArray();
 
-                confidence = decisionOptions.Any(r => r != activatedDecisionOption);
+                selectedGoalState.Confidence = decisionOptions.Any(r => r != activatedDecisionOption);
             }
         }
 
@@ -60,6 +59,58 @@ namespace SOSIEL.Processes
         {
             throw new NotImplementedException("Minimize is not implemented in CounterfactualThinking");
         }
+
+        protected override void MaintainAtValue()
+        {
+            DecisionOption[] decisionOptions = new DecisionOption[0];
+
+            var previousMatchedDOAI = anticipatedInfluences.Where(kvp => matchedDecisionOptions.Contains(kvp.Key)).ToArray();
+
+            if (selectedGoalState.AnticipatedDirection == AnticipatedDirection.Up)
+            {
+                if (selectedGoalState.DiffPriorAndFocal <= 0)
+                {
+                    decisionOptions = previousMatchedDOAI
+                        .Where(kvp => kvp.Value[selectedGoal] >= selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
+                }
+                else
+                {
+                    decisionOptions = previousMatchedDOAI
+                        .Where(kvp => kvp.Value[selectedGoal] < selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
+                }
+            }
+
+            if (selectedGoalState.AnticipatedDirection == AnticipatedDirection.Down)
+            {
+                if (selectedGoalState.DiffPriorAndFocal <= 0)
+                {
+                    decisionOptions = previousMatchedDOAI
+                        .Where(kvp => kvp.Value[selectedGoal] < selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
+                }
+                else
+                {
+                    decisionOptions = previousMatchedDOAI
+                        .Where(kvp => kvp.Value[selectedGoal] > selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
+                }
+            }
+
+            if (decisionOptions.Length == 0)
+            {
+                selectedGoalState.Confidence = false;
+            }
+            else
+            {
+                if (decisionOptions.Length == 1 && decisionOptions[0] == activatedDecisionOption)
+                {
+                    selectedGoalState.Confidence = false;
+                }
+                else
+                {
+                    selectedGoalState.Confidence = true;
+                }
+            }
+        }
+
         #endregion
 
 
@@ -76,14 +127,13 @@ namespace SOSIEL.Processes
         public bool Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> lastIteration, Goal goal,
             DecisionOption[] matched, DecisionOptionLayer layer, TSite site)
         {
-            confidence = false;
-
             //Period currentPeriod = periodModel.Value;
             AgentState<TSite> priorIterationAgentState = lastIteration.Previous.Value[agent];
 
             selectedGoal = goal;
 
             selectedGoalState = lastIteration.Value[agent].GoalsState[selectedGoal];
+            selectedGoalState.Confidence = false;
 
             DecisionOptionsHistory history = priorIterationAgentState.DecisionOptionsHistories[site];
 
@@ -97,7 +147,7 @@ namespace SOSIEL.Processes
             SpecificLogic(selectedGoal.Tendency);
 
 
-            return confidence;
+            return selectedGoalState.Confidence;
         }
     }
 }
