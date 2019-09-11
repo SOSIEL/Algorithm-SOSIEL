@@ -68,7 +68,11 @@
           "FocalValue": 0,
           "ChangeFocalValueOnPrevious": true,
           "FocalValueReference": "",
-          "IsCumulative": false
+          "IsCumulative": false,
+          "MaxGoalValue": 0,
+          "MinGoalValue": 0,
+          "MaxGoalReferenceVariable": "",
+          "MinGoalReferenceVariable": ""
         }
       ],
 

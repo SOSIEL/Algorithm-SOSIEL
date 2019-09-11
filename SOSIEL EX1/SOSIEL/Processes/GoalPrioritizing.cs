@@ -103,6 +103,23 @@ namespace SOSIEL.Processes
                     return Math.Abs(goalState.DiffCurrentAndFocal / (goalState.FocalValue - minGoalValue));
                 }
 
+                if (goal.Tendency == "MaintainAtValue")
+                {
+                    var minGoalValue = string.IsNullOrEmpty(goal.MinGoalReferenceVariable)
+                        ? goal.MinGoalValue
+                        : agent[goal.MinGoalReferenceVariable];
+                    var maxGoalValue = string.IsNullOrEmpty(goal.MaxGoalReferenceVariable)
+                        ? goal.MaxGoalValue
+                        : agent[goal.MaxGoalReferenceVariable];
+
+                    var diffFocalAndMin = goalState.FocalValue - minGoalValue;
+                    var diffFocalAndMax = goalState.FocalValue - maxGoalValue;
+
+                    var max = Math.Min(diffFocalAndMax, diffFocalAndMin);
+
+                    Math.Abs(goalState.DiffCurrentAndFocal / (goalState.FocalValue - max));
+                }
+
                 throw new SosielAlgorithmException(
                     "Cannot calculate relative difference between goal value and focal goal value for tendency" +
                     goal.Tendency);

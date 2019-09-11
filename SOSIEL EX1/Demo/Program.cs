@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using SOSIEL.Algorithm;
 using SOSIEL_EX1;
 using SOSIEL_EX1.Configuration;
 
@@ -23,17 +22,21 @@ namespace Demo
                 throw new FileNotFoundException($"{algorithmConfigurationFileName} not found at {Directory.GetCurrentDirectory()}");
             }
 
-            string outputDirectory = "Output";
+            string outputDirectory = @"Output\";
 
             if (Directory.Exists(outputDirectory))
                 Directory.Delete(outputDirectory, true);
 
-            ConfigurationModel configuration = ConfigurationParser.ParseConfiguration(algorithmConfigurationFilePath);
+            if (!Directory.Exists(outputDirectory))
+                Directory.CreateDirectory(outputDirectory);
 
-            IAlgorithm algorithm = new Algorithm(configuration);
+            ConfigurationModel configuration = ConfigurationParser.ParseConfiguration(algorithmConfigurationFilePath);
+            AlgorithmModel model = new AlgorithmModel() { OutputFolder = outputDirectory };
+
+            Algorithm algorithm = new Algorithm(configuration);
 
             Console.WriteLine($"{algorithm.Name} algorithm is running....");
-            outputDirectory = algorithm.Run();
+            algorithm.Run(model);
             Console.WriteLine("Algorithm has completed");
 
             WaitKeyPress();

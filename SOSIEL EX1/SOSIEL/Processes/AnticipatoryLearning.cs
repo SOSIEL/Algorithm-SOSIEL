@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Entities;
 using SOSIEL.Enums;
@@ -100,6 +101,50 @@ namespace SOSIEL.Processes
             }
         }
 
+        protected override void MaintainAtValue()
+        {
+            if (currentGoal.IsCumulative)
+            {
+                if (currentGoalState.DiffCurrentAndFocal == 0)
+                {
+                    currentGoalState.Confidence = true;
+                    currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
+                }
+                else
+                {
+                    if (Math.Abs(currentGoalState.DiffPriorAndFocal) > Math.Abs(currentGoalState.DiffCurrentAndFocal))
+                    {
+                        currentGoalState.Confidence = true;
+                    }
+                    else
+                    {
+                        currentGoalState.Confidence = false;
+                    }
+
+                    currentGoalState.AnticipatedDirection = currentGoalState.DiffCurrentAndFocal > 0
+                        ? AnticipatedDirection.Down
+                        : AnticipatedDirection.Up;
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+
+                //if (currentGoalState.Value == currentGoalState.FocalValue)
+                //{
+                //    currentGoalState.Confidence = true;
+                //}
+                //else
+                //{
+                //    currentGoalState.AnticipatedDirection = currentGoalState.Value > currentGoalState.FocalValue
+                //        ? AnticipatedDirection.Down
+                //        : AnticipatedDirection.Up;
+                //}
+            }
+
+
+        }
+
         #endregion
 
 
@@ -132,11 +177,11 @@ namespace SOSIEL.Processes
                     currentGoalState.FocalValue = reductionPercent * currentGoalState.PriorValue;
                 }
 
-                double focal = string.IsNullOrEmpty(goal.FocalValueReference) ? currentGoalState.FocalValue : agent[goal.FocalValueReference];
+                currentGoalState.FocalValue = string.IsNullOrEmpty(goal.FocalValueReference) ? currentGoalState.FocalValue : agent[goal.FocalValueReference];
 
-                currentGoalState.DiffCurrentAndFocal = currentGoalState.Value - focal;
+                currentGoalState.DiffCurrentAndFocal = currentGoalState.Value - currentGoalState.FocalValue;
 
-                currentGoalState.DiffPriorAndFocal = currentGoalState.PriorValue - focal;
+                currentGoalState.DiffPriorAndFocal = currentGoalState.PriorValue - currentGoalState.FocalValue;
 
                 currentGoalState.DiffCurrentAndPrior = currentGoalState.Value - currentGoalState.PriorValue;
 

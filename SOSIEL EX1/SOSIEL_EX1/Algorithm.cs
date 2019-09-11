@@ -14,7 +14,7 @@ using SOSIEL_EX1.Output;
 
 namespace SOSIEL_EX1
 {
-    public sealed class Algorithm : SosielAlgorithm<Site>, IAlgorithm
+    public sealed class Algorithm : SosielAlgorithm<Site>, IAlgorithm<AlgorithmModel>
     {
         public string Name { get { return "SOSIEL"; } }
 
@@ -43,16 +43,13 @@ namespace SOSIEL_EX1
         public Algorithm(ConfigurationModel configuration) : base(1, GetProcessConfiguration())
         {
             _configuration = configuration;
-
-            _outputFolder = @"Output\";
-
-            if (Directory.Exists(_outputFolder) == false)
-                Directory.CreateDirectory(_outputFolder);
         }
 
-        public string Run()
+        public AlgorithmModel Run(AlgorithmModel model)
         {
-            Initialize();
+            _outputFolder = model.OutputFolder;
+
+            Initialize(model);
 
             var sites = new Site[] { DefaultSite };
 
@@ -63,13 +60,13 @@ namespace SOSIEL_EX1
                 RunSosiel(sites);
             });
 
-            return _outputFolder;
+            return model;
         }
 
         /// <summary>
         /// Executes algorithm initialization
         /// </summary>
-        public void Initialize()
+        public void Initialize(AlgorithmModel model)
         {
             InitializeAgents();
 
