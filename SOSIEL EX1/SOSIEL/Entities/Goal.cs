@@ -4,31 +4,31 @@ namespace SOSIEL.Entities
 {
     public class Goal:IEquatable<Goal>
     {
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
-        public string Tendency { get; private set; }
+        public string Tendency { get; set; }
 
-        public string ReferenceVariable { get; private set; }
+        public string ReferenceVariable { get; set; }
 
         public double FocalValue { get; set; }
 
-        public bool ChangeFocalValueOnPrevious { get; private set; }
+        public bool ChangeFocalValueOnPrevious { get; set; }
 
-        public double ReductionPercent { get; private set; }
+        public double ReductionPercent { get; set; }
 
-        public string FocalValueReference { get; private set; }
+        public string FocalValueReference { get; set; }
 
-        public bool RankingEnabled { get; private set; } 
+        public bool RankingEnabled { get; set; } 
 
-        public bool IsCumulative { get; private set; }
+        public bool IsCumulative { get; set; }
 
-        public double MaxGoalValue { get; private set; }
+        public double MaxGoalValue { get; set; }
 
-        public double MinGoalValue { get; private set; }
+        public double MinGoalValue { get; set; }
 
-        public string MaxGoalReferenceVariable { get; private set; }
+        public string MaxGoalReferenceVariable { get; set; }
 
-        public string MinGoalReferenceVariable { get; private set; }
+        public string MinGoalReferenceVariable { get; set; }
 
         public Goal()
         {
