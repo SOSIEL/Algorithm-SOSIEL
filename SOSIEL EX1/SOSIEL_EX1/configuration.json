@@ -40,7 +40,7 @@
   },
 
   "AgentConfiguration": {
-    "HouseholdMember-Prototype": {
+    "HouseholdMember-Archetype": {
       "NamePrefix": "HM",
 
       "CommonVariables": {
@@ -291,7 +291,7 @@
   "InitialState": {
     "AgentsState": [
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -346,7 +346,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -402,7 +402,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -457,7 +457,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -512,7 +512,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -568,7 +568,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -606,7 +606,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {

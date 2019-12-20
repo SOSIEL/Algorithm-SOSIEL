@@ -5,7 +5,7 @@ using SOSIEL.Exceptions;
 
 namespace SOSIEL.Entities
 {
-    public class AgentPrototype
+    public class AgentArchetype
     {
         public string NamePrefix { get; private set; }
 
@@ -33,7 +33,7 @@ namespace SOSIEL.Entities
 
         public bool UseImportanceAdjusting { get; set; }
 
-        public AgentPrototype()
+        public AgentArchetype()
         {
             CommonVariables = new Dictionary<string, dynamic>();
             MentalModel = new Dictionary<string, MentalModelConfiguration>();
@@ -73,7 +73,7 @@ namespace SOSIEL.Entities
 
 
         /// <summary>
-        /// Adds decision option to mental model of current prototype if it isn't exists in the scope.
+        /// Adds decision option to mental model of current archetype if it isn't exists in the scope.
         /// </summary>
         /// <param name="newDecisionOption"></param>
         /// <param name="layer"></param>

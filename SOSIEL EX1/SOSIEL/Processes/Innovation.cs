@@ -200,15 +200,15 @@ namespace SOSIEL.Processes
                 });
 
 
-                //add the generated decision option to the prototype's mental model and assign one to the agent's mental model 
-                if (agent.Prototype.IsSimilarDecisionOptionExists(newDecisionOption) == false)
+                //add the generated decision option to the archetype's mental model and assign one to the agent's mental model 
+                if (agent.Archetype.IsSimilarDecisionOptionExists(newDecisionOption) == false)
                 {
-                    //add to the prototype and assign to current agent
+                    //add to the archetype and assign to current agent
                     agent.AddDecisionOption(newDecisionOption, layer, proportionalAI);
                 }
                 else if (agent.AssignedDecisionOptions.Any(decisionOption => decisionOption == newDecisionOption) == false)
                 {
-                    var kh = agent.Prototype.DecisionOptions.FirstOrDefault(h => h == newDecisionOption);
+                    var kh = agent.Archetype.DecisionOptions.FirstOrDefault(h => h == newDecisionOption);
 
                     //assign to current agent only
                     agent.AssignNewDecisionOption(kh, proportionalAI);

@@ -59,13 +59,13 @@ namespace SOSIEL.Entities
     {
         private Dictionary<T, ExtentedProbabilityRecord<T>> _table = new Dictionary<T, ExtentedProbabilityRecord<T>>();
 
-        public ExtendedProbabilityTable(ProbabilityTable<T> prototype)
+        public ExtendedProbabilityTable(ProbabilityTable<T> archetype)
         {
             double sum = 0;
 
-            foreach (T key in prototype.Keys.OrderBy(k => k))
+            foreach (T key in archetype.Keys.OrderBy(k => k))
             {
-                double probability = prototype.GetProbability(key);
+                double probability = archetype.GetProbability(key);
 
                 sum += probability;
 

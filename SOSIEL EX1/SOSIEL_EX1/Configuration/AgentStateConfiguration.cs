@@ -9,7 +9,7 @@ namespace SOSIEL_EX1.Configuration
     public class AgentStateConfiguration
     {
         [JsonRequired]
-        public string PrototypeOfAgent { get; set; }
+        public string ArchetypeOfAgent { get; set; }
 
         [JsonRequired]
         public int NumberOfAgents { get; set; }

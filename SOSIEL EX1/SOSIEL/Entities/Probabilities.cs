@@ -39,9 +39,9 @@ namespace SOSIEL.Entities
                 if (!_probabilityTables.TryGetValue(name, out notExtended))
                     throw new ArgumentException("Cannot found probability table by name:" + name);
 
-                ProbabilityTable<T> prototype = (ProbabilityTable<T>) notExtended;
+                ProbabilityTable<T> archetype = (ProbabilityTable<T>) notExtended;
 
-                table = new ExtendedProbabilityTable<T>(prototype);
+                table = new ExtendedProbabilityTable<T>(archetype);
                 _extendedTables.Add(name, table);
             }
 

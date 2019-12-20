@@ -239,7 +239,7 @@ namespace SOSIEL.Algorithm
                             {
                                 if (rankedGoals[agent].Any(g => currentIteration[agent].GoalsState.Any(kvp => kvp.Value.Confidence == false)))
                                 {
-                                    foreach (TSite site in agent.Prototype.IsSiteOriented ? orderedSites : notSiteOriented)
+                                    foreach (TSite site in agent.Archetype.IsSiteOriented ? orderedSites : notSiteOriented)
                                     {
                                         BeforeCounterfactualThinking(agent, site);
 
@@ -312,7 +312,7 @@ namespace SOSIEL.Algorithm
                     {
                         foreach (IAgent agent in agentGroup)
                         {
-                            foreach (TSite site in agent.Prototype.IsSiteOriented ? orderedSites : notSiteOriented)
+                            foreach (TSite site in agent.Archetype.IsSiteOriented ? orderedSites : notSiteOriented)
                             {
                                 foreach (var set in agent.AssignedDecisionOptions.GroupBy(h => h.Layer.Set).OrderBy(g => g.Key.PositionNumber))
                                 {
@@ -336,7 +336,7 @@ namespace SOSIEL.Algorithm
                         {
                             foreach (IAgent agent in agentGroup)
                             {
-                                foreach (TSite site in agent.Prototype.IsSiteOriented ? orderedSites : notSiteOriented)
+                                foreach (TSite site in agent.Archetype.IsSiteOriented ? orderedSites : notSiteOriented)
                                 {
                                     foreach (var set in agent.AssignedDecisionOptions.GroupBy(r => r.Layer.Set).OrderBy(g => g.Key.PositionNumber))
                                     {
@@ -361,7 +361,7 @@ namespace SOSIEL.Algorithm
                     {
                         foreach (IAgent agent in agentGroup)
                         {
-                            foreach (TSite site in agent.Prototype.IsSiteOriented ? orderedSites : notSiteOriented)
+                            foreach (TSite site in agent.Archetype.IsSiteOriented ? orderedSites : notSiteOriented)
                             {
                                 at.Execute(agent, currentIteration[agent], site);
 

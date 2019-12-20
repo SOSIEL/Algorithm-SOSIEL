@@ -25,7 +25,7 @@ namespace SOSIEL.Processes
 
                 var noConfidenceGoals = importantGoals.Where(kvp => kvp.Value.Confidence == false).ToArray();
 
-                if (noConfidenceGoals.Length > 0 && agent.Prototype.UseImportanceAdjusting)
+                if (noConfidenceGoals.Length > 0 && agent.Archetype.UseImportanceAdjusting)
                 {
                     var noConfidenceProportions = noConfidenceGoals.Select(kvp => new
                     {
