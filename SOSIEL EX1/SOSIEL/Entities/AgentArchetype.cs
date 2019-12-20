@@ -36,6 +36,7 @@ namespace SOSIEL.Entities
         public AgentArchetype()
         {
             CommonVariables = new Dictionary<string, dynamic>();
+            Goals = new List<Goal>();
             MentalModel = new Dictionary<string, MentalModelConfiguration>();
             DecisionOptions = new List<DecisionOption>();
         }
