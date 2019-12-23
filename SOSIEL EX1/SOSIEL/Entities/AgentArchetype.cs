@@ -7,13 +7,13 @@ namespace SOSIEL.Entities
 {
     public class AgentArchetype
     {
-        public string NamePrefix { get; private set; }
+        public string NamePrefix { get; set; }
 
-        public Dictionary<string, dynamic> CommonVariables { get; private set; }
+        public Dictionary<string, dynamic> CommonVariables { get; set; }
 
-        public List<Goal> Goals { get; private set; }
+        public List<Goal> Goals { get; set; }
 
-        public Dictionary<string, MentalModelConfiguration> MentalModel { get; private set; }
+        public Dictionary<string, MentalModelConfiguration> MentalModel { get; set; }
 
         [JsonProperty]
         public List<DecisionOption> DecisionOptions { get; }
