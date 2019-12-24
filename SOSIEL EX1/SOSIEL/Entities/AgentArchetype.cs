@@ -16,7 +16,7 @@ namespace SOSIEL.Entities
         public Dictionary<string, MentalModelConfiguration> MentalModel { get; set; }
 
         [JsonProperty]
-        public List<DecisionOption> DecisionOptions { get; }
+        public List<DecisionOption> DecisionOptions { get; set; }
 
 
         public Dictionary<string, double> DoNothingAnticipatedInfluence { get; private set; }

@@ -50,7 +50,7 @@ namespace SOSIEL.Entities
         {
             get
             {
-                return string.Format("MM{0}_L{1}_DO{2}", Layer.Set.PositionNumber, Layer.PositionNumber, PositionNumber);
+                return string.Format("MM{0}-{1}_DO{2}", Layer.Set.PositionNumber, Layer.PositionNumber, PositionNumber);
             }
         }
 
