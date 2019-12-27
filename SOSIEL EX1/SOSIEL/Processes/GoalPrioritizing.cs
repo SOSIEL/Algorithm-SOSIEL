@@ -117,7 +117,7 @@ namespace SOSIEL.Processes
 
                     var max = Math.Min(diffFocalAndMax, diffFocalAndMin);
 
-                    Math.Abs(goalState.DiffCurrentAndFocal / (goalState.FocalValue - max));
+                    return Math.Abs(goalState.DiffCurrentAndFocal / (goalState.FocalValue - max));
                 }
 
                 throw new SosielAlgorithmException(

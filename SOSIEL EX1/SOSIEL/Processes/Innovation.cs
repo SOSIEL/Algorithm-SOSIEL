@@ -22,7 +22,7 @@ namespace SOSIEL.Processes
         /// <param name="site">The site.</param>
         /// <param name="probabilities">The probabilities.</param>
         /// <exception cref="Exception">Not implemented for AnticipatedDirection == 'stay'</exception>
-        public void Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> lastIteration, Goal goal,
+        public DecisionOption Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> lastIteration, Goal goal,
             DecisionOptionLayer layer, TSite site, Probabilities probabilities)
         {
             Dictionary<IAgent, AgentState<TSite>> currentIteration = lastIteration.Value;
@@ -33,7 +33,7 @@ namespace SOSIEL.Processes
             DecisionOption protDecisionOption = history.Activated.FirstOrDefault(r => r.Layer == layer);
 
             LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> tempNode = lastIteration.Previous;
-
+            
             //if prior period decision option is do nothing then looking for any do something decision option
             while (protDecisionOption == null && tempNode.Previous != null)
             {
@@ -81,13 +81,13 @@ namespace SOSIEL.Processes
                         {
                             if (DecisionOptionLayerConfiguration.ConvertSign(parameters.ConsequentRelationshipSign[goal.Name]) == ConsequentRelationship.Positive)
                             {
-                                if (consequentValue == max) return;
+                                if (consequentValue == max) return null;
 
                                 newConsequent = probabilityTable.GetRandomValue(consequentValue + minStep, max, false);
                             }
                             if (DecisionOptionLayerConfiguration.ConvertSign(parameters.ConsequentRelationshipSign[goal.Name]) == ConsequentRelationship.Negative)
                             {
-                                if (consequentValue == min) return;
+                                if (consequentValue == min) return null;
 
                                 newConsequent = probabilityTable.GetRandomValue(min, consequentValue - minStep, true);
                             }
@@ -98,13 +98,13 @@ namespace SOSIEL.Processes
                         {
                             if (DecisionOptionLayerConfiguration.ConvertSign(parameters.ConsequentRelationshipSign[goal.Name]) == ConsequentRelationship.Positive)
                             {
-                                if (consequentValue == min) return;
+                                if (consequentValue == min) return null;
 
                                 newConsequent = probabilityTable.GetRandomValue(min, consequentValue - minStep, true);
                             }
                             if (DecisionOptionLayerConfiguration.ConvertSign(parameters.ConsequentRelationshipSign[goal.Name]) == ConsequentRelationship.Negative)
                             {
-                                if (consequentValue == max) return;
+                                if (consequentValue == max) return null;
 
                                 newConsequent = probabilityTable.GetRandomValue(consequentValue + minStep, max, false);
                             }
@@ -201,7 +201,8 @@ namespace SOSIEL.Processes
 
 
                 //add the generated decision option to the archetype's mental model and assign one to the agent's mental model 
-                if (agent.Archetype.IsSimilarDecisionOptionExists(newDecisionOption) == false)
+                bool isNewOptionCreated = agent.Archetype.IsSimilarDecisionOptionExists(newDecisionOption) == false;
+                if (isNewOptionCreated)
                 {
                     //add to the archetype and assign to current agent
                     agent.AddDecisionOption(newDecisionOption, layer, proportionalAI);
@@ -218,7 +219,11 @@ namespace SOSIEL.Processes
                 if (layer.Set.Layers.Count > 1)
                     //set consequent to actor's variables for next layers
                     newDecisionOption.Apply(agent);
+
+                return isNewOptionCreated ? newDecisionOption : null;
             }
+
+            return null;
         }
     }
 }

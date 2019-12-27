@@ -7,7 +7,7 @@ using SOSIEL.Processes;
 
 namespace SOSIEL.Algorithm
 {
-    public abstract class SosielAlgorithm<TSite> where TSite : new()
+    public abstract class SosielAlgorithm<TSite> where TSite : ISite, new()
     {
         protected readonly TSite DefaultSite = new TSite();
 
@@ -128,12 +128,20 @@ namespace SOSIEL.Algorithm
         protected virtual void AgentsDeactivation() { }
 
         /// <summary>
-        /// Executed after AgentsDeactivation.
+        /// Executes after AgentsDeactivation.
         /// </summary>
         /// <param name="iteration"></param>
         protected virtual void AfterDeactivation(int iteration) { }
 
+        /// <summary>
+        /// Executes after Innovation.
+        /// </summary>
+        protected virtual void AfterInnovation(IAgent agent, TSite site, DecisionOption newDecisionOption) { }
 
+        protected virtual TSite[] FilterManagementSites(IAgent agent, TSite[] orderedSites)
+        {
+            return orderedSites;
+        }
 
         /// <summary>
         /// Executes reproduction logic.
@@ -200,7 +208,7 @@ namespace SOSIEL.Algorithm
                 {
                     demographic.ChangeDemographic(iterationCounter, currentIteration, agentList);
                 }
-                
+
                 TSite[] orderedSites = activeSites.Randomize().ToArray();
 
                 TSite[] notSiteOriented = new TSite[] { DefaultSite };
@@ -239,7 +247,7 @@ namespace SOSIEL.Algorithm
                             {
                                 if (rankedGoals[agent].Any(g => currentIteration[agent].GoalsState.Any(kvp => kvp.Value.Confidence == false)))
                                 {
-                                    foreach (TSite site in agent.Archetype.IsSiteOriented ? orderedSites : notSiteOriented)
+                                    foreach (TSite site in GetSites(agent, orderedSites, notSiteOriented))
                                     {
                                         BeforeCounterfactualThinking(agent, site);
 
@@ -271,7 +279,11 @@ namespace SOSIEL.Algorithm
                                                         {
                                                             //innovation process
                                                             if (CTResult == false || matchedDecisionOptions.Length < 2)
-                                                                innovation.Execute(agent, iterations.Last, selectedGoal, layer.Key, site, probabilities);
+                                                            {
+                                                                DecisionOption decisionOption = innovation.Execute(agent, iterations.Last, selectedGoal, layer.Key, site, probabilities);
+
+                                                                AfterInnovation(agent, site, decisionOption);
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -312,7 +324,7 @@ namespace SOSIEL.Algorithm
                     {
                         foreach (IAgent agent in agentGroup)
                         {
-                            foreach (TSite site in agent.Archetype.IsSiteOriented ? orderedSites : notSiteOriented)
+                            foreach (TSite site in GetSites(agent, orderedSites, notSiteOriented))
                             {
                                 foreach (var set in agent.AssignedDecisionOptions.GroupBy(h => h.Layer.Set).OrderBy(g => g.Key.PositionNumber))
                                 {
@@ -336,7 +348,7 @@ namespace SOSIEL.Algorithm
                         {
                             foreach (IAgent agent in agentGroup)
                             {
-                                foreach (TSite site in agent.Archetype.IsSiteOriented ? orderedSites : notSiteOriented)
+                                foreach (TSite site in GetSites(agent, orderedSites, notSiteOriented))
                                 {
                                     foreach (var set in agent.AssignedDecisionOptions.GroupBy(r => r.Layer.Set).OrderBy(g => g.Key.PositionNumber))
                                     {
@@ -361,7 +373,7 @@ namespace SOSIEL.Algorithm
                     {
                         foreach (IAgent agent in agentGroup)
                         {
-                            foreach (TSite site in agent.Archetype.IsSiteOriented ? orderedSites : notSiteOriented)
+                            foreach (TSite site in GetSites(agent, orderedSites, notSiteOriented))
                             {
                                 at.Execute(agent, currentIteration[agent], site);
 
@@ -400,6 +412,11 @@ namespace SOSIEL.Algorithm
 
                 Maintenance();
             }
+        }
+
+        private TSite[] GetSites(IAgent agent, TSite[] orderedSites, TSite[] notSiteOriented)
+        {
+            return agent.Archetype.IsSiteOriented ? FilterManagementSites(agent, orderedSites) : notSiteOriented;
         }
     }
 }
