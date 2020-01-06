@@ -61,8 +61,8 @@ namespace SOSIEL.Processes
                 GoalState selectedGoalState = lastIteration.Value[agent].GoalsState[selectedGoal];
 
                 #region Generating consequent
-                int min = parameters.MinValue(agent);
-                int max = parameters.MaxValue(agent);
+                double min = parameters.MinValue(agent);
+                double max = parameters.MaxValue(agent);
 
                 double consequentValue = string.IsNullOrEmpty(protDecisionOption.Consequent.VariableValue)
                     ? protDecisionOption.Consequent.Value
