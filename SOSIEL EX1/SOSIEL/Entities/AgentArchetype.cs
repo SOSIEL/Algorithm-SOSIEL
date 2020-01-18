@@ -29,7 +29,7 @@ namespace SOSIEL.Entities
             get { return mentalProto == null ? TransformDOToMentalModel() : mentalProto; }
         }
 
-        public bool IsSiteOriented { get; set; }
+        public bool IsDataSetOriented { get; set; }
 
         public bool UseImportanceAdjusting { get; set; }
 

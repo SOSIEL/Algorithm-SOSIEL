@@ -37,7 +37,7 @@ namespace SOSIEL_EX1
 
         public void GenerateCustomParams()
         {
-            
+
         }
 
         /// <summary>
@@ -86,8 +86,8 @@ namespace SOSIEL_EX1
                         importance = Math.Round(1 - anotherGoalImportance, 2);
                     }
                 }
-
-                GoalState goalState = new GoalState(configuration.Value, goal.FocalValue, importance);
+                //todo Review initialization
+                GoalState goalState = new GoalState(agent, configuration.Value, goal.FocalValue, importance, 0, 0, null, null);
 
                 agent.InitialGoalStates.Add(goal, goalState);
 

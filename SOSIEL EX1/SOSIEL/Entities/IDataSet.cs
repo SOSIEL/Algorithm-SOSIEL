@@ -1,6 +1,6 @@
 ﻿namespace SOSIEL.Entities
 {
-    public interface ISite
+    public interface IDataSet
     {
         string Name { get; }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Entities;
+using SOSIEL.Enums;
 using SOSIEL.Exceptions;
 using SOSIEL.Helpers;
 
@@ -29,11 +30,9 @@ namespace SOSIEL.Processes
                 {
                     var noConfidenceProportions = noConfidenceGoals.Select(kvp => new
                     {
-                        Proportion = kvp.Value.Importance *
-                                         (1 + CalculateRelativedDifference(agent, kvp.Key, kvp.Value)),
+                        Proportion = kvp.Value.Importance * CalculateRelativedDifference(agent, kvp.Key, kvp.Value),
                         Goal = kvp.Key
-                    })
-                        .ToArray();
+                    }).ToArray();
 
                     var confidenceGoals = goals.Where(kvp => kvp.Value.Confidence).ToArray();
 
@@ -41,13 +40,13 @@ namespace SOSIEL.Processes
 
                     double totalNoConfidenceAdjustedProportions = noConfidenceProportions.Sum(p => p.Proportion);
 
+                    var importanceSum = totalConfidenceUnadjustedProportions + totalNoConfidenceAdjustedProportions;
+
                     var confidenceProportions = confidenceGoals.Select(kvp => new
                     {
-                        Proportion = kvp.Value.Importance * (1 - totalNoConfidenceAdjustedProportions) /
-                                         totalConfidenceUnadjustedProportions,
+                        Proportion = kvp.Value.AdjustedImportance / importanceSum,
                         Goal = kvp.Key
-                    })
-                        .ToArray();
+                    }).ToArray();
 
                     Enumerable.Concat(noConfidenceProportions, confidenceProportions)
                         .ForEach(p =>
@@ -75,70 +74,59 @@ namespace SOSIEL.Processes
         /// <returns></returns>
         double CalculateRelativedDifference(IAgent agent, Goal goal, GoalState goalState)
         {
-            //DecisionOptionLayerConfiguration layerConfiguration = agent.AssignedDecisionOptions
-            //    .Where(kh => kh.Consequent.Param == goal.ReferenceVariable &&
-            //                 (kh.Layer.LayerConfiguration.ConsequentValueInterval != null &&
-            //                  kh.Layer.LayerConfiguration.ConsequentValueInterval.Length == 2))
-            //    .Select(kh => kh.Layer.LayerConfiguration)
-            //    .FirstOrDefault();
+            double goalValue = goalState.Value;
 
-            //if (layerConfiguration != null)
-            //{
-            if (goal.Tendency == "Maximize" || goal.Tendency == "Minimize")
+            if (goal.Tendency == GoalTendency.Maximize)
             {
-                var decisionOptions = agent.AssignedDecisionOptions
-                    .Where(kh => kh.Consequent.Param == goal.ReferenceVariable).ToList();
+                double focalValue = goalState.PriorValue;
+                double maxGoalValue = goalState.GetMaxGoalValue();
 
-                double maxGoalValue = 0;
+                if ((maxGoalValue - focalValue) == 0
+                    || ((maxGoalValue - goalValue) / (maxGoalValue - focalValue)) < 0)
+                    return 1d;
 
-                if (decisionOptions.Any())
-                {
-                    maxGoalValue = decisionOptions
-                        .Select(kh => string.IsNullOrEmpty(kh.Consequent.VariableValue)
-                            ? (double)kh.Consequent.Value
-                            : (double)agent[kh.Consequent.VariableValue])
-                        .Max();
-                }
-                else
-                {
-                    maxGoalValue = string.IsNullOrEmpty(goal.MaxGoalReferenceVariable)
-                        ? goal.MaxGoalValue
-                        : (double)agent[goal.MaxGoalReferenceVariable];
-                }
-                
-                return Math.Abs(goalState.DiffCurrentAndFocal / (goalState.FocalValue - maxGoalValue));
+                double adjustment = (maxGoalValue - goalValue) / (maxGoalValue - focalValue);
+                return adjustment;
             }
 
-            if (goal.Tendency == "EqualToOrAboveFocalValue")
+            if (goal.Tendency == GoalTendency.EqualToOrAboveFocalValue)
             {
-                var minGoalValue = 0;
+                double focalValue = goalState.FocalValue;
+                double maxGoalValue = goalState.GetMaxGoalValue();
 
-                return Math.Abs(goalState.DiffCurrentAndFocal / (goalState.FocalValue - minGoalValue));
+                if ((maxGoalValue - focalValue) == 0
+                    || ((maxGoalValue - goalValue) / (maxGoalValue - focalValue)) < 0)
+                    return 1;
+
+                double adjustment = (maxGoalValue - goalValue) / (maxGoalValue - focalValue);
+                return adjustment;
             }
 
-            if (goal.Tendency == "MaintainAtValue")
+            if (goal.Tendency == GoalTendency.Minimize)
             {
-                var minGoalValue = string.IsNullOrEmpty(goal.MinGoalReferenceVariable)
-                    ? goal.MinGoalValue
-                    : agent[goal.MinGoalReferenceVariable];
-                var maxGoalValue = string.IsNullOrEmpty(goal.MaxGoalReferenceVariable)
-                    ? goal.MaxGoalValue
-                    : agent[goal.MaxGoalReferenceVariable];
+                double focalValue = goalState.PriorValue;
+                double minGoalValue = goalState.GetMinGoalValue();
 
-                var diffFocalAndMin = goalState.FocalValue - minGoalValue;
-                var diffFocalAndMax = goalState.FocalValue - maxGoalValue;
+                if ((focalValue - minGoalValue) == 0
+                    || ((goalValue - minGoalValue) / (focalValue - minGoalValue)) < 0)
+                    return 1;
 
-                var max = Math.Min(diffFocalAndMax, diffFocalAndMin);
+                double adjustment = (goalValue - minGoalValue) / (focalValue - minGoalValue);
+                return adjustment;
+            }
 
-                return Math.Abs(goalState.DiffCurrentAndFocal / (goalState.FocalValue - max));
+            if (goal.Tendency == GoalTendency.MaintainAtValue)
+            {
+                if (Math.Abs(goalState.DiffPriorAndFocal) == 0)
+                    return 1;
+
+                double adjustment = Math.Abs(goalState.DiffCurrentAndFocal) / Math.Abs(goalState.DiffPriorAndFocal);
+                return adjustment;
             }
 
             throw new SosielAlgorithmException(
                 "Cannot calculate relative difference between goal value and focal goal value for tendency" +
                 goal.Tendency);
-            //}
-
-            //throw new SosielAlgorithmException("Please fill out section layer configuration");
         }
     }
 }

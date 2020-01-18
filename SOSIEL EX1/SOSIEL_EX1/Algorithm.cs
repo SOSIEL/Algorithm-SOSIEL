@@ -51,7 +51,7 @@ namespace SOSIEL_EX1
 
             Initialize(model);
 
-            var sites = new Site[] { DefaultSite };
+            var sites = new Site[] { DefaultDataSet };
 
             Enumerable.Range(1, _configuration.AlgorithmConfiguration.NumberOfIterations).ForEach(iteration =>
             {
@@ -198,7 +198,7 @@ namespace SOSIEL_EX1
             agentList.Agents.ForEach(agent =>
             {
                 //creates empty agent state
-                AgentState<Site> agentState = AgentState<Site>.Create(agent.Archetype.IsSiteOriented);
+                AgentState<Site> agentState = AgentState<Site>.Create(agent.Archetype.IsDataSetOriented);
 
                 //copy generated goal importance
                 agent.InitialGoalStates.ForEach(kvp =>
@@ -291,7 +291,7 @@ namespace SOSIEL_EX1
                     Expenses = agent[AlgorithmVariables.AgentExpenses],
                     Savings = agent[AlgorithmVariables.HouseholdSavings],
                     NumberOfDO = agent.AssignedDecisionOptions.Count,
-                    ChosenDecisionOption = agentState != null ? string.Join("|", agentState.DecisionOptionsHistories[DefaultSite].Activated.Select(opt => opt.Id)) : string.Empty
+                    ChosenDecisionOption = agentState != null ? string.Join("|", agentState.DecisionOptionsHistories[DefaultDataSet].Activated.Select(opt => opt.Id)) : string.Empty
                 };
 
                 CSVHelper.AppendTo(_outputFolder + string.Format(AgentDetailsOutput.FileName, agent.Id), details);

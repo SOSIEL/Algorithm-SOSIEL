@@ -4,36 +4,36 @@ using SOSIEL.Helpers;
 
 namespace SOSIEL.Entities
 {
-    public sealed class AgentState<TSite>
+    public sealed class AgentState<TDataSet>
     {
         public Dictionary<Goal, GoalState> GoalsState { get; private set; }
 
-        public Dictionary<TSite, DecisionOptionsHistory> DecisionOptionsHistories { get; private set; }
+        public Dictionary<TDataSet, DecisionOptionsHistory> DecisionOptionsHistories { get; private set; }
 
-        public Dictionary<TSite, List<TakenAction>> TakenActions { get; private set; }
+        public Dictionary<TDataSet, List<TakenAction>> TakenActions { get; private set; }
 
 
-        public bool IsSiteOriented { get; private set; }
+        public bool IsDataSetOriented { get; private set; }
 
 
         private AgentState()
         {
             GoalsState = new Dictionary<Goal, GoalState>();
 
-            DecisionOptionsHistories = new Dictionary<TSite, DecisionOptionsHistory>();
+            DecisionOptionsHistories = new Dictionary<TDataSet, DecisionOptionsHistory>();
 
-            TakenActions = new Dictionary<TSite, List<TakenAction>>();
+            TakenActions = new Dictionary<TDataSet, List<TakenAction>>();
         }
 
 
         /// <summary>
         /// Creates empty agent state
         /// </summary>
-        /// <param name="isSiteOriented"></param>
+        /// <param name="isDataSetOriented"></param>
         /// <returns></returns>
-        public static AgentState<TSite> Create(bool isSiteOriented)
+        public static AgentState<TDataSet> Create(bool isDataSetOriented)
         {
-            return new AgentState<TSite> { IsSiteOriented = isSiteOriented };
+            return new AgentState<TDataSet> { IsDataSetOriented = isDataSetOriented };
         }
 
 
@@ -44,9 +44,9 @@ namespace SOSIEL.Entities
         /// <param name="defaultSite"></param>
         /// <param name="history"></param>
         /// <returns></returns>
-        public static AgentState<TSite> CreateWithoutSite(TSite defaultSite, DecisionOptionsHistory history)
+        public static AgentState<TDataSet> CreateWithoutSite(TDataSet defaultSite, DecisionOptionsHistory history)
         {
-            AgentState<TSite> state = Create(false);
+            AgentState<TDataSet> state = Create(false);
 
             state.DecisionOptionsHistories.Add(defaultSite, history); 
 
@@ -56,14 +56,14 @@ namespace SOSIEL.Entities
         /// <summary>
         /// Creates agent state with decision option histories related to sites.
         /// </summary>
-        /// <param name="isSiteOriented"></param>
+        /// <param name="isDataSetOriented"></param>
         /// <param name="history"></param>
         /// <returns></returns>
-        public static AgentState<TSite> Create(bool isSiteOriented, Dictionary<TSite, DecisionOptionsHistory> history)
+        public static AgentState<TDataSet> Create(bool isDataSetOriented, Dictionary<TDataSet, DecisionOptionsHistory> history)
         {
-            AgentState<TSite> state = Create(isSiteOriented);
+            AgentState<TDataSet> state = Create(isDataSetOriented);
 
-            state.DecisionOptionsHistories = new Dictionary<TSite, DecisionOptionsHistory>(history);
+            state.DecisionOptionsHistories = new Dictionary<TDataSet, DecisionOptionsHistory>(history);
 
             return state;
         }
@@ -74,7 +74,7 @@ namespace SOSIEL.Entities
         /// </summary>
         /// <param name="defaultSite">The default site.</param>
         /// <param name="history">The history.</param>
-        public void AddDecisionOptionsHistory(TSite defaultSite, DecisionOptionsHistory history)
+        public void AddDecisionOptionsHistory(TDataSet defaultSite, DecisionOptionsHistory history)
         {
             DecisionOptionsHistories.Add(defaultSite, history);
         }
@@ -85,7 +85,7 @@ namespace SOSIEL.Entities
         /// </summary>
         /// <param name="history"></param>
         /// <param name="site"></param>
-        public void AddDecisionOptionsHistory(DecisionOptionsHistory history, TSite site)
+        public void AddDecisionOptionsHistory(DecisionOptionsHistory history, TDataSet site)
         {
             DecisionOptionsHistories.Add(site, history);
         }
@@ -94,9 +94,9 @@ namespace SOSIEL.Entities
         /// Creates new instance of agent site with copied anticipation influence and goals state from current state
         /// </summary>
         /// <returns></returns>
-        public AgentState<TSite> CreateForNextIteration()
+        public AgentState<TDataSet> CreateForNextIteration()
         {
-            AgentState<TSite> agentState = Create(IsSiteOriented);
+            AgentState<TDataSet> agentState = Create(IsDataSetOriented);
 
             GoalsState.ForEach(kvp =>
             {
@@ -112,14 +112,14 @@ namespace SOSIEL.Entities
         }
 
 
-        public AgentState<TSite> CreateChildCopy()
+        public AgentState<TDataSet> CreateChildCopy(IAgent agent)
         {
-            var copy = Create(IsSiteOriented);
+            var copy = Create(IsDataSetOriented);
 
             foreach (var state in GoalsState)
             {
                 var value = state.Value;
-                copy.GoalsState.Add(state.Key, new GoalState(0, value.FocalValue, value.Importance));
+                copy.GoalsState.Add(state.Key, new GoalState(agent,0, value.FocalValue, value.Importance, value.MinGoalValueStatic, value.MaxGoalValueStatic, value.MinGoalValueReference, value.MaxGoalValueReference));
             }
 
             foreach (var decisionOptionsHistory in DecisionOptionsHistories)

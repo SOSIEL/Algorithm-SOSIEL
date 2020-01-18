@@ -62,53 +62,55 @@ namespace SOSIEL.Processes
 
         protected override void MaintainAtValue()
         {
-            DecisionOption[] decisionOptions = new DecisionOption[0];
+            throw new NotImplementedException("MaintainAtValue is not implemented in CounterfactualThinking");
 
-            var previousMatchedDOAI = anticipatedInfluences.Where(kvp => matchedDecisionOptions.Contains(kvp.Key)).ToArray();
+            //DecisionOption[] decisionOptions = new DecisionOption[0];
 
-            if (selectedGoalState.AnticipatedDirection == AnticipatedDirection.Up)
-            {
-                if (selectedGoalState.DiffPriorAndFocal <= 0)
-                {
-                    decisionOptions = previousMatchedDOAI
-                        .Where(kvp => kvp.Value[selectedGoal] >= selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
-                }
-                else
-                {
-                    decisionOptions = previousMatchedDOAI
-                        .Where(kvp => kvp.Value[selectedGoal] < selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
-                }
-            }
+            //var previousMatchedDOAI = anticipatedInfluences.Where(kvp => matchedDecisionOptions.Contains(kvp.Key)).ToArray();
 
-            if (selectedGoalState.AnticipatedDirection == AnticipatedDirection.Down)
-            {
-                if (selectedGoalState.DiffPriorAndFocal <= 0)
-                {
-                    decisionOptions = previousMatchedDOAI
-                        .Where(kvp => kvp.Value[selectedGoal] < selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
-                }
-                else
-                {
-                    decisionOptions = previousMatchedDOAI
-                        .Where(kvp => kvp.Value[selectedGoal] > selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
-                }
-            }
+            //if (selectedGoalState.AnticipatedDirection == AnticipatedDirection.Up)
+            //{
+            //    if (selectedGoalState.DiffPriorAndFocal <= 0)
+            //    {
+            //        decisionOptions = previousMatchedDOAI
+            //            .Where(kvp => kvp.Value[selectedGoal] >= selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
+            //    }
+            //    else
+            //    {
+            //        decisionOptions = previousMatchedDOAI
+            //            .Where(kvp => kvp.Value[selectedGoal] < selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
+            //    }
+            //}
 
-            if (decisionOptions.Length == 0)
-            {
-                selectedGoalState.Confidence = false;
-            }
-            else
-            {
-                if (decisionOptions.Length == 1 && decisionOptions[0] == activatedDecisionOption)
-                {
-                    selectedGoalState.Confidence = false;
-                }
-                else
-                {
-                    selectedGoalState.Confidence = true;
-                }
-            }
+            //if (selectedGoalState.AnticipatedDirection == AnticipatedDirection.Down)
+            //{
+            //    if (selectedGoalState.DiffPriorAndFocal <= 0)
+            //    {
+            //        decisionOptions = previousMatchedDOAI
+            //            .Where(kvp => kvp.Value[selectedGoal] < selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
+            //    }
+            //    else
+            //    {
+            //        decisionOptions = previousMatchedDOAI
+            //            .Where(kvp => kvp.Value[selectedGoal] > selectedGoalState.AnticipatedInfluenceValue).Select(kvp => kvp.Key).ToArray();
+            //    }
+            //}
+
+            //if (decisionOptions.Length == 0)
+            //{
+            //    selectedGoalState.Confidence = false;
+            //}
+            //else
+            //{
+            //    if (decisionOptions.Length == 1 && decisionOptions[0] == activatedDecisionOption)
+            //    {
+            //        selectedGoalState.Confidence = false;
+            //    }
+            //    else
+            //    {
+            //        selectedGoalState.Confidence = true;
+            //    }
+            //}
         }
 
         #endregion
