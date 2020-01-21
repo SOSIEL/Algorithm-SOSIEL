@@ -19,7 +19,6 @@ namespace SOSIEL.Algorithm
         protected bool algorithmStoppage = false;
         protected AgentList agentList;
         protected LinkedList<Dictionary<IAgent, AgentState<TDataSet>>> iterations = new LinkedList<Dictionary<IAgent, AgentState<TDataSet>>>();
-        protected Dictionary<IAgent, Goal[]> rankedGoals;
 
         protected Probabilities probabilities = new Probabilities();
 
@@ -190,18 +189,16 @@ namespace SOSIEL.Algorithm
 
                 Dictionary<IAgent, AgentState<TDataSet>> priorIteration = iterations.Last.Previous?.Value;
 
-                rankedGoals = new Dictionary<IAgent, Goal[]>(agentList.Agents.Count);
-
                 IAgent[] orderedAgents = agentList.ActiveAgents.Randomize(processConfiguration.AgentRandomizationEnabled).ToArray();
 
                 var agentGroups = orderedAgents.GroupBy(a => a.Archetype.NamePrefix).OrderBy(group => group.Key).ToArray();
 
                 orderedAgents.ForEach(a =>
                 {
-                    rankedGoals.Add(a, a.AssignedGoals.ToArray());
-
                     if (iterationCounter > 1)
                         currentIteration.Add(a, priorIteration[a].CreateForNextIteration());
+
+                    currentIteration[a].RankedGoals = a.AssignedGoals.ToArray();
                 });
 
                 if (processConfiguration.UseDemographicProcesses && iterationCounter > 1)
@@ -219,8 +216,7 @@ namespace SOSIEL.Algorithm
                     {
                         foreach (IAgent agent in agentGroup)
                         {
-                            rankedGoals[agent] = gs.SortByImportance(agent, currentIteration[agent].GoalsState)
-                                .ToArray();
+                            currentIteration[agent].RankedGoals = gs.SortByImportance(agent, currentIteration[agent].GoalsState).ToArray();
                         }
                     }
                 }
@@ -241,11 +237,11 @@ namespace SOSIEL.Algorithm
                             gp.Prioritize(agent, agentGoalState);
 
                             //goal selecting
-                            rankedGoals[agent] = gs.SortByImportance(agent, agentGoalState).ToArray();
+                            currentIteration[agent].RankedGoals = gs.SortByImportance(agent, agentGoalState).ToArray();
 
                             if (processConfiguration.CounterfactualThinkingEnabled)
                             {
-                                if (rankedGoals[agent].Any(g => currentIteration[agent].GoalsState.Any(kvp => kvp.Value.Confidence == false)))
+                                if (currentIteration[agent].RankedGoals.Any(g => currentIteration[agent].GoalsState.Any(kvp => kvp.Value.Confidence == false)))
                                 {
                                     foreach (TDataSet dataSet in GetDataSets(agent, orderedDataSets, notDataSetOriented))
                                     {
@@ -254,7 +250,7 @@ namespace SOSIEL.Algorithm
                                         foreach (var set in agent.AssignedDecisionOptions.GroupBy(h => h.Layer.Set).OrderBy(g => g.Key.PositionNumber))
                                         {
                                             //optimization
-                                            Goal selectedGoal = rankedGoals[agent].First(g => set.Key.AssociatedWith.Contains(g));
+                                            Goal selectedGoal = currentIteration[agent].RankedGoals.First(g => set.Key.AssociatedWith.Contains(g));
 
                                             GoalState selectedGoalState = currentIteration[agent].GoalsState[selectedGoal];
 
@@ -333,7 +329,7 @@ namespace SOSIEL.Algorithm
                                         BeforeActionSelection(agent, dataSet);
 
                                         //satisficing
-                                        satisficing.ExecutePartI(agent, iterations.Last, rankedGoals, layer.ToArray(), dataSet);
+                                        satisficing.ExecutePartI(agent, iterations.Last, currentIteration[agent].RankedGoals, layer.ToArray(), dataSet);
                                     }
                                 }
                             }
@@ -357,7 +353,7 @@ namespace SOSIEL.Algorithm
                                             BeforeActionSelection(agent, dataSet);
 
                                             //action selection process part II
-                                            satisficing.ExecutePartII(agent, iterations.Last, rankedGoals, layer.ToArray(), dataSet);
+                                            satisficing.ExecutePartII(agent, iterations.Last, currentIteration[agent].RankedGoals, layer.ToArray(), dataSet);
                                         }
                                     }
                                 }

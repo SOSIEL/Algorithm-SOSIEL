@@ -99,7 +99,7 @@ namespace SOSIEL.Processes
         /// <param name="rankedGoals"></param>
         /// <param name="processedDecisionOptions"></param>
         /// <param name="dataSet"></param>
-        public void ExecutePartI(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> lastIteration, Dictionary<IAgent, Goal[]> rankedGoals, DecisionOption[] processedDecisionOptions, TDataSet dataSet)
+        public void ExecutePartI(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> lastIteration, Goal[] rankedGoals, DecisionOption[] processedDecisionOptions, TDataSet dataSet)
         {
             decisionOptionForActivating = null;
 
@@ -112,7 +112,7 @@ namespace SOSIEL.Processes
 
             DecisionOptionsHistory history = agentState.DecisionOptionsHistories[dataSet];
 
-            processedGoal = rankedGoals[agent].First(g => processedDecisionOptions.First().Layer.Set.AssociatedWith.Contains(g));
+            processedGoal = rankedGoals.First(g => processedDecisionOptions.First().Layer.Set.AssociatedWith.Contains(g));
             goalState = agentState.GoalsState[processedGoal];
 
             matchedDecisionOptions = processedDecisionOptions.Except(history.Blocked).Where(h => h.IsMatch(agent)).ToArray();
@@ -178,7 +178,7 @@ namespace SOSIEL.Processes
         /// <param name="rankedGoals"></param>
         /// <param name="processedDecisionOptions"></param>
         /// <param name="dataSet"></param>
-        public void ExecutePartII(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> lastIteration, Dictionary<IAgent, Goal[]> rankedGoals, DecisionOption[] processedDecisionOptions, TDataSet dataSet)
+        public void ExecutePartII(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> lastIteration, Goal[] rankedGoals, DecisionOption[] processedDecisionOptions, TDataSet dataSet)
         {
             AgentState<TDataSet> agentState = lastIteration.Value[agent];
 

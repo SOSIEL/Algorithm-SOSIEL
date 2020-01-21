@@ -12,6 +12,7 @@ namespace SOSIEL.Entities
 
         public Dictionary<TDataSet, List<TakenAction>> TakenActions { get; private set; }
 
+        public Goal[] RankedGoals { get; set; }
 
         public bool IsDataSetOriented { get; private set; }
 
@@ -23,6 +24,8 @@ namespace SOSIEL.Entities
             DecisionOptionsHistories = new Dictionary<TDataSet, DecisionOptionsHistory>();
 
             TakenActions = new Dictionary<TDataSet, List<TakenAction>>();
+
+            RankedGoals = new Goal[0];
         }
 
 
