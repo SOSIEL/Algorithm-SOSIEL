@@ -1,4 +1,16 @@
-﻿using System;
+﻿// Innovating follows: (a) counterfactual thinking, when counterfactual thinking is
+// unsuccessful in reinstating confidence by finding a potentially better decision
+// option from the existing set of options; and (b) satisficing, when satisficing is
+// unsuccessful in finding a decision option that matches current conditions. This process
+// of innovating involves an agent using the information learned during anticipatory learning
+// and the prior period’s decision to create a new decision option that includes the same
+// antecedent(s), a new experience-based consequent, and a consequent-aligned set of new
+// anticipated influences. A new experience-based consequent is generated using a generalized
+// probability table that displays a power-law distribution. Once a new decision option is
+// created, it is introduced into the respective mental (sub)model and made available for
+// decision-making. The result of innovating is a new decision option.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Entities;
