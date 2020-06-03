@@ -153,7 +153,8 @@ namespace SOSIEL.Entities
                 || (other != null 
                 && Consequent == other.Consequent
                 && Antecedent.Length == other.Antecedent.Length 
-                && Antecedent.All(ant => other.Antecedent.Any(ant2 => ant == ant2)));
+                && Antecedent.All(ant => other.Antecedent.Any(ant2 => ant == ant2))
+                && Id == other.Id);
         }
 
         public override bool Equals(object obj)
