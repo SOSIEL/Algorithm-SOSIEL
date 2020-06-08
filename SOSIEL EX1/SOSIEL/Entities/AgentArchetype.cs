@@ -5,18 +5,18 @@ using SOSIEL.Exceptions;
 
 namespace SOSIEL.Entities
 {
-    public class AgentPrototype
+    public class AgentArchetype
     {
-        public string NamePrefix { get; private set; }
+        public string NamePrefix { get; set; }
 
-        public Dictionary<string, dynamic> CommonVariables { get; private set; }
+        public Dictionary<string, dynamic> CommonVariables { get; set; }
 
-        public List<Goal> Goals { get; private set; }
+        public List<Goal> Goals { get; set; }
 
-        public Dictionary<string, MentalModelConfiguration> MentalModel { get; private set; }
+        public Dictionary<string, MentalModelConfiguration> MentalModel { get; set; }
 
         [JsonProperty]
-        public List<DecisionOption> DecisionOptions { get; }
+        public List<DecisionOption> DecisionOptions { get; set; }
 
 
         public Dictionary<string, double> DoNothingAnticipatedInfluence { get; private set; }
@@ -29,13 +29,14 @@ namespace SOSIEL.Entities
             get { return mentalProto == null ? TransformDOToMentalModel() : mentalProto; }
         }
 
-        public bool IsSiteOriented { get; set; }
+        public bool IsDataSetOriented { get; set; }
 
         public bool UseImportanceAdjusting { get; set; }
 
-        public AgentPrototype()
+        public AgentArchetype()
         {
             CommonVariables = new Dictionary<string, dynamic>();
+            Goals = new List<Goal>();
             MentalModel = new Dictionary<string, MentalModelConfiguration>();
             DecisionOptions = new List<DecisionOption>();
         }
@@ -73,7 +74,7 @@ namespace SOSIEL.Entities
 
 
         /// <summary>
-        /// Adds decision option to mental model of current prototype if it isn't exists in the scope.
+        /// Adds decision option to mental model of current archetype if it isn't exists in the scope.
         /// </summary>
         /// <param name="newDecisionOption"></param>
         /// <param name="layer"></param>

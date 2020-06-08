@@ -1,10 +1,13 @@
 ﻿using System;
+using System.ComponentModel;
 using SOSIEL.Enums;
 
 namespace SOSIEL.Entities
 {
-    public class Site : IEquatable<Site>
+    public class Site : IEquatable<Site>, IDataSet
     {
+        public string Name { get; set; }
+
         public SiteType Type { get; set; }
 
         public int HorizontalPosition { get; set; }

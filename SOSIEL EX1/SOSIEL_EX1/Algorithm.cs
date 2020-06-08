@@ -51,7 +51,7 @@ namespace SOSIEL_EX1
 
             Initialize(model);
 
-            var sites = new Site[] { DefaultSite };
+            var sites = new Site[] { DefaultDataSet };
 
             Enumerable.Range(1, _configuration.AlgorithmConfiguration.NumberOfIterations).ForEach(iteration =>
             {
@@ -94,11 +94,11 @@ namespace SOSIEL_EX1
         {
             var agents = new List<IAgent>();
 
-            Dictionary<string, AgentPrototype> agentPrototypes = _configuration.AgentConfiguration;
+            Dictionary<string, AgentArchetype> agentArchetypes = _configuration.AgentConfiguration;
 
-            if (agentPrototypes.Count == 0)
+            if (agentArchetypes.Count == 0)
             {
-                throw new SosielAlgorithmException("Agent prototypes were not defined. See configuration file");
+                throw new SosielAlgorithmException("Agent archetypes were not defined. See configuration file");
             }
 
             InitialStateConfiguration initialState = _configuration.InitialState;
@@ -106,17 +106,17 @@ namespace SOSIEL_EX1
             var networks = new Dictionary<string, List<SOSIEL.Entities.Agent>>();
 
             //create agents, groupby is used for saving agents numeration, e.g. FE1, HM1. HM2 etc
-            initialState.AgentsState.GroupBy(state => state.PrototypeOfAgent).ForEach((agentStateGroup) =>
+            initialState.AgentsState.GroupBy(state => state.ArchetypeOfAgent).ForEach((agentStateGroup) =>
             {
-                AgentPrototype prototype = agentPrototypes[agentStateGroup.Key];
-                var mentalProto = prototype.MentalProto;
+                AgentArchetype archetype = agentArchetypes[agentStateGroup.Key];
+                var mentalProto = archetype.MentalProto;
                 int index = 1;
 
                 agentStateGroup.ForEach((agentState) =>
                 {
                     for (int i = 0; i < agentState.NumberOfAgents; i++)
                     {
-                        SOSIEL.Entities.Agent agent = Agent.CreateAgent(agentState, prototype);
+                        SOSIEL.Entities.Agent agent = Agent.CreateAgent(agentState, archetype);
                         agent.SetId(index);
 
                         agents.Add(agent);
@@ -155,7 +155,7 @@ namespace SOSIEL_EX1
             });
 
 
-            agentList = new AgentList(agents, agentPrototypes.Select(kvp => kvp.Value).ToList());
+            agentList = new AgentList(agents, agentArchetypes.Select(kvp => kvp.Value).ToList());
         }
 
         private void InitializeProbabilities()
@@ -198,7 +198,7 @@ namespace SOSIEL_EX1
             agentList.Agents.ForEach(agent =>
             {
                 //creates empty agent state
-                AgentState<Site> agentState = AgentState<Site>.Create(agent.Prototype.IsSiteOriented);
+                AgentState<Site> agentState = AgentState<Site>.Create(agent.Archetype.IsDataSetOriented);
 
                 //copy generated goal importance
                 agent.InitialGoalStates.ForEach(kvp =>
@@ -219,7 +219,7 @@ namespace SOSIEL_EX1
         {
             base.Maintenance();
 
-            var hmAgents = agentList.Agents.Where(a => a.Prototype.NamePrefix == "HM");
+            var hmAgents = agentList.Agents.Where(a => a.Archetype.NamePrefix == "HM");
 
             hmAgents.ForEach(agent =>
             {
@@ -291,7 +291,7 @@ namespace SOSIEL_EX1
                     Expenses = agent[AlgorithmVariables.AgentExpenses],
                     Savings = agent[AlgorithmVariables.HouseholdSavings],
                     NumberOfDO = agent.AssignedDecisionOptions.Count,
-                    ChosenDecisionOption = agentState != null ? string.Join("|", agentState.DecisionOptionsHistories[DefaultSite].Activated.Select(opt => opt.Id)) : string.Empty
+                    ChosenDecisionOption = agentState != null ? string.Join("|", agentState.DecisionOptionsHistories[DefaultDataSet].Activated.Select(opt => opt.Id)) : string.Empty
                 };
 
                 CSVHelper.AppendTo(_outputFolder + string.Format(AgentDetailsOutput.FileName, agent.Id), details);

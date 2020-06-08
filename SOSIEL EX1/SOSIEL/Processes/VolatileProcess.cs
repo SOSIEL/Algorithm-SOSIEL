@@ -1,4 +1,5 @@
 ﻿using System;
+using SOSIEL.Enums;
 
 namespace SOSIEL.Processes
 {
@@ -7,29 +8,28 @@ namespace SOSIEL.Processes
         protected abstract void EqualToOrAboveFocalValue();
         protected abstract void Maximize();
         protected abstract void Minimize();
-
         protected abstract void MaintainAtValue();
 
         protected void SpecificLogic(string tendency)
         {
             switch (tendency)
             {
-                case "EqualToOrAboveFocalValue":
+                case GoalTendency.EqualToOrAboveFocalValue:
                     {
                         EqualToOrAboveFocalValue();
                         break;
                     }
-               case "Maximize":
+               case GoalTendency.Maximize:
                     {
                         Maximize();
                         break;
                     }
-                case "Minimize":
+                case GoalTendency.Minimize:
                     {
                         Minimize();
                         break;
                     }
-                case "MaintainAtValue":
+                case GoalTendency.MaintainAtValue:
                     {
                         MaintainAtValue();
                         break;

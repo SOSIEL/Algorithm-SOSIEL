@@ -7,9 +7,9 @@ using SOSIEL.Processes;
 
 namespace SOSIEL.Algorithm
 {
-    public abstract class SosielAlgorithm<TSite> where TSite : new()
+    public abstract class SosielAlgorithm<TDataSet> where TDataSet : IDataSet, new()
     {
-        protected readonly TSite DefaultSite = new TSite();
+        protected readonly TDataSet DefaultDataSet = new TDataSet();
 
         private int numberOfIterations;
         private int iterationCounter;
@@ -18,22 +18,21 @@ namespace SOSIEL.Algorithm
         protected int numberOfAgentsAfterInitialize;
         protected bool algorithmStoppage = false;
         protected AgentList agentList;
-        protected LinkedList<Dictionary<IAgent, AgentState<TSite>>> iterations = new LinkedList<Dictionary<IAgent, AgentState<TSite>>>();
-        protected Dictionary<IAgent, Goal[]> rankedGoals;
+        protected LinkedList<Dictionary<IAgent, AgentState<TDataSet>>> iterations = new LinkedList<Dictionary<IAgent, AgentState<TDataSet>>>();
 
         protected Probabilities probabilities = new Probabilities();
 
         //processes
         protected GoalPrioritizing gp = new GoalPrioritizing();
         protected GoalSelecting gs = new GoalSelecting();
-        protected AnticipatoryLearning<TSite> al = new AnticipatoryLearning<TSite>();
-        protected CounterfactualThinking<TSite> ct = new CounterfactualThinking<TSite>();
-        protected Innovation<TSite> innovation = new Innovation<TSite>();
-        protected SocialLearning<TSite> sl = new SocialLearning<TSite>();
-        protected Satisficing<TSite> satisficing = new Satisficing<TSite>();
-        protected ActionTaking<TSite> at = new ActionTaking<TSite>();
+        protected AnticipatoryLearning<TDataSet> al = new AnticipatoryLearning<TDataSet>();
+        protected CounterfactualThinking<TDataSet> ct = new CounterfactualThinking<TDataSet>();
+        protected Innovation<TDataSet> innovation = new Innovation<TDataSet>();
+        protected SocialLearning<TDataSet> sl = new SocialLearning<TDataSet>();
+        protected Satisficing<TDataSet> satisficing = new Satisficing<TDataSet>();
+        protected ActionTaking<TDataSet> at = new ActionTaking<TDataSet>();
 
-        protected Demographic<TSite> demographic;
+        protected Demographic<TDataSet> demographic;
 
 
         public SosielAlgorithm(int numberOfIterations, ProcessesConfiguration processConfiguration)
@@ -54,7 +53,7 @@ namespace SOSIEL.Algorithm
         /// Executes iteration state initializing. Executed after InitializeAgents.
         /// </summary>
         /// <returns></returns>
-        protected abstract Dictionary<IAgent, AgentState<TSite>> InitializeFirstIterationState();
+        protected abstract Dictionary<IAgent, AgentState<TDataSet>> InitializeFirstIterationState();
 
         protected virtual void UseDemographic()
         {
@@ -90,24 +89,24 @@ namespace SOSIEL.Algorithm
         /// Executes before action selection process
         /// </summary>
         /// <param name="agent"></param>
-        /// <param name="site"></param>
-        protected virtual void BeforeActionSelection(IAgent agent, TSite site) { }
+        /// <param name="dataSet"></param>
+        protected virtual void BeforeActionSelection(IAgent agent, TDataSet dataSet) { }
 
 
         /// <summary>
         /// Executes after action taking process
         /// </summary>
         /// <param name="agent"></param>
-        /// <param name="site"></param>
-        protected virtual void AfterActionTaking(IAgent agent, TSite site) { }
+        /// <param name="dataSet"></param>
+        protected virtual void AfterActionTaking(IAgent agent, TDataSet dataSet) { }
 
 
         /// <summary>
         /// Befores the counterfactual thinking.
         /// </summary>
         /// <param name="agent"></param>
-        /// <param name="site"></param>
-        protected virtual void BeforeCounterfactualThinking(IAgent agent, TSite site) { }
+        /// <param name="dataSet"></param>
+        protected virtual void BeforeCounterfactualThinking(IAgent agent, TDataSet dataSet) { }
 
 
         /// <summary>
@@ -128,12 +127,20 @@ namespace SOSIEL.Algorithm
         protected virtual void AgentsDeactivation() { }
 
         /// <summary>
-        /// Executed after AgentsDeactivation.
+        /// Executes after AgentsDeactivation.
         /// </summary>
         /// <param name="iteration"></param>
         protected virtual void AfterDeactivation(int iteration) { }
 
+        /// <summary>
+        /// Executes after Innovation.
+        /// </summary>
+        protected virtual void AfterInnovation(IAgent agent, TDataSet dataSet, DecisionOption newDecisionOption) { }
 
+        protected virtual TDataSet[] FilterManagementDataSets(IAgent agent, TDataSet[] orderedDataSets)
+        {
+            return orderedDataSets;
+        }
 
         /// <summary>
         /// Executes reproduction logic.
@@ -163,8 +170,8 @@ namespace SOSIEL.Algorithm
         /// <summary>
         /// Executes SOSIEL Algorithm
         /// </summary>
-        /// <param name="activeSites"></param>
-        protected void RunSosiel(ICollection<TSite> activeSites)
+        /// <param name="activeDataSets"></param>
+        protected void RunSosiel(ICollection<TDataSet> activeDataSets)
         {
             for (int i = 1; i <= numberOfIterations; i++)
             {
@@ -173,37 +180,35 @@ namespace SOSIEL.Algorithm
                 PreIterationCalculations(iterationCounter);
                 PreIterationStatistic(iterationCounter);
 
-                Dictionary<IAgent, AgentState<TSite>> currentIteration;
+                Dictionary<IAgent, AgentState<TDataSet>> currentIteration;
 
                 if (iterationCounter > 1)
-                    currentIteration = iterations.AddLast(new Dictionary<IAgent, AgentState<TSite>>()).Value;
+                    currentIteration = iterations.AddLast(new Dictionary<IAgent, AgentState<TDataSet>>()).Value;
                 else
                     currentIteration = iterations.AddLast(InitializeFirstIterationState()).Value;
 
-                Dictionary<IAgent, AgentState<TSite>> priorIteration = iterations.Last.Previous?.Value;
-
-                rankedGoals = new Dictionary<IAgent, Goal[]>(agentList.Agents.Count);
+                Dictionary<IAgent, AgentState<TDataSet>> priorIteration = iterations.Last.Previous?.Value;
 
                 IAgent[] orderedAgents = agentList.ActiveAgents.Randomize(processConfiguration.AgentRandomizationEnabled).ToArray();
 
-                var agentGroups = orderedAgents.GroupBy(a => a[SosielVariables.AgentType]).OrderBy(group => group.Key).ToArray();
+                var agentGroups = orderedAgents.GroupBy(a => a.Archetype.NamePrefix).OrderBy(group => group.Key).ToArray();
 
                 orderedAgents.ForEach(a =>
                 {
-                    rankedGoals.Add(a, a.AssignedGoals.ToArray());
-
                     if (iterationCounter > 1)
                         currentIteration.Add(a, priorIteration[a].CreateForNextIteration());
+
+                    currentIteration[a].RankedGoals = a.AssignedGoals.ToArray();
                 });
 
                 if (processConfiguration.UseDemographicProcesses && iterationCounter > 1)
                 {
                     demographic.ChangeDemographic(iterationCounter, currentIteration, agentList);
                 }
-                
-                TSite[] orderedSites = activeSites.Randomize().ToArray();
 
-                TSite[] notSiteOriented = new TSite[] { DefaultSite };
+                TDataSet[] orderedDataSets = activeDataSets.Randomize().ToArray();
+
+                TDataSet[] notDataSetOriented = new TDataSet[] { DefaultDataSet };
 
                 if (iterationCounter == 1)
                 {
@@ -211,8 +216,7 @@ namespace SOSIEL.Algorithm
                     {
                         foreach (IAgent agent in agentGroup)
                         {
-                            rankedGoals[agent] = gs.SortByImportance(agent, currentIteration[agent].GoalsState)
-                                .ToArray();
+                            currentIteration[agent].RankedGoals = gs.SortByImportance(agent, currentIteration[agent].GoalsState).ToArray();
                         }
                     }
                 }
@@ -233,20 +237,20 @@ namespace SOSIEL.Algorithm
                             gp.Prioritize(agent, agentGoalState);
 
                             //goal selecting
-                            rankedGoals[agent] = gs.SortByImportance(agent, agentGoalState).ToArray();
+                            currentIteration[agent].RankedGoals = gs.SortByImportance(agent, agentGoalState).ToArray();
 
                             if (processConfiguration.CounterfactualThinkingEnabled)
                             {
-                                if (rankedGoals[agent].Any(g => currentIteration[agent].GoalsState.Any(kvp => kvp.Value.Confidence == false)))
+                                if (currentIteration[agent].RankedGoals.Any(g => currentIteration[agent].GoalsState.Any(kvp => kvp.Value.Confidence == false)))
                                 {
-                                    foreach (TSite site in agent.Prototype.IsSiteOriented ? orderedSites : notSiteOriented)
+                                    foreach (TDataSet dataSet in GetDataSets(agent, orderedDataSets, notDataSetOriented))
                                     {
-                                        BeforeCounterfactualThinking(agent, site);
+                                        BeforeCounterfactualThinking(agent, dataSet);
 
                                         foreach (var set in agent.AssignedDecisionOptions.GroupBy(h => h.Layer.Set).OrderBy(g => g.Key.PositionNumber))
                                         {
                                             //optimization
-                                            Goal selectedGoal = rankedGoals[agent].First(g => set.Key.AssociatedWith.Contains(g));
+                                            Goal selectedGoal = currentIteration[agent].RankedGoals.First(g => set.Key.AssociatedWith.Contains(g));
 
                                             GoalState selectedGoalState = currentIteration[agent].GoalsState[selectedGoal];
 
@@ -257,21 +261,25 @@ namespace SOSIEL.Algorithm
                                                     if (layer.Key.LayerConfiguration.Modifiable || (!layer.Key.LayerConfiguration.Modifiable && layer.Any(r => r.IsModifiable)))
                                                     {
                                                         //looking for matched decision option in prior period
-                                                        DecisionOption[] matchedDecisionOptions = priorIteration[agent].DecisionOptionsHistories[site]
+                                                        DecisionOption[] matchedDecisionOptions = priorIteration[agent].DecisionOptionsHistories[dataSet]
                                                                 .Matched.Where(h => h.Layer == layer.Key).ToArray();
 
                                                         bool? CTResult = null;
 
                                                         //counterfactual thinking process
                                                         if (matchedDecisionOptions.Length >= 2)
-                                                            CTResult = ct.Execute(agent, iterations.Last, selectedGoal, matchedDecisionOptions, layer.Key, site);
+                                                            CTResult = ct.Execute(agent, iterations.Last, selectedGoal, matchedDecisionOptions, layer.Key, dataSet);
 
 
                                                         if (processConfiguration.InnovationEnabled)
                                                         {
                                                             //innovation process
                                                             if (CTResult == false || matchedDecisionOptions.Length < 2)
-                                                                innovation.Execute(agent, iterations.Last, selectedGoal, layer.Key, site, probabilities);
+                                                            {
+                                                                DecisionOption decisionOption = innovation.Execute(agent, iterations.Last, selectedGoal, layer.Key, dataSet, probabilities);
+
+                                                                AfterInnovation(agent, dataSet, decisionOption);
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -312,16 +320,16 @@ namespace SOSIEL.Algorithm
                     {
                         foreach (IAgent agent in agentGroup)
                         {
-                            foreach (TSite site in agent.Prototype.IsSiteOriented ? orderedSites : notSiteOriented)
+                            foreach (TDataSet dataSet in GetDataSets(agent, orderedDataSets, notDataSetOriented))
                             {
                                 foreach (var set in agent.AssignedDecisionOptions.GroupBy(h => h.Layer.Set).OrderBy(g => g.Key.PositionNumber))
                                 {
                                     foreach (var layer in set.GroupBy(h => h.Layer).OrderBy(g => g.Key.PositionNumber))
                                     {
-                                        BeforeActionSelection(agent, site);
+                                        BeforeActionSelection(agent, dataSet);
 
                                         //satisficing
-                                        satisficing.ExecutePartI(agent, iterations.Last, rankedGoals, layer.ToArray(), site);
+                                        satisficing.ExecutePartI(agent, iterations.Last, currentIteration[agent].RankedGoals, layer.ToArray(), dataSet);
                                     }
                                 }
                             }
@@ -336,16 +344,16 @@ namespace SOSIEL.Algorithm
                         {
                             foreach (IAgent agent in agentGroup)
                             {
-                                foreach (TSite site in agent.Prototype.IsSiteOriented ? orderedSites : notSiteOriented)
+                                foreach (TDataSet dataSet in GetDataSets(agent, orderedDataSets, notDataSetOriented))
                                 {
                                     foreach (var set in agent.AssignedDecisionOptions.GroupBy(r => r.Layer.Set).OrderBy(g => g.Key.PositionNumber))
                                     {
                                         foreach (var layer in set.GroupBy(h => h.Layer).OrderBy(g => g.Key.PositionNumber))
                                         {
-                                            BeforeActionSelection(agent, site);
+                                            BeforeActionSelection(agent, dataSet);
 
                                             //action selection process part II
-                                            satisficing.ExecutePartII(agent, iterations.Last, rankedGoals, layer.ToArray(), site);
+                                            satisficing.ExecutePartII(agent, iterations.Last, currentIteration[agent].RankedGoals, layer.ToArray(), dataSet);
                                         }
                                     }
                                 }
@@ -361,11 +369,11 @@ namespace SOSIEL.Algorithm
                     {
                         foreach (IAgent agent in agentGroup)
                         {
-                            foreach (TSite site in agent.Prototype.IsSiteOriented ? orderedSites : notSiteOriented)
+                            foreach (TDataSet dataSet in GetDataSets(agent, orderedDataSets, notDataSetOriented))
                             {
-                                at.Execute(agent, currentIteration[agent], site);
+                                at.Execute(agent, currentIteration[agent], dataSet);
 
-                                AfterActionTaking(agent, site);
+                                AfterActionTaking(agent, dataSet);
                             }
                         }
                     }
@@ -400,6 +408,11 @@ namespace SOSIEL.Algorithm
 
                 Maintenance();
             }
+        }
+
+        private TDataSet[] GetDataSets(IAgent agent, TDataSet[] orderedDataSets, TDataSet[] notDataSetOriented)
+        {
+            return agent.Archetype.IsDataSetOriented ? FilterManagementDataSets(agent, orderedDataSets) : notDataSetOriented;
         }
     }
 }

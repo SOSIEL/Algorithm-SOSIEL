@@ -30,7 +30,7 @@ namespace SOSIEL.Processes
     /// <summary>
     /// Action selection process implementation.
     /// </summary>
-    public class Satisficing<TSite> : VolatileProcess
+    public class Satisficing<TDataSet> : VolatileProcess
     {
         Goal processedGoal;
         GoalState goalState;
@@ -72,14 +72,17 @@ namespace SOSIEL.Processes
 
         protected override void MaintainAtValue()
         {
-            DecisionOption[] selected = matchedDecisionOptions;
+            throw new NotImplementedException("MaintainAtValue is not implemented in Satisficing");
 
-            if (matchedDecisionOptions.Length > 0)
-            {
-                selected = matchedDecisionOptions.GroupBy(r => Math.Abs(goalState.Value + anticipatedInfluence[r][processedGoal] - goalState.FocalValue)).OrderBy(hg => hg.Key).First().ToArray();
-            }
+            //DecisionOption[] selected = matchedDecisionOptions;
 
-            decisionOptionForActivating = selected.RandomizeOne();
+            //if (matchedDecisionOptions.Length > 0)
+            //{
+            //    selected = matchedDecisionOptions.GroupBy(r => Math.Abs(goalState.Value + anticipatedInfluence[r][processedGoal] - goalState.FocalValue))
+            //      .OrderBy(hg => hg.Key).First().ToArray();
+            //}
+
+            //decisionOptionForActivating = selected.RandomizeOne();
         }
         #endregion
 
@@ -89,7 +92,7 @@ namespace SOSIEL.Processes
         /// <param name="currentAgent"></param>
         /// <param name="decisionOption"></param>
         /// <param name="agentStates"></param>
-        List<IAgent> SignalingInterest(IAgent currentAgent, DecisionOption decisionOption, Dictionary<IAgent, AgentState<TSite>> agentStates)
+        List<IAgent> SignalingInterest(IAgent currentAgent, DecisionOption decisionOption, Dictionary<IAgent, AgentState<TDataSet>> agentStates)
         {
             var scope = decisionOption.Scope;
 
@@ -109,27 +112,27 @@ namespace SOSIEL.Processes
         }
 
         /// <summary>
-        /// Executes first part of action selection for specific agent and site
+        /// Executes first part of action selection for specific agent and data set
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="lastIteration"></param>
         /// <param name="rankedGoals"></param>
         /// <param name="processedDecisionOptions"></param>
-        /// <param name="site"></param>
-        public void ExecutePartI(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> lastIteration, Dictionary<IAgent, Goal[]> rankedGoals, DecisionOption[] processedDecisionOptions, TSite site)
+        /// <param name="dataSet"></param>
+        public void ExecutePartI(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> lastIteration, Goal[] rankedGoals, DecisionOption[] processedDecisionOptions, TDataSet dataSet)
         {
             decisionOptionForActivating = null;
 
-            AgentState<TSite> agentState = lastIteration.Value[agent];
-            AgentState<TSite> priorPeriod = lastIteration.Previous?.Value[agent];
+            AgentState<TDataSet> agentState = lastIteration.Value[agent];
+            AgentState<TDataSet> priorPeriod = lastIteration.Previous?.Value[agent];
 
-            //adds new decisionOption history for specific site if it doesn't exist
-            if (agentState.DecisionOptionsHistories.ContainsKey(site) == false)
-                agentState.DecisionOptionsHistories.Add(site, new DecisionOptionsHistory());
+            //adds new decisionOption history for specific data set if it doesn't exist
+            if (agentState.DecisionOptionsHistories.ContainsKey(dataSet) == false)
+                agentState.DecisionOptionsHistories.Add(dataSet, new DecisionOptionsHistory());
 
-            DecisionOptionsHistory history = agentState.DecisionOptionsHistories[site];
+            DecisionOptionsHistory history = agentState.DecisionOptionsHistories[dataSet];
 
-            processedGoal = rankedGoals[agent].First(g => processedDecisionOptions.First().Layer.Set.AssociatedWith.Contains(g));
+            processedGoal = rankedGoals.First(g => processedDecisionOptions.First().Layer.Set.AssociatedWith.Contains(g));
             goalState = agentState.GoalsState[processedGoal];
 
             matchedDecisionOptions = processedDecisionOptions.Except(history.Blocked).Where(h => h.IsMatch(agent)).ToArray();
@@ -142,7 +145,7 @@ namespace SOSIEL.Processes
             if (matchedDecisionOptions.Length > 1)
             {
                 if (priorPeriod != null)
-                    priorPeriodActivatedDecisionOption = priorPeriod.DecisionOptionsHistories[site].Activated.FirstOrDefault(r => r.Layer == processedDecisionOptions.First().Layer);
+                    priorPeriodActivatedDecisionOption = priorPeriod.DecisionOptionsHistories[dataSet].Activated.FirstOrDefault(r => r.Layer == processedDecisionOptions.First().Layer);
 
                 //set anticipated influence before execute specific logic
                 anticipatedInfluence = agent.AnticipationInfluence;
@@ -170,7 +173,7 @@ namespace SOSIEL.Processes
                 {
                     foreach (var a in agents)
                     {
-                        var agentHistory = lastIteration.Value[a].DecisionOptionsHistories[site];
+                        var agentHistory = lastIteration.Value[a].DecisionOptionsHistories[dataSet];
                         var layer = decisionOptionForActivating.Layer;
                         if (agentHistory.Activated.Any(h => h.Layer == layer))
                         {
@@ -180,7 +183,7 @@ namespace SOSIEL.Processes
 
                             var decisionOpts = a.AssignedDecisionOptions.Where(h => h.Layer == layer).ToArray();
 
-                            ExecutePartI(a, lastIteration, rankedGoals, decisionOpts, site);
+                            ExecutePartI(a, lastIteration, rankedGoals, decisionOpts, dataSet);
                         }
                     }
                 }
@@ -188,18 +191,18 @@ namespace SOSIEL.Processes
         }
 
         /// <summary>
-        /// Executes second part of action selection for specific site
+        /// Executes second part of action selection for specific data set
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="lastIteration"></param>
         /// <param name="rankedGoals"></param>
         /// <param name="processedDecisionOptions"></param>
-        /// <param name="site"></param>
-        public void ExecutePartII(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> lastIteration, Dictionary<IAgent, Goal[]> rankedGoals, DecisionOption[] processedDecisionOptions, TSite site)
+        /// <param name="dataSet"></param>
+        public void ExecutePartII(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> lastIteration, Goal[] rankedGoals, DecisionOption[] processedDecisionOptions, TDataSet dataSet)
         {
-            AgentState<TSite> agentState = lastIteration.Value[agent];
+            AgentState<TDataSet> agentState = lastIteration.Value[agent];
 
-            DecisionOptionsHistory history = agentState.DecisionOptionsHistories[site];
+            DecisionOptionsHistory history = agentState.DecisionOptionsHistories[dataSet];
 
             DecisionOptionLayer layer = processedDecisionOptions.First().Layer;
 
@@ -214,7 +217,7 @@ namespace SOSIEL.Processes
 
                 //counting agents which selected this decision option
                 int numberOfInvolvedAgents = agent.ConnectedAgents.Where(connected => agent[scope] == connected[scope] || scope == null)
-                    .Count(a => lastIteration.Value[a].DecisionOptionsHistories[site].Activated.Any(decisionOption => decisionOption == selectedDecisionOptions));
+                    .Count(a => lastIteration.Value[a].DecisionOptionsHistories[dataSet].Activated.Any(decisionOption => decisionOption == selectedDecisionOptions));
 
                 int requiredParticipants = selectedDecisionOptions.RequiredParticipants - 1;
 
@@ -225,9 +228,9 @@ namespace SOSIEL.Processes
 
                     history.Activated.Remove(selectedDecisionOptions);
 
-                    ExecutePartI(agent, lastIteration, rankedGoals, processedDecisionOptions, site);
+                    ExecutePartI(agent, lastIteration, rankedGoals, processedDecisionOptions, dataSet);
 
-                    ExecutePartII(agent, lastIteration, rankedGoals, processedDecisionOptions, site);
+                    ExecutePartII(agent, lastIteration, rankedGoals, processedDecisionOptions, dataSet);
                 }
             }
         }

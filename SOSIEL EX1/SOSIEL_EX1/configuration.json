@@ -40,7 +40,7 @@
   },
 
   "AgentConfiguration": {
-    "HouseholdMember-Prototype": {
+    "HouseholdMember-Archetype": {
       "NamePrefix": "HM",
 
       "CommonVariables": {
@@ -93,7 +93,7 @@
           "MentalModel": 1,
           "DecisionOptionsLayer": 1,
           "PositionNumber": 1,
-          "Id": "MM1_L1_DO1",
+          "Id": "MM1-1_DO1",
           "Antecedent": [
             {
               "Param": "IsActive",
@@ -111,7 +111,7 @@
           "MentalModel": 1,
           "DecisionOptionsLayer": 1,
           "PositionNumber": 2,
-          "Id": "MM1_L1_DO2",
+          "Id": "MM1-1_DO2",
           "Antecedent": [
             {
               "Param": "Age",
@@ -149,7 +149,7 @@
           "MentalModel": 1,
           "DecisionOptionsLayer": 1,
           "PositionNumber": 3,
-          "Id": "MM1_L1_DO3",
+          "Id": "MM1-1_DO3",
           "Antecedent": [
             {
               "Param": "Age",
@@ -183,7 +183,7 @@
           "MentalModel": 1,
           "DecisionOptionsLayer": 1,
           "PositionNumber": 4,
-          "Id": "MM1_L1_DO4",
+          "Id": "MM1-1_DO4",
           "Antecedent": [
             {
               "Param": "Age",
@@ -202,7 +202,7 @@
           "MentalModel": 1,
           "DecisionOptionsLayer": 1,
           "PositionNumber": 5,
-          "Id": "MM1_L1_DO5",
+          "Id": "MM1-1_DO5",
           "Antecedent": [
             {
               "Param": "Disability",
@@ -221,7 +221,7 @@
           "MentalModel": 1,
           "DecisionOptionsLayer": 1,
           "PositionNumber": 6,
-          "Id": "MM1_L1_DO6",
+          "Id": "MM1-1_DO6",
           "Antecedent": [
             {
               "Param": "Age",
@@ -256,7 +256,7 @@
           "MentalModel": 1,
           "DecisionOptionsLayer": 1,
           "PositionNumber": 7,
-          "Id": "MM1_L1_DO7",
+          "Id": "MM1-1_DO7",
           "Antecedent": [
             {
               "Param": "Age",
@@ -291,7 +291,7 @@
   "InitialState": {
     "AgentsState": [
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -307,33 +307,33 @@
         },
 
         "AnticipatedInfluenceState": {
-          "MM1_L1_DO1": {
+          "MM1-1_DO1": {
             "G3": 0
           },
-          "MM1_L1_DO2": {
+          "MM1-1_DO2": {
             "G3": 3300
           },
-          "MM1_L1_DO4": {
+          "MM1-1_DO4": {
             "G3": 1800
           },
-          "MM1_L1_DO5": {
+          "MM1-1_DO5": {
             "G3": 1800
           },
-          "MM1_L1_DO6": {
+          "MM1-1_DO6": {
             "G3": 32000
           },
-          "MM1_L1_DO7": {
+          "MM1-1_DO7": {
             "G3": 500
           }
         },
 
         "AssignedDecisionOptions": [
-          "MM1_L1_DO1",
-          "MM1_L1_DO2",
-          "MM1_L1_DO4",
-          "MM1_L1_DO5",
-          "MM1_L1_DO6",
-          "MM1_L1_DO7"
+          "MM1-1_DO1",
+          "MM1-1_DO2",
+          "MM1-1_DO4",
+          "MM1-1_DO5",
+          "MM1-1_DO6",
+          "MM1-1_DO7"
         ],
 
         "AssignedGoals": [ "G3" ],
@@ -346,7 +346,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -363,33 +363,33 @@
         },
 
         "AnticipatedInfluenceState": {
-          "MM1_L1_DO1": {
+          "MM1-1_DO1": {
             "G3": 0
           },
-          "MM1_L1_DO2": {
+          "MM1-1_DO2": {
             "G3": 3300
           },
-          "MM1_L1_DO4": {
+          "MM1-1_DO4": {
             "G3": 1800
           },
-          "MM1_L1_DO5": {
+          "MM1-1_DO5": {
             "G3": 1800
           },
-          "MM1_L1_DO6": {
+          "MM1-1_DO6": {
             "G3": 32000
           },
-          "MM1_L1_DO7": {
+          "MM1-1_DO7": {
             "G3": 500
           }
         },
 
         "AssignedDecisionOptions": [
-          "MM1_L1_DO1",
-          "MM1_L1_DO2",
-          "MM1_L1_DO4",
-          "MM1_L1_DO5",
-          "MM1_L1_DO6",
-          "MM1_L1_DO7"
+          "MM1-1_DO1",
+          "MM1-1_DO2",
+          "MM1-1_DO4",
+          "MM1-1_DO5",
+          "MM1-1_DO6",
+          "MM1-1_DO7"
         ],
 
         "AssignedGoals": [ "G3" ],
@@ -402,7 +402,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -418,33 +418,33 @@
         },
 
         "AnticipatedInfluenceState": {
-          "MM1_L1_DO1": {
+          "MM1-1_DO1": {
             "G3": 0
           },
-          "MM1_L1_DO2": {
+          "MM1-1_DO2": {
             "G3": 3300
           },
-          "MM1_L1_DO4": {
+          "MM1-1_DO4": {
             "G3": 1800
           },
-          "MM1_L1_DO5": {
+          "MM1-1_DO5": {
             "G3": 1800
           },
-          "MM1_L1_DO6": {
+          "MM1-1_DO6": {
             "G3": 32000
           },
-          "MM1_L1_DO7": {
+          "MM1-1_DO7": {
             "G3": 500
           }
         },
 
         "AssignedDecisionOptions": [
-          "MM1_L1_DO1",
-          "MM1_L1_DO2",
-          "MM1_L1_DO4",
-          "MM1_L1_DO5",
-          "MM1_L1_DO6",
-          "MM1_L1_DO7"
+          "MM1-1_DO1",
+          "MM1-1_DO2",
+          "MM1-1_DO4",
+          "MM1-1_DO5",
+          "MM1-1_DO6",
+          "MM1-1_DO7"
         ],
 
         "AssignedGoals": [ "G3" ],
@@ -457,7 +457,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -473,33 +473,33 @@
         },
 
         "AnticipatedInfluenceState": {
-          "MM1_L1_DO1": {
+          "MM1-1_DO1": {
             "G3": 0
           },
-          "MM1_L1_DO2": {
+          "MM1-1_DO2": {
             "G3": 3300
           },
-          "MM1_L1_DO3": {
+          "MM1-1_DO3": {
             "G3": 16000
           },
-          "MM1_L1_DO4": {
+          "MM1-1_DO4": {
             "G3": 1800
           },
-          "MM1_L1_DO5": {
+          "MM1-1_DO5": {
             "G3": 1800
           },
-          "MM1_L1_DO7": {
+          "MM1-1_DO7": {
             "G3": 500
           }
         },
 
         "AssignedDecisionOptions": [
-          "MM1_L1_DO1",
-          "MM1_L1_DO2",
-          "MM1_L1_DO3",
-          "MM1_L1_DO4",
-          "MM1_L1_DO5",
-          "MM1_L1_DO7"
+          "MM1-1_DO1",
+          "MM1-1_DO2",
+          "MM1-1_DO3",
+          "MM1-1_DO4",
+          "MM1-1_DO5",
+          "MM1-1_DO7"
         ],
 
         "AssignedGoals": [ "G3" ],
@@ -512,7 +512,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -529,33 +529,33 @@
         },
 
         "AnticipatedInfluenceState": {
-          "MM1_L1_DO1": {
+          "MM1-1_DO1": {
             "G3": 0
           },
-          "MM1_L1_DO2": {
+          "MM1-1_DO2": {
             "G3": 3300
           },
-          "MM1_L1_DO3": {
+          "MM1-1_DO3": {
             "G3": 16000
           },
-          "MM1_L1_DO4": {
+          "MM1-1_DO4": {
             "G3": 1800
           },
-          "MM1_L1_DO5": {
+          "MM1-1_DO5": {
             "G3": 1800
           },
-          "MM1_L1_DO7": {
+          "MM1-1_DO7": {
             "G3": 500
           }
         },
 
         "AssignedDecisionOptions": [
-          "MM1_L1_DO1",
-          "MM1_L1_DO2",
-          "MM1_L1_DO3",
-          "MM1_L1_DO4",
-          "MM1_L1_DO5",
-          "MM1_L1_DO7"
+          "MM1-1_DO1",
+          "MM1-1_DO2",
+          "MM1-1_DO3",
+          "MM1-1_DO4",
+          "MM1-1_DO5",
+          "MM1-1_DO7"
         ],
 
         "AssignedGoals": [ "G3" ],
@@ -568,7 +568,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -584,16 +584,16 @@
         },
 
         "AnticipatedInfluenceState": {
-          "MM1_L1_DO1": {
+          "MM1-1_DO1": {
             "G3": 0
           },
-          "MM1_L1_DO7": {
+          "MM1-1_DO7": {
             "G3": 500
           }
         },
         "AssignedDecisionOptions": [
-          "MM1_L1_DO1",
-          "MM1_L1_DO7"
+          "MM1-1_DO1",
+          "MM1-1_DO7"
         ],
 
         "AssignedGoals": [ "G3" ],
@@ -606,7 +606,7 @@
         }
       },
       {
-        "PrototypeOfAgent": "HouseholdMember-Prototype",
+        "ArchetypeOfAgent": "HouseholdMember-Archetype",
         "NumberOfAgents": 1,
 
         "PrivateVariables": {
@@ -622,33 +622,33 @@
         },
 
         "AnticipatedInfluenceState": {
-          "MM1_L1_DO1": {
+          "MM1-1_DO1": {
             "G3": 0
           },
-          "MM1_L1_DO2": {
+          "MM1-1_DO2": {
             "G3": 3300
           },
-          "MM1_L1_DO3": {
+          "MM1-1_DO3": {
             "G3": 16000
           },
-          "MM1_L1_DO4": {
+          "MM1-1_DO4": {
             "G3": 1800
           },
-          "MM1_L1_DO5": {
+          "MM1-1_DO5": {
             "G3": 1800
           },
-          "MM1_L1_DO7": {
+          "MM1-1_DO7": {
             "G3": 500
           }
         },
 
         "AssignedDecisionOptions": [
-          "MM1_L1_DO1",
-          "MM1_L1_DO2",
-          "MM1_L1_DO3",
-          "MM1_L1_DO4",
-          "MM1_L1_DO5",
-          "MM1_L1_DO7"
+          "MM1-1_DO1",
+          "MM1-1_DO2",
+          "MM1-1_DO3",
+          "MM1-1_DO4",
+          "MM1-1_DO5",
+          "MM1-1_DO7"
         ],
 
         "AssignedGoals": [ "G3" ],

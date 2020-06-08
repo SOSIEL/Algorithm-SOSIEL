@@ -13,7 +13,7 @@ namespace SOSIEL_EX1.Configuration
         public AlgorithmConfiguration AlgorithmConfiguration { get; set; }
 
         [JsonRequired]
-        public Dictionary<string, AgentPrototype> AgentConfiguration { get; set; }
+        public Dictionary<string, AgentArchetype> AgentConfiguration { get; set; }
 
         [JsonRequired]
         public InitialStateConfiguration InitialState { get; set; }

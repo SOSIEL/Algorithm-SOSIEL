@@ -13,9 +13,9 @@ namespace SOSIEL.Entities
 
         protected Dictionary<string, dynamic> privateVariables;
 
-        public string Id { get { return Prototype.NamePrefix + id; } }
+        public string Id { get { return Archetype.NamePrefix + id; } }
 
-        public AgentPrototype Prototype { get; protected set; }
+        public AgentArchetype Archetype { get; protected set; }
 
         public List<IAgent> ConnectedAgents { get; set; }
 
@@ -56,8 +56,8 @@ namespace SOSIEL.Entities
                 }
                 else
                 {
-                    if (Prototype.CommonVariables.ContainsKey(key))
-                        return Prototype[key];
+                    if (Archetype.CommonVariables.ContainsKey(key))
+                        return Archetype[key];
                 }
 
 
@@ -65,11 +65,11 @@ namespace SOSIEL.Entities
             }
             set
             {
-                if (privateVariables.ContainsKey(key) || Prototype.CommonVariables.ContainsKey(key))
+                if (privateVariables.ContainsKey(key) || Archetype.CommonVariables.ContainsKey(key))
                     PreSetValue(key, privateVariables[key]);
 
-                if (Prototype.CommonVariables.ContainsKey(key))
-                    Prototype[key] = value;
+                if (Archetype.CommonVariables.ContainsKey(key))
+                    Archetype[key] = value;
                 else
                     privateVariables[key] = value;
 
@@ -86,7 +86,7 @@ namespace SOSIEL.Entities
         {
             Agent agent = CreateInstance();
 
-            agent.Prototype = Prototype;
+            agent.Archetype = Archetype;
             agent.privateVariables = new Dictionary<string, dynamic>(privateVariables);
 
             agent.AssignedGoals = new List<Goal>(AssignedGoals);
@@ -107,7 +107,7 @@ namespace SOSIEL.Entities
         {
             Agent agent = CreateInstance();
 
-            agent.Prototype = Prototype;
+            agent.Archetype = Archetype;
             agent.privateVariables = new Dictionary<string, dynamic>();
 
             agent.privateVariables[SosielVariables.IsActive] = true;
@@ -139,18 +139,18 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public bool ContainsVariable(string key)
         {
-            return privateVariables.ContainsKey(key) || Prototype.CommonVariables.ContainsKey(key);
+            return privateVariables.ContainsKey(key) || Archetype.CommonVariables.ContainsKey(key);
         }
 
 
         /// <summary>
-        /// Set variable value to prototype variables
+        /// Set variable value to archetype variables
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
         public void SetToCommon(string key, dynamic value)
         {
-            Prototype.CommonVariables[key] = value;
+            Archetype.CommonVariables[key] = value;
         }
 
 
@@ -224,20 +224,20 @@ namespace SOSIEL.Entities
         }
 
         /// <summary>
-        /// Adds decision option to agent prototype and then assign one to the decision option list of current agent.
+        /// Adds decision option to agent archetype and then assign one to the decision option list of current agent.
         /// </summary>
         /// <param name="newDecisionOption"></param>
         /// <param name="layer"></param>
         public void AddDecisionOption(DecisionOption newDecisionOption, DecisionOptionLayer layer)
         {
-            Prototype.AddNewDecisionOption(newDecisionOption, layer);
+            Archetype.AddNewDecisionOption(newDecisionOption, layer);
 
             AssignNewDecisionOption(newDecisionOption);
         }
 
 
         /// <summary>
-        /// Adds decision option to agent prototype and then assign one to the decision option list of current agent. 
+        /// Adds decision option to agent archetype and then assign one to the decision option list of current agent. 
         /// Also copies anticipated influence to the agent.
         /// </summary>
         /// <param name="newDecisionOption"></param>
@@ -245,7 +245,7 @@ namespace SOSIEL.Entities
         /// <param name="anticipatedInfluence"></param>
         public void AddDecisionOption(DecisionOption newDecisionOption, DecisionOptionLayer layer, Dictionary<Goal, double> anticipatedInfluence)
         {
-            Prototype.AddNewDecisionOption(newDecisionOption, layer);
+            Archetype.AddNewDecisionOption(newDecisionOption, layer);
 
             AssignNewDecisionOption(newDecisionOption, anticipatedInfluence);
         }

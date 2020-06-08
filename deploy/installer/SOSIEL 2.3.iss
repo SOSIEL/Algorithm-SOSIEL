@@ -1,6 +1,6 @@
 ; Extension infomation
 #define ExtensionName "SOSIEL PLATFORM"
-#define AppVersion "2.2"
+#define AppVersion "2.3"
 #define AppPublisher "Garry Sotnik"
 
 ; Build directory

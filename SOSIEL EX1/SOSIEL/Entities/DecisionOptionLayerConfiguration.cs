@@ -10,7 +10,7 @@ namespace SOSIEL.Entities
 
         public int MaxNumberOfDecisionOptions { get; set; }
 
-        public int[] ConsequentValueInterval { get; set; }
+        public double[] ConsequentValueInterval { get; set; }
 
         public int ConsequentPrecisionDigitsAfterDecimalPoint { get; set; }
 
@@ -45,11 +45,11 @@ namespace SOSIEL.Entities
         /// </summary>
         /// <param name="agent"></param>
         /// <returns></returns>
-        public int MinValue(IAgent agent)
+        public double MinValue(IAgent agent)
         {
             if(string.IsNullOrEmpty(MinConsequentReference) == false)
             {
-                return (int)agent[MinConsequentReference];
+                return (double)agent[MinConsequentReference];
             }
             else
             {
@@ -62,11 +62,11 @@ namespace SOSIEL.Entities
         /// </summary>
         /// <param name="agent"></param>
         /// <returns></returns>
-        public int MaxValue(IAgent agent)
+        public double MaxValue(IAgent agent)
         {
             if (string.IsNullOrEmpty(MaxConsequentReference) == false)
             {
-                return (int)agent[MaxConsequentReference];
+                return (double)agent[MaxConsequentReference];
             }
             else
             {

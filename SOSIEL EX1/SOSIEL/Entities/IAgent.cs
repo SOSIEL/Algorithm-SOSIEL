@@ -18,7 +18,7 @@ namespace SOSIEL.Entities
 
         Dictionary<DecisionOption, int> DecisionOptionActivationFreshness { get; }
 
-        AgentPrototype Prototype { get; }
+        AgentArchetype Archetype { get; }
 
         Dictionary<Goal, GoalState> InitialGoalStates { get; }
 
@@ -37,7 +37,7 @@ namespace SOSIEL.Entities
         void AssignNewDecisionOption(DecisionOption newDecisionOption, Dictionary<Goal, double> anticipatedInfluence);
 
         /// <summary>
-        /// Adds decision option to prototype and then assign one to the decision option list of current agent.
+        /// Adds decision option to archetype and then assign one to the decision option list of current agent.
         /// </summary>
         /// <param name="newDecisionOption"></param>
         /// <param name="layer"></param>
@@ -45,7 +45,7 @@ namespace SOSIEL.Entities
 
 
         /// <summary>
-        /// Adds decision option to prototype DecisionOption and then assign one to the decision option list of current agent. 
+        /// Adds decision option to archetype DecisionOption and then assign one to the decision option list of current agent. 
         /// Also copies anticipated influence to the agent.
         /// </summary>
         /// <param name="newDecisionOption"></param>
@@ -54,7 +54,7 @@ namespace SOSIEL.Entities
         void AddDecisionOption(DecisionOption newDecisionOption, DecisionOptionLayer layer, Dictionary<Goal, double> anticipatedInfluence);
 
         /// <summary>
-        /// Set variable value to prototype variables
+        /// Set variable value to archetype variables
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>

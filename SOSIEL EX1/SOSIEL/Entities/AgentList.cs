@@ -8,7 +8,7 @@ namespace SOSIEL.Entities
     {
         public List<IAgent> Agents { get; private set; }
 
-        public List<AgentPrototype> Prototypes { get; private set; }
+        public List<AgentArchetype> Archetypes { get; private set; }
 
         public IAgent[] ActiveAgents
         {
@@ -18,21 +18,21 @@ namespace SOSIEL.Entities
             }
         }
 
-        public AgentList(List<IAgent> agents, List<AgentPrototype> prototypes)
+        public AgentList(List<IAgent> agents, List<AgentArchetype> archetypes)
         {
             Agents = agents;
-            Prototypes = prototypes;
+            Archetypes = archetypes;
         }
 
 
         /// <summary>
-        /// Searches for prototypes with following prefix 
+        /// Searches for archetypes with following prefix 
         /// </summary>
         /// <param name="prefix"></param>
         /// <returns></returns>
-        public IEnumerable<AgentPrototype> GetPrototypesWithPrefix(string prefix)
+        public IEnumerable<AgentArchetype> GetArchetypesWithPrefix(string prefix)
         {
-            return Prototypes.Where(prototype => prototype.NamePrefix == prefix);
+            return Archetypes.Where(archetype => archetype.NamePrefix == prefix);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public IEnumerable<IAgent> GetAgentsWithPrefix(string prefix)
         {
-            return ActiveAgents.Where(agent => agent.Prototype.NamePrefix == prefix);
+            return ActiveAgents.Where(agent => agent.Archetype.NamePrefix == prefix);
         }
     }
 }
