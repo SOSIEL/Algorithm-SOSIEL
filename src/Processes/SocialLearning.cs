@@ -1,4 +1,13 @@
-﻿using System.Collections.Generic;
+﻿// Social learning follows: (a) goal prioritizing, when an agent after anticipatory learning is confident;
+// (b) counterfactual thinking, if an agent’s confidence is regained during counterfactual thinking; and
+// (c) innovating, when an agent remained unconfident after counterfactual thinking. The aim of social learning is
+// to learn from social network neighbors, be they successful or unsuccessful. The process is activated regardless
+// of whether the agent is confident or not. This is because both passive and active social learning are captured
+// in the process. The process consists of the following two subprocesses: (a) review the decision options chosen
+// by social network neighbors in the prior period and (b) incorporate into the corresponding mental (sub)model
+// those options that had been unknown. The result of social learning is one or more new decision options.
+
+using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Entities;
 using SOSIEL.Helpers;
