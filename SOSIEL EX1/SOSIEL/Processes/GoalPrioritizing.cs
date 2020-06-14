@@ -1,4 +1,13 @@
-﻿using System;
+﻿// Goal prioritizing always follows anticipatory learning. the aim of goal prioritizing is to use
+// what was learned during anticipatory learning to reevaluate the importance levels of goals and,
+// if necessary, reprioritize them. The process of goal prioritizing has a stabilizing effect on
+// agent behavior and has the option of being turned off as a mechanism if its stabilizing effect
+// contradicts reference behavior. The process of goal prioritizing consists of the following two
+// subprocesses: (a) determine the relative difference between goal value and focal goal value and
+// (b) adjust the proportional importance levels of goals respectively. The result of goal prioritizing
+// is a reevaluated and, if appropriate, a reprioritized set of proportional importance levels.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Entities;
