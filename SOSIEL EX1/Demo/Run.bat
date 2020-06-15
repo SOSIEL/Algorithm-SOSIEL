@@ -1,1 +1,0 @@
-CALL dotnet Demo.dll
