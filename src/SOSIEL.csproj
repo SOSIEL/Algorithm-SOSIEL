@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<Copyright>Copyright © Garry Sotnik 2018</Copyright>
+	<Copyright>Copyright © Garry Sotnik 2020</Copyright>
     <Authors>Garry Sotnik</Authors>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
-    <Version>2.0.0</Version>
+    <AssemblyVersion>2.4.0.0</AssemblyVersion>
+    <FileVersion>2.4.0.0</FileVersion>
+    <Version>2.4.0</Version>
+    <AssemblyName>SOSIEL-v2</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
