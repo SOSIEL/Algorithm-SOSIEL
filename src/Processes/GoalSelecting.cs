@@ -1,15 +1,25 @@
-﻿// Goal selecting is the first cognitive process activated during the first time period and subsequently the first
-// activated decision-making process in the second and later time periods. The aim of goal selecting is to generate
-// a list of goals from which goals of focus can be selected during decision-making and in which the goals are
-// ordered by their importance levels (which, during the second and later time periods are updated during anticipatory
-// learning). The reason a list of goals is generated (as opposed to a single goal) is because not all mental (sub)models
-// are associated with all goals. The process of goal selecting consists of the following two subprocesses: (a) generate
-// the goal importance distribution, which constructs a distribution of goals that reflects their importance levels; and
-// (b) generate the goals of focus list, which applies a uniform distribution to randomly select a list of goals from the
-// goal importance distribution. The result of the goal selecting process is a list of goals, the goals of focus list,
-// approximately ordered by their level of importance. The ordering is only approximate because the use of a uniform
-// distribution to select goals implies that, at any point, chance may lead to the selection of a less important goal,
-// thereby introducing a degree of uncertainty.
+/// Name: SosielVariables.cs
+/// Description: Goal selecting is the first cognitive process activated during
+///   the first time period and subsequently the first activated decision-making
+///   process in the second and later time periods. The aim of goal selecting is to
+///   generate a list of goals from which goals of focus can be selected during
+///   decision-making and in which the goals are ordered by their importance levels
+///   (which, during the second and later time periods are updated during anticipatory
+///   learning). The reason a list of goals is generated (as opposed to a single
+///   goal) is because not all mental (sub)models are associated with all goals.
+///   The process of goal selecting consists of the following two subprocesses:
+///   (a) generate the goal importance distribution, which constructs a distribution
+///   of goals that reflects their importance levels; and (b) generate the goals
+///   of focus list, which applies a uniform distribution to randomly select a list
+///   of goals from the goal importance distribution. The result of the goal
+///   selecting process is a list of goals, the goals of focus list, approximately
+///   ordered by their level of importance. The ordering is only approximate because
+///   the use of a uniform distribution to select goals implies that, at any point,
+///   chance may lead to the selection of a less important goal, thereby introducing
+///   a degree of uncertainty.
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
 
 using System;
 using System.Collections.Generic;
@@ -25,7 +35,7 @@ namespace SOSIEL.Processes
     public class GoalSelecting
     {
         /// <summary>
-        /// Sorts goals by importance 
+        /// Sorts goals by importance
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="goals"></param>

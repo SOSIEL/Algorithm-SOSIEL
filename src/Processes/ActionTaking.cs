@@ -1,8 +1,13 @@
-﻿// The process of action-taking may involve doing nothing or engaging in an individual or a collective action.
-// To facilitate both sequential and simultaneous decision-making, action-taking is activated sequentially by
-// agent type. Additionally, whether agents of the same type take action sequentially or simultaneously can be
-// set during initialization for all decision situations. The result of action-taking is the effect of decisions
-// on corresponding variables.
+/// Name: ActionTaking.cs
+/// Description: The process of action-taking may involve doing nothing or engaging
+///   in an individual or a collective action. To facilitate both sequential and
+///   simultaneous decision-making, action-taking is activated sequentially by agent
+///   type. Additionally, whether agents of the same type take action sequentially or
+///   simultaneously can be set during initialization for all decision situations.
+///   The result of action-taking is the effect of decisions on corresponding variables.
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
 
 using System.Collections.Generic;
 using System.Linq;

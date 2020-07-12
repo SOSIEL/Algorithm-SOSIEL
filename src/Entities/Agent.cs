@@ -1,4 +1,10 @@
-﻿using System;
+/// Name: Agent.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Environments;
@@ -33,7 +39,7 @@ namespace SOSIEL.Entities
         {
             return Id;
         }
-        
+
         protected Agent()
         {
             privateVariables = new Dictionary<string, dynamic>();
@@ -120,7 +126,7 @@ namespace SOSIEL.Entities
 
             agent.AssignedGoals = new List<Goal>(AssignedGoals);
             agent.AssignedDecisionOptions = new List<DecisionOption>();
-            
+
             agent.AnticipationInfluence = new Dictionary<DecisionOption, Dictionary<Goal, double>>();
             agent.DecisionOptionActivationFreshness = new Dictionary<DecisionOption, int>();
 
@@ -133,7 +139,7 @@ namespace SOSIEL.Entities
         }
 
         /// <summary>
-        /// Checks on parameter existence 
+        /// Checks on parameter existence
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -207,7 +213,7 @@ namespace SOSIEL.Entities
         }
 
         /// <summary>
-        /// Assigns new decision option with defined anticipated influence to mental model of current agent. If empty rooms ended, old decision options will be removed. 
+        /// Assigns new decision option with defined anticipated influence to mental model of current agent. If empty rooms ended, old decision options will be removed.
         /// Anticipated influence is copied to the agent.
         /// </summary>
         /// <param name="newDecisionOption"></param>
@@ -237,7 +243,7 @@ namespace SOSIEL.Entities
 
 
         /// <summary>
-        /// Adds decision option to agent archetype and then assign one to the decision option list of current agent. 
+        /// Adds decision option to agent archetype and then assign one to the decision option list of current agent.
         /// Also copies anticipated influence to the agent.
         /// </summary>
         /// <param name="newDecisionOption"></param>

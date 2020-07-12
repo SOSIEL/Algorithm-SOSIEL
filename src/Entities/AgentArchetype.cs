@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+/// Name: AgentArchetype.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using SOSIEL.Exceptions;
@@ -56,7 +62,7 @@ namespace SOSIEL.Entities
             }
 
         }
-        
+
         /// <summary>
         /// Transforms from kh list to mental model
         /// </summary>

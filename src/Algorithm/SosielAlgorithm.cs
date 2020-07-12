@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+/// Name: SosielAlgorithm.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Configuration;
 using SOSIEL.Entities;
@@ -44,7 +50,7 @@ namespace SOSIEL.Algorithm
         }
 
         /// <summary>
-        /// Executes agent initializing. It's the first initializing step. 
+        /// Executes agent initializing. It's the first initializing step.
         /// </summary>
         protected abstract void InitializeAgents();
 

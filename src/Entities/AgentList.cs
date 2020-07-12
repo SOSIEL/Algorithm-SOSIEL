@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+/// Name: AgentList.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Helpers;
 
@@ -26,7 +32,7 @@ namespace SOSIEL.Entities
 
 
         /// <summary>
-        /// Searches for archetypes with following prefix 
+        /// Searches for archetypes with following prefix
         /// </summary>
         /// <param name="prefix"></param>
         /// <returns></returns>
@@ -36,7 +42,7 @@ namespace SOSIEL.Entities
         }
 
         /// <summary>
-        /// Searches for agents with following prefix 
+        /// Searches for agents with following prefix
         /// </summary>
         /// <param name="prefix"></param>
         /// <returns></returns>

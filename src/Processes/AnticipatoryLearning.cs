@@ -1,13 +1,22 @@
-﻿// Anticipatory learning is the first out of the learning and decisionmaking processes
-// that is activated in the second and later time periods. the aim of the process is
-// to use the change in the states of goal variables to update the anticipated influences
-// of decision options, assess the success of decision options, and gauge confidence in
-// attaining goals. The process of anticipatory learning consists of the following three
-// subprocesses: (a) update the anticipated influence(s) on goal(s) of the decision option(s)
-// that was/were implemented in the prior period; (b) assess the success of this/these
-// decision option(s) in contributing to the attainment of goal(s); and (c) establish whether,
-// by consequence, the agent is confident or unconfident in attaining the goal(s). The results
-// of anticipatory learning are updated goal-specific anticipated influences and confidence states.
+/// Name: SosielVariables.cs
+/// Description: Anticipatory learning is the first out of the learning
+///   and decisionmaking processes that is activated in the second and later
+///   time periods. the aim of the process is to use the change in the states of
+///   goal variables to update the anticipated influences of decision options,
+///   assess the success of decision options, and gauge confidence in attaining
+///   goals. The process of anticipatory learning consists of the following three
+///   subprocesses: (a) update the anticipated influence(s) on goal(s) of the
+///   decision option(s) that was/were implemented in the prior period;
+///   (b) assess the success of this/these decision option(s) in contributing to
+///   the attainment of goal(s); and (c) establish whether, by consequence, the
+///   agent is confident or unconfident in attaining the goal(s). The results of
+///   anticipatory learning are updated goal-specific anticipated influences and
+///   confidence states.
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+
 
 using System;
 using System.Collections.Generic;
@@ -150,10 +159,10 @@ namespace SOSIEL.Processes
                 currentGoalState.AnticipatedInfluenceValue = anticipatedInfluence;
 
 
-                //finds activated decision option for each site 
+                //finds activated decision option for each site
                 IEnumerable<DecisionOption> activatedInPriorIteration = previousIterationAgentState.DecisionOptionsHistories.SelectMany(rh => rh.Value.Activated);
 
-                //update anticipated influences of found decision option 
+                //update anticipated influences of found decision option
                 activatedInPriorIteration.ForEach(r =>
                 {
                     agent.AnticipationInfluence[r][goal] = anticipatedInfluence;

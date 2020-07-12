@@ -1,4 +1,10 @@
-﻿using System;
+/// Name: MentalModel.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Helpers;
@@ -10,7 +16,7 @@ namespace SOSIEL.Entities
         int layerIndexer = 0;
 
         public int PositionNumber { get; set; }
-        public List<DecisionOptionLayer> Layers { get; private set; } 
+        public List<DecisionOptionLayer> Layers { get; private set; }
 
         public Goal[] AssociatedWith { get; private set; }
 

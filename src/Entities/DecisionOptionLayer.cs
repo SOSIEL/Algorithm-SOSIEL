@@ -1,4 +1,10 @@
-﻿using System;
+/// Name: DecisionOptionLayer.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System;
 using System.Collections.Generic;
 using SOSIEL.Helpers;
 
@@ -35,7 +41,7 @@ namespace SOSIEL.Entities
             indexer++;
             decisionOption.PositionNumber = indexer;
             decisionOption.Layer = this;
-           
+
             DecisionOptions.Add(decisionOption);
         }
 

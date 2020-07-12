@@ -1,4 +1,10 @@
-﻿using System;
+/// Name: DecisionOptionConsequent.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System;
 using SOSIEL.Environments;
 
 namespace SOSIEL.Entities
@@ -26,7 +32,7 @@ namespace SOSIEL.Entities
 
 
         /// <summary>
-        /// Creates shallow object copy 
+        /// Creates shallow object copy
         /// </summary>
         /// <returns></returns>
         public DecisionOptionConsequent Clone()
@@ -35,7 +41,7 @@ namespace SOSIEL.Entities
         }
 
         /// <summary>
-        /// Creates copy of consequent but replaces consequent constant by new constant value. 
+        /// Creates copy of consequent but replaces consequent constant by new constant value.
         /// </summary>
         /// <param name="old"></param>
         /// <param name="newValue"></param>

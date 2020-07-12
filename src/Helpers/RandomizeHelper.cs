@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+/// Name: RandomizeHelper.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System.Collections.Generic;
 using System.Linq;
 using SOSIEL.Randoms;
 

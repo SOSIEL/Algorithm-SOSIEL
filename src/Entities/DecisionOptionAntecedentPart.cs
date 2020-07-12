@@ -1,4 +1,10 @@
-﻿using System;
+/// Name: DecisionOptionAntecedentPart.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System;
 using SOSIEL.Environments;
 using SOSIEL.Helpers;
 
@@ -56,7 +62,7 @@ namespace SOSIEL.Entities
         }
 
         /// <summary>
-        /// Creates shallow object copy 
+        /// Creates shallow object copy
         /// </summary>
         /// <returns></returns>
         public DecisionOptionAntecedentPart Clone()
@@ -65,7 +71,7 @@ namespace SOSIEL.Entities
         }
 
         /// <summary>
-        /// Creates copy of antecedent part but replaces antecedent constant by new constant value. 
+        /// Creates copy of antecedent part but replaces antecedent constant by new constant value.
         /// </summary>
         /// <param name="old"></param>
         /// <param name="newConst"></param>
@@ -90,7 +96,7 @@ namespace SOSIEL.Entities
         {
             //check on reference equality first
             //custom logic for comparing two objects
-            return ReferenceEquals(this, other) 
+            return ReferenceEquals(this, other)
                 || (other != null && Param == other.Param && Sign == other.Sign && Value == other.Value && ReferenceVariable == other.ReferenceVariable);
         }
 

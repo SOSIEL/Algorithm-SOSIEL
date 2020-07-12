@@ -1,4 +1,10 @@
-﻿namespace SOSIEL.Helpers
+/// Name: SosielVariables.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+namespace SOSIEL.Helpers
 {
     /// <summary>
     /// Contains variable names used in code.

@@ -1,4 +1,10 @@
-﻿using System;
+/// Name: Site.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System;
 using System.ComponentModel;
 using SOSIEL.Enums;
 
@@ -30,7 +36,7 @@ namespace SOSIEL.Entities
             }
         }
 
-        public bool IsOccupationChanged { get; set; } 
+        public bool IsOccupationChanged { get; set; }
 
 
         public int DistanceToAnotherSite(Site site)

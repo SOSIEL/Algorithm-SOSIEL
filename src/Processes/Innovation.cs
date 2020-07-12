@@ -1,14 +1,20 @@
-﻿// Innovating follows: (a) counterfactual thinking, when counterfactual thinking is
-// unsuccessful in reinstating confidence by finding a potentially better decision
-// option from the existing set of options; and (b) satisficing, when satisficing is
-// unsuccessful in finding a decision option that matches current conditions. This process
-// of innovating involves an agent using the information learned during anticipatory learning
-// and the prior period’s decision to create a new decision option that includes the same
-// antecedent(s), a new experience-based consequent, and a consequent-aligned set of new
-// anticipated influences. A new experience-based consequent is generated using a generalized
-// probability table that displays a power-law distribution. Once a new decision option is
-// created, it is introduced into the respective mental (sub)model and made available for
-// decision-making. The result of innovating is a new decision option.
+/// Name: SosielVariables.cs
+/// Description: Innovating follows: (a) counterfactual thinking, when counterfactual
+///   thinking is unsuccessful in reinstating confidence by finding a potentially
+///   better decision option from the existing set of options; and (b) satisficing,
+///   when satisficing is unsuccessful in finding a decision option that matches
+///   current conditions. This process of innovating involves an agent using the
+///   information learned during anticipatory learning and the prior period’s
+///   decision to create a new decision option that includes the same antecedent(s),
+///   a new experience-based consequent, and a consequent-aligned set of new
+///   anticipated influences. A new experience-based consequent is generated using
+///   a generalized probability table that displays a power-law distribution. Once
+///   a new decision option is created, it is introduced into the respective mental
+///   (sub)model and made available for decision-making. The result of innovating
+///   is a new decision option.
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
 
 using System;
 using System.Collections.Generic;
@@ -45,7 +51,7 @@ namespace SOSIEL.Processes
             DecisionOption protDecisionOption = history.Activated.FirstOrDefault(r => r.Layer == layer);
 
             LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> tempNode = lastIteration.Previous;
-            
+
             //if prior period decision option is do nothing then looking for any do something decision option
             while (protDecisionOption == null && tempNode.Previous != null)
             {
@@ -212,7 +218,7 @@ namespace SOSIEL.Processes
                 });
 
 
-                //add the generated decision option to the archetype's mental model and assign one to the agent's mental model 
+                //add the generated decision option to the archetype's mental model and assign one to the agent's mental model
                 bool isNewOptionCreated = agent.Archetype.IsSimilarDecisionOptionExists(newDecisionOption) == false;
                 if (isNewOptionCreated)
                 {

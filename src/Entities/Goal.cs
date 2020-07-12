@@ -1,3 +1,9 @@
+/// Name: Goal.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
 ﻿using System;
 
 namespace SOSIEL.Entities
@@ -18,7 +24,7 @@ namespace SOSIEL.Entities
 
         public string FocalValueReference { get; set; }
 
-        public bool RankingEnabled { get; set; } 
+        public bool RankingEnabled { get; set; }
 
         public bool IsCumulative { get; set; }
 
@@ -35,7 +41,7 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public bool Equals(Goal other)
         {
-            return ReferenceEquals(this, other) 
+            return ReferenceEquals(this, other)
                 || (other != null && Name == other.Name);
         }
 

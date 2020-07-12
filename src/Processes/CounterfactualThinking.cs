@@ -1,18 +1,28 @@
-﻿// Counterfactual thinking follows goal prioritizing only in the case that a mental (sub)model is
-// modifiable, there is a lack of confidence in relation to a goal, and the number of decision options
-// matching conditions in the prior period was equal to or greater than two. A loss of confidence, which
-// may occur during the process of anticipatory learning, triggers counterfactual thinking as an effort
-// to explain the discrepancy between the anticipated and actual results of a decision. The aim of
-// counterfactual thinking is to check whether or not the agent would have behaved differently (i.e., if
-// an available alternate decision had been selected) had it known in the prior period (which is represented
-// by a prior set of conditions) what it knows in the current (which is represented by updated anticipations).
-// If an alternative satisfactory decision is identified, then confidence is regained and the agent moves on
-// to the process of social learning. If, however, an alternative decision is not identified, then the agent
-// remains unconfident and continues with individual learning by engaging in innovating, before moving on to
-// social learning. The process of counterfactual thinking consists of the following two subprocesses: (a) search
-// for a better decision option and (b) assess the success of the search. The result of counterfactual thinking
-// is knowledge of whether a potentially better decision option is present in the corresponding mental (sub)model
-// and whether there is a potential change to the state of uncertainty.
+/// Name: SosielVariables.cs
+/// Description: Counterfactual thinking follows goal prioritizing only in the
+///   case that a mental (sub)model is modifiable, there is a lack of confidence
+///   in relation to a goal, and the number of decision options matching conditions
+///   in the prior period was equal to or greater than two. A loss of confidence,
+///   which may occur during the process of anticipatory learning, triggers
+///   counterfactual thinking as an effort to explain the discrepancy between the
+///   anticipated and actual results of a decision. The aim of counterfactual
+///   thinking is to check whether or not the agent would have behaved differently
+///   (i.e., if an available alternate decision had been selected) had it known
+///   in the prior period (which is represented by a prior set of conditions) what
+///   it knows in the current (which is represented by updated anticipations). If
+///   an alternative satisfactory decision is identified, then confidence is
+///   regained and the agent moves on to the process of social learning. If, however,
+///   an alternative decision is not identified, then the agent remains unconfident
+///   and continues with individual learning by engaging in innovating, before moving
+///   on to social learning. The process of counterfactual thinking consists of the
+///   following two subprocesses: (a) search for a better decision option and
+///   (b) assess the success of the search. The result of counterfactual thinking
+///   is knowledge of whether a potentially better decision option is present in
+///   the corresponding mental (sub)model and whether there is a potential change
+///   to the state of uncertainty.
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
 
 using System;
 using System.Collections.Generic;

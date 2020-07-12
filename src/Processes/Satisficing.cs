@@ -1,22 +1,36 @@
-﻿// Goal selecting is the first cognitive process activated during the first time period and subsequently the first
-// activated decision-making process in the second and later time periods. The aim of goal selecting is to generate a
-// list of goals from which goals of focus can be selected during decision-making and in which the goals are ordered by
-// their importance levels (which, during the second and later time periods are updated during anticipatory learning).
-// The reason a list of goals is generated (as opposed to a single goal) is because not all mental (sub)models are
-// associated with all goals. The process of goal selecting consists of the following two subprocesses: (a) generate the
-// goal importance distribution, which constructs a distribution of goals that reflects their importance levels; and
-// (b) generate the goals of focus list, which applies a uniform distribution to randomly select a list of goals from the
-// goal importance distribution. The result of the goal selecting process is a list of goals, the goals of focus list,
-// approximately ordered by their level of importance. The ordering is only approximate because the use of a uniform
-// distribution to select goals implies that, at any point, chance may lead to the selection of a less important goal,
-// thereby introducing a degree of uncertainty. The process of signaling interest in a collective action follows
-// satisficing when the selected decision during satisficing is a collective action and interest in it has not yet been
-// signaled to members of associated social networks. The result of signaling interest in a collective action is an
-// updated list of agents committed to the collective action. After all agents interested in collective action had a
-// chance to express their interest, the process of satisficing is reactivated. If a sufficient number of agents have
-// signaled interest in a collective action, then during satisficing the collective action becomes their selected
-// decision. If, however, the number of agents signaling interest is not sufficient, then the collective action is
-// deactivated as a potential decision option during the current period and the agents reengage in satisficing.
+/// Name: SosielVariables.cs
+/// Description: Goal selecting is the first cognitive process activated during
+///   the first time period and subsequently the first activated decision-making
+///   process in the second and later time periods. The aim of goal selecting is to
+///   generate a list of goals from which goals of focus can be selected during
+///   decision-making and in which the goals are ordered by their importance levels
+///   (which, during the second and later time periods are updated during anticipatory
+///   learning). The reason a list of goals is generated (as opposed to a single
+///   goal) is because not all mental (sub)models are associated with all goals.
+///   The process of goal selecting consists of the following two subprocesses:
+///   (a) generate the goal importance distribution, which constructs a distribution
+///   of goals that reflects their importance levels; and (b) generate the goals
+///   of focus list, which applies a uniform distribution to randomly select a list
+///   of goals from the goal importance distribution. The result of the goal
+///   selecting process is a list of goals, the goals of focus list, approximately
+///   ordered by their level of importance. The ordering is only approximate because
+///   the use of a uniform distribution to select goals implies that, at any point,
+///   chance may lead to the selection of a less important goal, thereby introducing
+///   a degree of uncertainty. The process of signaling interest in a collective
+///   action follows satisficing when the selected decision during satisficing is
+///   a collective action and interest in it has not yet been signaled to members
+///   of associated social networks. The result of signaling interest in a collective
+///   action is an updated list of agents committed to the collective action. After
+///   all agents interested in collective action had a chance to express their
+///   interest, the process of satisficing is reactivated. If a sufficient number
+///   of agents have signaled interest in a collective action, then during
+///   satisficing the collective action becomes their selected decision. If, however,
+///   the number of agents signaling interest is not sufficient, then the collective
+///   action is deactivated as a potential decision option during the current period
+///   and the agents reengage in satisficing.
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
 
 using System;
 using System.Collections.Generic;
@@ -236,4 +250,3 @@ namespace SOSIEL.Processes
         }
     }
 }
-

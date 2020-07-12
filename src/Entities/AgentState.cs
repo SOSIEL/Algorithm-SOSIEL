@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+/// Name: AgentState.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System.Collections.Generic;
 using SOSIEL.Exceptions;
 using SOSIEL.Helpers;
 
@@ -51,7 +57,7 @@ namespace SOSIEL.Entities
         {
             AgentState<TDataSet> state = Create(false);
 
-            state.DecisionOptionsHistories.Add(defaultSite, history); 
+            state.DecisionOptionsHistories.Add(defaultSite, history);
 
             return state;
         }

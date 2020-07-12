@@ -1,4 +1,10 @@
-﻿using System;
+/// Name: DecisionOption.cs
+/// Description:
+/// Authors: Multiple.
+/// Last updated: July 10th, 2020.
+/// Copyright: Garry Sotnik
+
+using System;
 using System.Linq;
 using SOSIEL.Environments;
 using SOSIEL.Helpers;
@@ -9,7 +15,7 @@ namespace SOSIEL.Entities
     {
         public DecisionOptionLayer Layer { get; set; }
 
-        
+
         /// <summary>
         /// Set in configuration json only
         /// </summary>
@@ -58,7 +64,7 @@ namespace SOSIEL.Entities
         /// Checks agent variables on antecedent conditions
         /// </summary>
         /// <param name="agent"></param>
-        /// <returns></returns>   
+        /// <returns></returns>
         public bool IsMatch(IAgent agent)
         {
             return Antecedent.All(a => a.IsMatch(agent));
@@ -112,7 +118,7 @@ namespace SOSIEL.Entities
         }
 
         /// <summary>
-        /// Creates shallow object copy 
+        /// Creates shallow object copy
         /// </summary>
         /// <returns></returns>
         public DecisionOption Clone()
@@ -123,7 +129,7 @@ namespace SOSIEL.Entities
 
 
         /// <summary>
-        /// Creates decision option copy but replaces antecedent parts and consequent by new values. 
+        /// Creates decision option copy but replaces antecedent parts and consequent by new values.
         /// </summary>
         /// <param name="old"></param>
         /// <param name="newValue"></param>
@@ -149,10 +155,10 @@ namespace SOSIEL.Entities
         {
             //check on reference equality first
             //custom logic for comparing two objects
-            return ReferenceEquals(this, other) 
-                || (other != null 
+            return ReferenceEquals(this, other)
+                || (other != null
                 && Consequent == other.Consequent
-                && Antecedent.Length == other.Antecedent.Length 
+                && Antecedent.Length == other.Antecedent.Length
                 && Antecedent.All(ant => other.Antecedent.Any(ant2 => ant == ant2))
                 && Id == other.Id);
         }
