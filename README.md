@@ -1,7 +1,7 @@
 # SOSIEL
-SOSIEL (Self-Organizing Social &amp; Inductive Evolutionary Learning) is an open-source multi-agent algorithm that simulates spatiotemporal complexity of social contexts in which the heterogeneity of knowledge, the need for learning, and the potential for collective action play a significant role. The SOSIEL Platform can simulate the cross-generational progression of one or a large number of boundedly-rational agents, each of which is represented by a cognitive architecture that consists of theoretically-grounded cognitive processes and agent-specific and empirically-grounded knowledge. The agents can interact among themselves and/or with coupled natural (e.g., LANDIS-II) and/or technical systems, learn from their and each other’s experience, create new practices, and make decisions about taking and then take (potentially collective) actions.
+SOSIEL (Self-Organizing Social &amp; Inductive Evolutionary Learning) is an open-source multi-agent algorithm that simulates spatiotemporal complexity of social contexts in which the heterogeneity of knowledge, the need for learning, and the potential for collective action play a significant role. SOSIEL can simulate the cross-generational progression of one or a large number of boundedly-rational agents, each of which is represented by a cognitive architecture that consists of theoretically-grounded cognitive processes and agent-specific and empirically-grounded knowledge. The agents can interact among themselves and/or with coupled natural (e.g., LANDIS-II) and/or technical systems, learn from their and each other’s experience, create new practices, and make decisions about taking and then take (potentially collective) actions.
 
-Copyright 2020 Garry Sotnik and Maxim Davidovsky
+Copyright 2020 Garry Sotnik
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
