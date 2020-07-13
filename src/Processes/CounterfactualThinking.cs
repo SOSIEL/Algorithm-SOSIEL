@@ -1,4 +1,4 @@
-/// Name: SosielVariables.cs
+/// Name: CounterfactualThinking.cs
 /// Description: Counterfactual thinking follows goal prioritizing only in the
 ///   case that a mental (sub)model is modifiable, there is a lack of confidence
 ///   in relation to a goal, and the number of decision options matching conditions

@@ -1,4 +1,4 @@
-/// Name: SosielVariables.cs
+/// Name: VolatileProcess.cs
 /// Description:
 /// Authors: Multiple.
 /// Last updated: July 10th, 2020.

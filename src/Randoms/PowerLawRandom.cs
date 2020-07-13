@@ -1,4 +1,4 @@
-/// Name: SosielVariables.cs
+/// Name: PowerLawRandom.cs
 /// Description:
 /// Authors: Multiple.
 /// Last updated: July 10th, 2020.

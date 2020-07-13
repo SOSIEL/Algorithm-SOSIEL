@@ -1,4 +1,4 @@
-/// Name: SosielVariables.cs
+/// Name: Innovation.cs
 /// Description: Innovating follows: (a) counterfactual thinking, when counterfactual
 ///   thinking is unsuccessful in reinstating confidence by finding a potentially
 ///   better decision option from the existing set of options; and (b) satisficing,

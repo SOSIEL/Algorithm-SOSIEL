@@ -1,4 +1,4 @@
-/// Name: SosielVariables.cs
+/// Name: NormalDistributionRandom.cs
 /// Description:
 /// Authors: Multiple.
 /// Last updated: July 10th, 2020.

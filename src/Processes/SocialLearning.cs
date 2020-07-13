@@ -1,4 +1,4 @@
-/// Name: SosielVariables.cs
+/// Name: SocialLearning.cs
 /// Description: Social learning follows: (a) goal prioritizing, when an agent
 ///   after anticipatory learning is confident; (b) counterfactual thinking, if an
 ///   agent’s confidence is regained during counterfactual thinking; and

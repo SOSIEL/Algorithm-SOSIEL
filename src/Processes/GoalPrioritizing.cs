@@ -1,4 +1,4 @@
-/// Name: SosielVariables.cs
+/// Name: GoalPrioritizing.cs
 /// Description: Goal prioritizing always follows anticipatory learning. the aim
 ///   of goal prioritizing is to use what was learned during anticipatory learning
 ///   to reevaluate the importance levels of goals and, if necessary, reprioritize

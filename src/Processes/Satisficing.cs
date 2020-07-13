@@ -1,4 +1,4 @@
-/// Name: SosielVariables.cs
+/// Name: Satisficing.cs
 /// Description: Goal selecting is the first cognitive process activated during
 ///   the first time period and subsequently the first activated decision-making
 ///   process in the second and later time periods. The aim of goal selecting is to
