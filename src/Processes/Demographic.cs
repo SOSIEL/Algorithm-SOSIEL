@@ -65,10 +65,9 @@ namespace SOSIEL.Processes
                     var baseAgent = pairList[baseParent];
                     var baseAgentState = iterationState[baseAgent];
 
+                    var childName = $"{baseAgent.Archetype.NamePrefix}{agentList.GetAgentsWithPrefix(baseAgent.Archetype.NamePrefix).Count() + 1}";
+                    var child = baseAgent.CreateChild(gender == 0 ? Gender.Male : Gender.Female, childName);
 
-                    var child = baseAgent.CreateChild(gender == 0 ? Gender.Male : Gender.Female);
-
-                    child.SetId(agentList.Agents.Count + 1);
                     child[SosielVariables.Household] = baseAgent[SosielVariables.Household];
                     child[SosielVariables.NuclearFamily] = baseAgent[SosielVariables.NuclearFamily];
                     child[SosielVariables.ExtendedFamily] = baseAgent[SosielVariables.ExtendedFamily];
