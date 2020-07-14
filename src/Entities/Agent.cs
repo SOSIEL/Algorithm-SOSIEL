@@ -15,11 +15,9 @@ namespace SOSIEL.Entities
 {
     public class Agent : IAgent, ICloneable<Agent>, IEquatable<Agent>
     {
-        protected int id;
-
         protected Dictionary<string, dynamic> privateVariables;
 
-        public string Id { get { return Archetype.NamePrefix + id; } }
+        public string Id { get; protected set; }
 
         public AgentArchetype Archetype { get; protected set; }
 
@@ -109,10 +107,11 @@ namespace SOSIEL.Entities
             return agent;
         }
 
-        public virtual Agent CreateChild(string gender)
+        public virtual Agent CreateChild(string gender, string name)
         {
             Agent agent = CreateInstance();
 
+            agent.Id = name;
             agent.Archetype = Archetype;
             agent.privateVariables = new Dictionary<string, dynamic>();
 
@@ -255,16 +254,6 @@ namespace SOSIEL.Entities
 
             AssignNewDecisionOption(newDecisionOption, anticipatedInfluence);
         }
-
-        /// <summary>
-        /// Sets id to current agent instance.
-        /// </summary>
-        /// <param name="id"></param>
-        public void SetId(int id)
-        {
-            this.id = id;
-        }
-
 
 
         /// <summary>

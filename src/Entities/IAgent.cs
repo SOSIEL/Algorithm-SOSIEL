@@ -77,7 +77,8 @@ namespace SOSIEL.Entities
         /// Creates the child.
         /// </summary>
         /// <param name="gender">The gender.</param>
+        /// <param name="name">The name</param>
         /// <returns></returns>
-        Agent CreateChild(string gender);
+        Agent CreateChild(string gender, string name);
     }
 }
