@@ -29,10 +29,10 @@ namespace SOSIEL.Processes
         #region Specific logic for tendencies
         protected override void EqualToOrAboveFocalValue()
         {
-            if (currentGoalState.FocalValue <= currentGoalState.Value
+            if (currentGoalState.Value >= currentGoalState.FocalValue
                  || currentGoalState.Value < currentGoalState.FocalValue
-                     && currentGoalState.PriorValue < currentGoalState.Value
-                     && currentGoalState.DiffPriorAndTwicePrior <= currentGoalState.DiffCurrentAndPrior)
+                     && currentGoalState.Value > currentGoalState.PriorValue
+                     && currentGoalState.DiffCurrentAndPrior >= currentGoalState.DiffPriorAndTwicePrior)
             {
                 currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
                 currentGoalState.Confidence = true;
@@ -46,8 +46,8 @@ namespace SOSIEL.Processes
 
         protected override void Maximize()
         {
-            if (currentGoalState.Value == currentGoalState.GetMaxGoalValue()
-               || currentGoalState.PriorValue < currentGoalState.Value && currentGoalState.DiffPriorAndTwicePrior <= currentGoalState.DiffCurrentAndPrior)
+            if (currentGoalState.Value == currentGoalState.FocalValue
+               || currentGoalState.Value > currentGoalState.PriorValue && currentGoalState.DiffCurrentAndPrior >= currentGoalState.DiffPriorAndTwicePrior)
             {
                 currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
                 currentGoalState.Confidence = true;
@@ -61,9 +61,8 @@ namespace SOSIEL.Processes
 
         protected override void Minimize()
         {
-            if (currentGoalState.Value == currentGoalState.GetMinGoalValue()
-                || (currentGoalState.Value < currentGoalState.PriorValue
-                    && ((currentGoalState.TwicePriorValue - currentGoalState.PriorValue) <= (currentGoalState.PriorValue - currentGoalState.Value))))
+            if (currentGoalState.Value == currentGoalState.FocalValue
+                || currentGoalState.Value < currentGoalState.PriorValue && currentGoalState.PriorValue - currentGoalState.Value >= currentGoalState.TwicePriorValue - currentGoalState.PriorValue)
             {
                 currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
                 currentGoalState.Confidence = true;
@@ -78,7 +77,7 @@ namespace SOSIEL.Processes
         protected override void MaintainAtValue()
         {
             if (currentGoalState.Value == currentGoal.FocalValue
-                || Math.Abs(currentGoalState.DiffCurrentAndFocal) < Math.Abs(currentGoalState.DiffPriorAndFocal))
+                || Math.Abs(currentGoalState.Value - currentGoalState.FocalValue) < Math.Abs(currentGoalState.PriorValue - currentGoalState.PriorFocalValue))
             {
                 currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
                 currentGoalState.Confidence = true;

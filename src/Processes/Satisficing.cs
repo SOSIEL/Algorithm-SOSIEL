@@ -47,7 +47,18 @@ namespace SOSIEL.Processes
         #region Specific logic for tendencies
         protected override void EqualToOrAboveFocalValue()
         {
-            //We don't do anything. Do nothing decisionOption will be selected later.
+            if(goalState.Value >= goalState.FocalValue)
+                return;
+
+            DecisionOption[] selected = matchedDecisionOptions;
+
+            if (matchedDecisionOptions.Length > 1)
+            {
+                selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluence[r][processedGoal] - (goalState.FocalValue - goalState.Value))
+                    .OrderBy(hg => hg.Key).First().ToArray();
+            }
+
+            decisionOptionForActivating = selected.RandomizeOne();
         }
 
         protected override void Maximize()
@@ -72,17 +83,18 @@ namespace SOSIEL.Processes
 
         protected override void MaintainAtValue()
         {
-            throw new NotImplementedException("MaintainAtValue is not implemented in Satisficing");
+            if(goalState.Value == goalState.FocalValue)
+                return;
 
-            //DecisionOption[] selected = matchedDecisionOptions;
+            DecisionOption[] selected = matchedDecisionOptions;
 
-            //if (matchedDecisionOptions.Length > 0)
-            //{
-            //    selected = matchedDecisionOptions.GroupBy(r => Math.Abs(goalState.Value + anticipatedInfluence[r][processedGoal] - goalState.FocalValue))
-            //      .OrderBy(hg => hg.Key).First().ToArray();
-            //}
+            if (matchedDecisionOptions.Length > 1)
+            {
+                selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluence[r][processedGoal] - Math.Abs(goalState.FocalValue - goalState.Value))
+                  .OrderBy(hg => hg.Key).First().ToArray();
+            }
 
-            //decisionOptionForActivating = selected.RandomizeOne();
+            decisionOptionForActivating = selected.RandomizeOne();
         }
         #endregion
 

@@ -39,7 +39,7 @@ namespace SOSIEL.Processes
                 {
                     var noConfidenceProportions = noConfidenceGoals.Select(kvp => new
                     {
-                        Proportion = kvp.Value.Importance * CalculateRelativedDifference(agent, kvp.Key, kvp.Value),
+                        Proportion = kvp.Value.Importance * CalculateRelativeDifference(agent, kvp.Key, kvp.Value),
                         Goal = kvp.Key
                     }).ToArray();
 
@@ -81,56 +81,43 @@ namespace SOSIEL.Processes
         /// <param name="goal"></param>
         /// <param name="goalState"></param>
         /// <returns></returns>
-        double CalculateRelativedDifference(IAgent agent, Goal goal, GoalState goalState)
+        double CalculateRelativeDifference(IAgent agent, Goal goal, GoalState goalState)
         {
             double goalValue = goalState.Value;
+            double focalValue = goalState.FocalValue;
+            double priorValue = goalState.PriorValue;
+            double priorFocalValue = goalState.PriorFocalValue;
 
             if (goal.Tendency == GoalTendency.Maximize)
             {
-                double focalValue = goalState.PriorValue;
-                double maxGoalValue = goalState.GetMaxGoalValue();
+                if (priorFocalValue - priorValue == 0)
+                    return 1;
 
-                if ((maxGoalValue - focalValue) == 0
-                    || ((maxGoalValue - goalValue) / (maxGoalValue - focalValue)) < 0)
-                    return 1d;
-
-                double adjustment = (maxGoalValue - goalValue) / (maxGoalValue - focalValue);
-                return adjustment;
+                return Math.Max(1, (focalValue - goalValue) / (priorFocalValue - priorValue));
             }
 
             if (goal.Tendency == GoalTendency.EqualToOrAboveFocalValue)
             {
-                double focalValue = goalState.FocalValue;
-                double maxGoalValue = goalState.GetMaxGoalValue();
-
-                if ((maxGoalValue - focalValue) == 0
-                    || ((maxGoalValue - goalValue) / (maxGoalValue - focalValue)) < 0)
+                if (priorFocalValue - priorValue == 0)
                     return 1;
 
-                double adjustment = (maxGoalValue - goalValue) / (maxGoalValue - focalValue);
-                return adjustment;
-            }
-
-            if (goal.Tendency == GoalTendency.Minimize)
-            {
-                double focalValue = goalState.PriorValue;
-                double minGoalValue = goalState.GetMinGoalValue();
-
-                if ((focalValue - minGoalValue) == 0
-                    || ((goalValue - minGoalValue) / (focalValue - minGoalValue)) < 0)
-                    return 1;
-
-                double adjustment = (goalValue - minGoalValue) / (focalValue - minGoalValue);
-                return adjustment;
+                return Math.Max(1, (focalValue - goalValue) / (priorFocalValue - priorValue));
             }
 
             if (goal.Tendency == GoalTendency.MaintainAtValue)
             {
-                if (Math.Abs(goalState.DiffPriorAndFocal) == 0)
+                if (priorFocalValue - priorValue == 0)
                     return 1;
 
-                double adjustment = Math.Abs(goalState.DiffCurrentAndFocal) / Math.Abs(goalState.DiffPriorAndFocal);
-                return adjustment;
+                return Math.Max(1, Math.Abs(focalValue - goalValue) / Math.Abs(priorFocalValue - priorValue));
+            }
+            
+            if (goal.Tendency == GoalTendency.Minimize)
+            {
+                if (priorValue - priorFocalValue == 0)
+                    return 1;
+
+                return Math.Max(1, (goalValue - focalValue) / (priorValue - priorFocalValue));
             }
 
             throw new SosielAlgorithmException(
