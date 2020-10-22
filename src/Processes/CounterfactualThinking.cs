@@ -48,7 +48,7 @@ namespace SOSIEL.Processes
                     .OrderBy(hg => hg.Key).First().ToArray();
             }
 
-            selectedGoalState.Confidence = selected.Length > 0;
+            selectedGoalState.Confidence = selected.Length > 0 && selected.Any(r => r != activatedDecisionOption);
         }
 
         protected override void Maximize()
@@ -57,7 +57,7 @@ namespace SOSIEL.Processes
             {
                 DecisionOption[] selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluences[r][selectedGoal]).OrderByDescending(hg => hg.Key).First().ToArray();
 
-                selectedGoalState.Confidence = selected.Length > 0;
+                selectedGoalState.Confidence = selected.Length > 0 && selected.Any(r => r != activatedDecisionOption);
             }
         }
 
@@ -67,7 +67,7 @@ namespace SOSIEL.Processes
             {
                 DecisionOption[] selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluences[r][selectedGoal]).OrderBy(hg => hg.Key).First().ToArray();
 
-                selectedGoalState.Confidence = selected.Length > 0;
+                selectedGoalState.Confidence = selected.Length > 0 && selected.Any(r => r != activatedDecisionOption);
             }
         }
 
@@ -84,7 +84,7 @@ namespace SOSIEL.Processes
                     .OrderBy(hg => hg.Key).First().ToArray();
             }
 
-            selectedGoalState.Confidence = selected.Length > 0;
+            selectedGoalState.Confidence = selected.Length > 0 && selected.Any(r => r != activatedDecisionOption);
         }
 
         #endregion
