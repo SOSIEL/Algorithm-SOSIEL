@@ -19,6 +19,8 @@ namespace SOSIEL.Entities
         public double TwicePriorValue { get; set; }
 
         public double FocalValue { get; set; }
+        
+        public double PriorFocalValue { get; set; }
 
         public double DiffCurrentAndFocal { get; set; }
 
@@ -58,6 +60,8 @@ namespace SOSIEL.Entities
             PriorValue = value;
 
             FocalValue = focalValue;
+            PriorFocalValue = focalValue;
+            
             Importance = importance;
             AdjustedImportance = importance;
 
