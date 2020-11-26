@@ -48,6 +48,7 @@ namespace SOSIEL.Configuration
                     {
                         ActionTakingEnabled = true,
                         DecisionOptionSelectionEnabled = true,
+                        DecisionOptionSelectionPart2Enabled = true,
                         AgentRandomizationEnabled = true,
                     };
                 case CognitiveLevel.CL2:
@@ -56,6 +57,7 @@ namespace SOSIEL.Configuration
                         ActionTakingEnabled = true,
                         AnticipatoryLearningEnabled = true,
                         DecisionOptionSelectionEnabled = true,
+                        DecisionOptionSelectionPart2Enabled = true,
                         AgentRandomizationEnabled = true
                     };
                 case CognitiveLevel.CL3:
