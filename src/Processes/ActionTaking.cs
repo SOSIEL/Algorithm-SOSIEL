@@ -6,7 +6,6 @@
 ///   simultaneously can be set during initialization for all decision situations.
 ///   The result of action-taking is the effect of decisions on corresponding variables.
 /// Authors: Multiple.
-/// Last updated: July 10th, 2020.
 /// Copyright: Garry Sotnik
 
 using System.Collections.Generic;

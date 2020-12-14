@@ -29,7 +29,6 @@
 ///   action is deactivated as a potential decision option during the current period
 ///   and the agents reengage in satisficing.
 /// Authors: Multiple.
-/// Last updated: July 10th, 2020.
 /// Copyright: Garry Sotnik
 
 using System;

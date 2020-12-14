@@ -12,7 +12,6 @@
 ///   corresponding mental (sub)model those options that had been unknown. The
 ///   result of social learning is one or more new decision options.
 /// Authors: Multiple.
-/// Last updated: July 10th, 2020.
 /// Copyright: Garry Sotnik
 
 using System.Collections.Generic;

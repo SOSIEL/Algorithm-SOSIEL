@@ -13,7 +13,6 @@
 ///   (sub)model and made available for decision-making. The result of innovating
 ///   is a new decision option.
 /// Authors: Multiple.
-/// Last updated: July 10th, 2020.
 /// Copyright: Garry Sotnik
 
 using System;

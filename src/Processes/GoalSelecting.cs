@@ -18,7 +18,6 @@
 ///   chance may lead to the selection of a less important goal, thereby introducing
 ///   a degree of uncertainty.
 /// Authors: Multiple.
-/// Last updated: July 10th, 2020.
 /// Copyright: Garry Sotnik
 
 using System;
