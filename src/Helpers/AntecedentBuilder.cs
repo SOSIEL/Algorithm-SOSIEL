@@ -1,7 +1,6 @@
 /// Name: AntecedentBuilder.cs
 /// Description:
 /// Authors: Multiple.
-/// Last updated: July 10th, 2020.
 /// Copyright: Garry Sotnik
 
 using System;

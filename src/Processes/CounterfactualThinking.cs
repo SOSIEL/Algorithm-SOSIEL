@@ -21,7 +21,6 @@
 ///   the corresponding mental (sub)model and whether there is a potential change
 ///   to the state of uncertainty.
 /// Authors: Multiple.
-/// Last updated: July 10th, 2020.
 /// Copyright: Garry Sotnik
 
 using System;

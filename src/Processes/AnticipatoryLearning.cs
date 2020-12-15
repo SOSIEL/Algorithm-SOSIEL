@@ -13,7 +13,6 @@
 ///   anticipatory learning are updated goal-specific anticipated influences and
 ///   confidence states.
 /// Authors: Multiple.
-/// Last updated: July 10th, 2020.
 /// Copyright: Garry Sotnik
 
 

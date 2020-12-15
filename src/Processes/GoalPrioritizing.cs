@@ -11,7 +11,6 @@
 ///   prioritizing is a reevaluated and, if appropriate, a reprioritized set of
 ///   proportional importance levels.
 /// Authors: Multiple.
-/// Last updated: July 10th, 2020.
 /// Copyright: Garry Sotnik
 
 using System;
