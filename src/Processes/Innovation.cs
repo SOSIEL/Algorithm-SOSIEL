@@ -58,13 +58,13 @@ namespace SOSIEL.Processes
 
                 history = tempNode.Value[agent].DecisionOptionsHistories[dataSet];
 
-                protDecisionOption = history.Activated.Single(r => r.Layer == layer);
+                protDecisionOption = history.Activated.SingleOrDefault(r => r.Layer == layer);
             }
 
             //if activated DO is missed, then select random DO
             if (!agent.AssignedDecisionOptions.Contains(protDecisionOption))
             {
-                protDecisionOption = agent.AssignedDecisionOptions.Where(a => a.Layer == protDecisionOption.Layer)
+                protDecisionOption = agent.AssignedDecisionOptions.Where(a => a.Layer == layer)
                     .RandomizeOne();
             }
 

@@ -124,7 +124,8 @@ namespace SOSIEL.Processes
             var agents = new List<IAgent>();
 
             foreach (IAgent neighbour in currentAgent.ConnectedAgents
-                .Where(connected => connected[scope] == currentAgent[scope] || scope == null))
+                .Where(connected => scope == null || (connected.ContainsVariable(scope) && currentAgent.ContainsVariable(scope) 
+                                                                                        && connected[scope] == currentAgent[scope])))
             {
                 if (neighbour.AssignedDecisionOptions.Contains(decisionOption) == false)
                 {
