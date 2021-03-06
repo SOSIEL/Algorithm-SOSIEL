@@ -1,2 +1,2 @@
-# SOSIEL
-SOSIEL (Self-Organizing Social &amp; Inductive Evolutionary Learning)
+# SOSIEL Algorithm
+Self-Organizing Social &amp; Inductive Evolutionary Learning

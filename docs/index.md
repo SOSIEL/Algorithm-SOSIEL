@@ -1,6 +1,6 @@
 # What is the SOSIEL Algorithm?
 
-The SOSIEL (Self-Organizing Social & Inductive Evolutionary Learning) Algorithm implements boundedly-rational decision-making by one or more agents. Each SOSIEL agent makes decisions using a cognitive architecture that consists of nine cognitive processes that enable each agent to interact with other agents, learn from its own experience and that of others, and make decisions about taking, and then take, (potentially collective) actions. The SOSIEL Algorithm takes the form of a .dll file. 
+The SOSIEL Algorithm implements boundedly-rational decision-making by one or more agents. Each SOSIEL agent makes decisions using a cognitive architecture that consists of nine cognitive processes that enable each agent to interact with other agents, learn from its own experience and that of others, and make decisions about taking, and then take, (potentially collective) actions. The SOSIEL Algorithm takes the form of a .dll file. 
 
 # Features
 
