@@ -18,9 +18,7 @@ namespace SOSIEL.Helpers
     {
         public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
         {
-            IEnumerable<T> values = value as IEnumerable<T>;
-
-            return string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, values);
+            return string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, value as IEnumerable<T>);
         }
     }
 
@@ -29,14 +27,7 @@ namespace SOSIEL.Helpers
     /// </summary>
     public static class CSVHelper
     {
-        private static CsvHelper.Configuration.Configuration configuration;
-
-        static CSVHelper()
-        {
-            configuration = new CsvHelper.Configuration.Configuration() { CultureInfo = CultureInfo.InvariantCulture, HasHeaderRecord = false };
-
-            configuration.TypeConverterCache.AddConverter<string[]>(new EnumerableConverter<string>());
-        }
+        private static readonly EnumerableConverter<string> _enumerableConverter = new EnumerableConverter<string>();
 
         /// <summary>
         /// Reads all records in file.
@@ -46,21 +37,17 @@ namespace SOSIEL.Helpers
         /// <param name="headerRecortExist">if set to <c>true</c> [header recort exist].</param>
         /// <param name="mappingClass">The mapping class.</param>
         /// <returns></returns>
-        public static List<T> ReadAllRecords<T>(string filePath, bool headerRecortExist = false, Type mappingClass = null)
+        public static List<T> ReadAllRecords<T>(string filePath, bool hasHeader = false, Type mappingClass = null)
         {
+            var configuration = createConfiguration();
             if (mappingClass != null)
-            {
                 configuration.RegisterClassMap(mappingClass);
-            }
 
-            using (FileStream fs = File.Open(filePath, FileMode.Open))
-            using (StreamReader sr = new StreamReader(fs))
+            using (StreamReader sr = new StreamReader(filePath))
             using (CsvReader csv = new CsvReader(sr, configuration))
             {
-                csv.Read();
-
-                var records = csv.GetRecords<T>();
-                return records.ToList();
+                if (hasHeader) csv.Read(); // manually skip header line
+                return csv.GetRecords<T>().ToList();
             }
         }
 
@@ -73,6 +60,7 @@ namespace SOSIEL.Helpers
         public static void AppendTo<T>(string filePath, T record)
         {
             var isFileExist = File.Exists(filePath);
+            var configuration = createConfiguration();
 
             using (FileStream fs = File.Open(filePath, isFileExist ? FileMode.Append : FileMode.Create))
             using (StreamWriter sw = new StreamWriter(fs))
@@ -83,14 +71,11 @@ namespace SOSIEL.Helpers
                     configuration.HasHeaderRecord = true;
                     csv.WriteHeader<T>();
                     csv.NextRecord();
-                    configuration.HasHeaderRecord = false;
                 }
-
                 csv.WriteRecord(record);
                 csv.NextRecord();
             }
         }
-
 
         /// <summary>
         /// Appends records to the file end or creates new file and writes records there.
@@ -101,25 +86,23 @@ namespace SOSIEL.Helpers
         public static void AppendTo<T>(string filePath, IEnumerable<T> records)
         {
             var isFileExist = File.Exists(filePath);
+            var configuration = createConfiguration();
+            configuration.HasHeaderRecord = !isFileExist;
 
             using (FileStream fs = File.Open(filePath, isFileExist ? FileMode.Append : FileMode.Create))
             using (StreamWriter sw = new StreamWriter(fs))
             using (CsvWriter csv = new CsvWriter(sw, configuration))
             {
-                //it writes header by default
-                if (!isFileExist)
-                {
-                    configuration.HasHeaderRecord = true;
-                }
-                else
-                {
-                    configuration.HasHeaderRecord = false;
-                }
-
                 csv.WriteRecords(records);
             }
         }
 
-
+        private static CsvHelper.Configuration.Configuration createConfiguration()
+        {
+            var config = new CsvHelper.Configuration.Configuration(CultureInfo.InvariantCulture);
+            config.HasHeaderRecord = false;
+            config.TypeConverterCache.AddConverter<string[]>(_enumerableConverter);
+            return config;
+        }
     }
 }
