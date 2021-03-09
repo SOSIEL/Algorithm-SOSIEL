@@ -2,19 +2,24 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<Copyright>Copyright © Garry Sotnik 2021</Copyright>
+    <Copyright>Copyright © Garry Sotnik 2021</Copyright>
     <Authors>Garry Sotnik</Authors>
-    <AssemblyVersion>2.4.5</AssemblyVersion>
-    <FileVersion>2.4.5</FileVersion>
-    <Version>2.4.5</Version>
-    <AssemblyName>SOSIEL-v2.4.5</AssemblyName>
-    <PackageId>SOSIEL-v2.4.5</PackageId>
-    <Product>SOSIEL-v2.4.5</Product>    
+    <AssemblyVersion>2.4.6</AssemblyVersion>
+    <FileVersion>2.4.6</FileVersion>
+    <Version>2.4.6</Version>
+    <AssemblyName>SOSIEL-v2.4.6</AssemblyName>
+    <PackageId>SOSIEL-v2.4.6</PackageId>
+    <Product>SOSIEL-v2.4.6</Product>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="8.3.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="CsvHelper" Version="12.2.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)postbuild.bat $(Configuration)" />
+  </Target>
 
 </Project>
