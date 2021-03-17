@@ -38,7 +38,7 @@ If you have a question, please contact Garry Sotnik at contact@sosiel.org.
 
 If you come across any issue or suspected bug when using the SOSIEL Algorithm, please email contact@sosiel.org.
 
-# Authors
+# Author
 
 [Garry Sotnik](https://www.sosiel.org/)
 
