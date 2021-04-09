@@ -23,6 +23,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using NLog;
+
 using SOSIEL.Entities;
 using SOSIEL.Helpers;
 
@@ -33,6 +36,8 @@ namespace SOSIEL.Processes
     /// </summary>
     public class GoalSelecting
     {
+        private static Logger _logger = LogHelper.GetLogger();
+
         /// <summary>
         /// Sorts goals by importance
         /// </summary>
@@ -41,26 +46,24 @@ namespace SOSIEL.Processes
         /// <returns></returns>
         public IEnumerable<Goal> SortByImportance(IAgent agent, Dictionary<Goal, GoalState> goals)
         {
+            if (_logger.IsDebugEnabled) 
+                _logger.Debug($"GoalSelecting.SortByImportance: agent={agent.Id}");
+
             if (goals.Count > 1)
             {
                 var importantGoals = goals.Where(kvp => kvp.Value.Importance > 0).ToArray();
-
-                List<Goal> vector = new List<Goal>(100);
+                var vector = new List<Goal>(100);
 
                 goals.ForEach(kvp =>
                 {
                     int numberOfInsertions = (int)Math.Round((double) (kvp.Value.AdjustedImportance * 100));
-
                     for (int i = 0; i < numberOfInsertions; i++) { vector.Add(kvp.Key); }
                 });
 
                 for (int i = 0; i < importantGoals.Length && vector.Count > 0; i++)
                 {
-                    Goal nextGoal = vector.RandomizeOne();
-
+                    var nextGoal = vector.RandomizeOne();
                     vector.RemoveAll(o => o == nextGoal);
-
-
                     yield return nextGoal;
                 }
 

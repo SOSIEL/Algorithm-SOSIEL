@@ -11,7 +11,7 @@ namespace SOSIEL.Entities
 {
     public class DecisionOptionLayer: IComparable<DecisionOptionLayer>
     {
-        int indexer = 0;
+        int _indexer = 0;
         public int PositionNumber { get; set; }
 
         public MentalModel Set { get; set; }
@@ -37,8 +37,8 @@ namespace SOSIEL.Entities
         /// <param name="decisionOption"></param>
         public void Add(DecisionOption decisionOption)
         {
-            indexer++;
-            decisionOption.PositionNumber = indexer;
+            _indexer++;
+            decisionOption.PositionNumber = _indexer;
             decisionOption.Layer = this;
 
             DecisionOptions.Add(decisionOption);

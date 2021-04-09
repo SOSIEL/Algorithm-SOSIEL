@@ -9,9 +9,9 @@ namespace SOSIEL.Randoms
 {
     public class PowerLawRandom
     {
-        private static PowerLawRandom random;
+        private static PowerLawRandom _random;
 
-        double power;
+        double _power;
 
         public int Next(double min, double max)
         {
@@ -19,23 +19,24 @@ namespace SOSIEL.Randoms
 
             var x = r.NextDouble();
 
-            return (int)Math.Pow((Math.Pow(max, (power + 1)) - Math.Pow(min, (power + 1))) * x + Math.Pow(min, (power + 1)), (1 / (power + 1)));
+            return (int)Math.Pow((Math.Pow(max, (_power + 1)) - Math.Pow(min, (_power + 1))) 
+                * x + Math.Pow(min, (_power + 1)), (1 / (_power + 1)));
         }
 
         public static PowerLawRandom GetInstance
         {
             get
             {
-                if (random == null)
-                    random = new PowerLawRandom(3);
+                if (_random == null)
+                    _random = new PowerLawRandom(3);
 
-                return random;
+                return _random;
             }
         }
 
         private PowerLawRandom(int powerOfDistribution)
         {
-            power = powerOfDistribution;
+            _power = powerOfDistribution;
         }
     }
 }

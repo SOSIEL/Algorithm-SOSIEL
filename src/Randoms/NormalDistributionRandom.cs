@@ -9,7 +9,7 @@ namespace SOSIEL.Randoms
 {
     public class NormalDistributionRandom
     {
-        private static NormalDistributionRandom random;
+        private static NormalDistributionRandom _random;
 
         double _mean;
         double _stdDev;
@@ -37,10 +37,10 @@ namespace SOSIEL.Randoms
         {
             get
             {
-                if (random == null)
-                    random = new NormalDistributionRandom(0.3, 0.3);
+                if (_random == null)
+                    _random = new NormalDistributionRandom(0.3, 0.3);
 
-                return random;
+                return _random;
             }
         }
 

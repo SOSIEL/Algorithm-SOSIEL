@@ -13,13 +13,11 @@ namespace SOSIEL.Entities
 
         public dynamic Value { get; private set; }
 
-
         public TakenAction(string decisionOptionId, string variableName, dynamic value)
         {
             DecisionOptionId = decisionOptionId;
             VariableName = variableName;
             Value = value;
         }
-
     }
 }

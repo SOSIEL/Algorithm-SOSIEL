@@ -34,8 +34,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using NLog;
+
 using SOSIEL.Entities;
-using SOSIEL.Enums;
 using SOSIEL.Helpers;
 
 namespace SOSIEL.Processes
@@ -45,69 +47,68 @@ namespace SOSIEL.Processes
     /// </summary>
     public class Satisficing<TDataSet> : VolatileProcess
     {
-        Goal processedGoal;
-        GoalState goalState;
+        private static Logger _logger = LogHelper.GetLogger();
+
+        Goal _processedGoal;
+        GoalState _goalState;
 
 
-        Dictionary<DecisionOption, Dictionary<Goal, double>> anticipatedInfluence;
+        Dictionary<DecisionOption, Dictionary<Goal, double>> _anticipatedInfluence;
 
-        DecisionOption[] matchedDecisionOptions;
+        DecisionOption[] _matchedDecisionOptions;
 
 
-        DecisionOption priorPeriodActivatedDecisionOption;
-        DecisionOption decisionOptionForActivating;
+        DecisionOption _priorPeriodActivatedDecisionOption;
+        DecisionOption _decisionOptionForActivating;
 
         #region Specific logic for tendencies
         protected override void EqualToOrAboveFocalValue()
         {
-            if(goalState.Value >= goalState.FocalValue)
-                return;
-
-            DecisionOption[] selected = matchedDecisionOptions;
-
-            if (matchedDecisionOptions.Length > 1)
+            if(_goalState.Value >= _goalState.FocalValue) return;
+            var selectedDecisionOptions = _matchedDecisionOptions;
+            if (_matchedDecisionOptions.Length > 1)
             {
-                selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluence[r][processedGoal] - (goalState.FocalValue - goalState.Value))
+                selectedDecisionOptions = _matchedDecisionOptions.GroupBy(
+                    r => _anticipatedInfluence[r][_processedGoal] - (_goalState.FocalValue - _goalState.Value))
                     .OrderBy(hg => hg.Key).First().ToArray();
             }
-
-            decisionOptionForActivating = selected.RandomizeOne();
+            _decisionOptionForActivating = selectedDecisionOptions.RandomizeOne();
         }
 
         protected override void Maximize()
         {
-            if (matchedDecisionOptions.Length > 0)
+            if (_matchedDecisionOptions.Length > 0)
             {
-                DecisionOption[] selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluence[r][processedGoal]).OrderByDescending(hg => hg.Key).First().ToArray();
+                var selectedDecisionOptions = _matchedDecisionOptions.GroupBy(
+                    r => _anticipatedInfluence[r][_processedGoal])
+                    .OrderByDescending(hg => hg.Key).First().ToArray();
 
-                decisionOptionForActivating = selected.RandomizeOne();
+                _decisionOptionForActivating = selectedDecisionOptions.RandomizeOne();
             }
         }
 
         protected override void Minimize()
         {
-            if (matchedDecisionOptions.Length > 0)
+            if (_matchedDecisionOptions.Length > 0)
             {
-                DecisionOption[] selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluence[r][processedGoal]).OrderBy(hg => hg.Key).First().ToArray();
+                var selectedDecisionOptions = _matchedDecisionOptions
+                    .GroupBy(r => _anticipatedInfluence[r][_processedGoal]).OrderBy(hg => hg.Key).First().ToArray();
 
-                decisionOptionForActivating = selected.RandomizeOne();
+                _decisionOptionForActivating = selectedDecisionOptions.RandomizeOne();
             }
         }
 
         protected override void MaintainAtValue()
         {
-            if(goalState.Value == goalState.FocalValue)
-                return;
-
-            DecisionOption[] selected = matchedDecisionOptions;
-
-            if (matchedDecisionOptions.Length > 1)
+            if(_goalState.Value == _goalState.FocalValue) return;
+            var selectedDecisionOptions = _matchedDecisionOptions;
+            if (_matchedDecisionOptions.Length > 1)
             {
-                selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluence[r][processedGoal] - Math.Abs(goalState.FocalValue - goalState.Value))
+                selectedDecisionOptions = _matchedDecisionOptions.GroupBy(
+                    r => _anticipatedInfluence[r][_processedGoal] - Math.Abs(_goalState.FocalValue - _goalState.Value))
                   .OrderBy(hg => hg.Key).First().ToArray();
             }
-
-            decisionOptionForActivating = selected.RandomizeOne();
+            _decisionOptionForActivating = selectedDecisionOptions.RandomizeOne();
         }
         #endregion
 
@@ -117,23 +118,25 @@ namespace SOSIEL.Processes
         /// <param name="currentAgent"></param>
         /// <param name="decisionOption"></param>
         /// <param name="agentStates"></param>
-        List<IAgent> SignalingInterest(IAgent currentAgent, DecisionOption decisionOption, Dictionary<IAgent, AgentState<TDataSet>> agentStates)
+        List<IAgent> SignalingInterest(IAgent currentAgent, DecisionOption decisionOption,
+            Dictionary<IAgent, AgentState<TDataSet>> agentStates)
         {
+            if (_logger.IsDebugEnabled)
+                _logger.Debug($"Satisficing.SignalingInterest: {currentAgent.Id}");
             var scope = decisionOption.Scope;
-
             var agents = new List<IAgent>();
-
             foreach (IAgent neighbour in currentAgent.ConnectedAgents
-                .Where(connected => scope == null || (connected.ContainsVariable(scope) && currentAgent.ContainsVariable(scope) 
-                                                                                        && connected[scope] == currentAgent[scope])))
+                .Where(connected => scope == null || (connected.ContainsVariable(scope)
+                                                      && currentAgent.ContainsVariable(scope)
+                                                      && connected[scope] == currentAgent[scope])))
             {
                 if (neighbour.AssignedDecisionOptions.Contains(decisionOption) == false)
                 {
-                    neighbour.AssignNewDecisionOption(decisionOption, currentAgent.AnticipationInfluence[decisionOption]);
+                    neighbour.AssignNewDecisionOption(
+                        decisionOption, currentAgent.AnticipationInfluence[decisionOption]);
                     agents.Add(neighbour);
                 }
             }
-
             return agents;
         }
 
@@ -141,76 +144,82 @@ namespace SOSIEL.Processes
         /// Executes first part of action selection for specific agent and data set
         /// </summary>
         /// <param name="agent"></param>
-        /// <param name="lastIteration"></param>
+        /// <param name="currentIterationNode"></param>
         /// <param name="rankedGoals"></param>
         /// <param name="processedDecisionOptions"></param>
         /// <param name="dataSet"></param>
-        public void ExecutePartI(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> lastIteration, Goal[] rankedGoals, DecisionOption[] processedDecisionOptions, TDataSet dataSet)
+        public void ExecutePartI(
+            int recursionLevel,
+            IAgent agent,
+            LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> currentIterationNode,
+            Goal[] rankedGoals,
+            DecisionOption[] processedDecisionOptions,
+            TDataSet dataSet
+        )
         {
-            decisionOptionForActivating = null;
+            if (_logger.IsDebugEnabled)
+                _logger.Debug($"Satisficing.ExecutePartI: recursionLevel={recursionLevel} agent={agent.Id}");
 
-            AgentState<TDataSet> agentState = lastIteration.Value[agent];
-            AgentState<TDataSet> priorPeriod = lastIteration.Previous?.Value[agent];
+            _decisionOptionForActivating = null;
+
+            var currentAgentState = currentIterationNode.Value[agent];
+            var priorPeriodAgentState = currentIterationNode.Previous?.Value[agent];
 
             //adds new decisionOption history for specific data set if it doesn't exist
-            if (agentState.DecisionOptionsHistories.ContainsKey(dataSet) == false)
-                agentState.DecisionOptionsHistories.Add(dataSet, new DecisionOptionsHistory());
-
-            DecisionOptionsHistory history = agentState.DecisionOptionsHistories[dataSet];
-
-            processedGoal = rankedGoals.First(g => processedDecisionOptions.First().Layer.Set.AssociatedWith.Contains(g));
-            goalState = agentState.GoalsState[processedGoal];
-
-            matchedDecisionOptions = processedDecisionOptions.Except(history.Blocked).Where(h => h.IsMatch(agent)).ToArray();
-
-            if (matchedDecisionOptions.Length == 0)
+            DecisionOptionsHistory decisionOptionHistory;
+            if (!currentAgentState.DecisionOptionsHistories.TryGetValue(dataSet, out decisionOptionHistory))
             {
-                return;
+                decisionOptionHistory = new DecisionOptionsHistory();
+                currentAgentState.DecisionOptionsHistories.Add(dataSet, decisionOptionHistory);
             }
 
-            if (matchedDecisionOptions.Length > 1)
+            _processedGoal = rankedGoals.First(
+                g => processedDecisionOptions.First().Layer.Set.AssociatedWith.Contains(g));
+            _goalState = currentAgentState.GoalsState[_processedGoal];
+            _matchedDecisionOptions = processedDecisionOptions.Except(decisionOptionHistory.Blocked)
+                .Where(h => h.IsMatch(agent)).ToArray();
+
+            switch (_matchedDecisionOptions.Length)
             {
-                if (priorPeriod != null)
-                    priorPeriodActivatedDecisionOption = priorPeriod.DecisionOptionsHistories[dataSet].Activated.FirstOrDefault(r => r.Layer == processedDecisionOptions.First().Layer);
-
-                //set anticipated influence before execute specific logic
-                anticipatedInfluence = agent.AnticipationInfluence;
-
-                SpecificLogic(processedGoal.Tendency);
+                case 0: return;
+                case 1: _decisionOptionForActivating = _matchedDecisionOptions[0]; break;
+                default:
+                {
+                    if (priorPeriodAgentState != null)
+                    {
+                        _priorPeriodActivatedDecisionOption = priorPeriodAgentState.DecisionOptionsHistories[dataSet]
+                            .Activated.FirstOrDefault(r => r.Layer == processedDecisionOptions.First().Layer);
+                    }
+                    //set anticipated influence before execute specific logic
+                    _anticipatedInfluence = agent.AnticipationInfluence;
+                    SpecificLogic(_processedGoal.Tendency);
+                    break;
+                }
             }
-            else
-                decisionOptionForActivating = matchedDecisionOptions[0];
 
             if (processedDecisionOptions.First().Layer.Set.Layers.Count > 1)
-                decisionOptionForActivating.Apply(agent);
+                _decisionOptionForActivating.Apply(agent);
 
-            if (decisionOptionForActivating != null)
+            if (_decisionOptionForActivating != null)
+                decisionOptionHistory.Activated.Add(_decisionOptionForActivating);
+
+            decisionOptionHistory.Matched.AddRange(_matchedDecisionOptions);
+
+            if (_decisionOptionForActivating != null && _decisionOptionForActivating.IsCollectiveAction)
             {
-                history.Activated.Add(decisionOptionForActivating);
-            }
-
-            history.Matched.AddRange(matchedDecisionOptions);
-
-            if (decisionOptionForActivating != null && decisionOptionForActivating.IsCollectiveAction)
-            {
-                var agents = SignalingInterest(agent, decisionOptionForActivating, lastIteration.Value);
-
-                if (agents.Count > 0)
+                var agents = SignalingInterest(agent, _decisionOptionForActivating, currentIterationNode.Value);
+                foreach (var agent1 in agents)
                 {
-                    foreach (var a in agents)
+                    var agentHistory = currentIterationNode.Value[agent1].DecisionOptionsHistories[dataSet];
+                    var layer = _decisionOptionForActivating.Layer;
+                    if (agentHistory.Activated.Any(h => h.Layer == layer))
                     {
-                        var agentHistory = lastIteration.Value[a].DecisionOptionsHistories[dataSet];
-                        var layer = decisionOptionForActivating.Layer;
-                        if (agentHistory.Activated.Any(h => h.Layer == layer))
-                        {
-                            //clean previous choice
-                            agentHistory.Activated.RemoveAll(h => h.Layer == layer);
-                            agentHistory.Matched.RemoveAll(h => h.Layer == layer);
-
-                            var decisionOpts = a.AssignedDecisionOptions.Where(h => h.Layer == layer).ToArray();
-
-                            ExecutePartI(a, lastIteration, rankedGoals, decisionOpts, dataSet);
-                        }
+                        //clean previous choice
+                        agentHistory.Activated.RemoveAll(h => h.Layer == layer);
+                        agentHistory.Matched.RemoveAll(h => h.Layer == layer);
+                        var decisionOptions = agent1.AssignedDecisionOptions.Where(h => h.Layer == layer).ToArray();
+                        ExecutePartI(
+                            recursionLevel + 1, agent1, currentIterationNode, rankedGoals, decisionOptions, dataSet);
                     }
                 }
             }
@@ -220,43 +229,48 @@ namespace SOSIEL.Processes
         /// Executes second part of action selection for specific data set
         /// </summary>
         /// <param name="agent"></param>
-        /// <param name="lastIteration"></param>
+        /// <param name="currentIterationNode"></param>
         /// <param name="rankedGoals"></param>
         /// <param name="processedDecisionOptions"></param>
         /// <param name="dataSet"></param>
-        public void ExecutePartII(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> lastIteration, Goal[] rankedGoals, DecisionOption[] processedDecisionOptions, TDataSet dataSet)
+        public void ExecutePartII(
+            int recursionLevel,
+            IAgent agent,
+            LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> currentIterationNode,
+            Goal[] rankedGoals,
+            DecisionOption[] processedDecisionOptions,
+            TDataSet dataSet
+         )
         {
-            AgentState<TDataSet> agentState = lastIteration.Value[agent];
-
-            DecisionOptionsHistory history = agentState.DecisionOptionsHistories[dataSet];
-
-            DecisionOptionLayer layer = processedDecisionOptions.First().Layer;
-
-
-            DecisionOption selectedDecisionOptions = history.Activated.SingleOrDefault(r => r.Layer == layer);
-
-            if (selectedDecisionOptions == null) return;
-
-            if (selectedDecisionOptions.IsCollectiveAction)
+            if (_logger.IsDebugEnabled)
+                _logger.Debug($"Satisficing.ExecutePartII: recursionLevel={recursionLevel} agent={agent.Id}");
+            var agentState = currentIterationNode.Value[agent];
+            var decisionOptionHistory = agentState.DecisionOptionsHistories[dataSet];
+            var layer = processedDecisionOptions.First().Layer;
+            var selectedDecisionOption = decisionOptionHistory.Activated
+                .SingleOrDefault(r => r.Layer == layer);
+            if (selectedDecisionOption != null && selectedDecisionOption.IsCollectiveAction)
             {
-                var scope = selectedDecisionOptions.Scope;
-
-                //counting agents which selected this decision option
-                int numberOfInvolvedAgents = agent.ConnectedAgents.Where(connected => agent[scope] == connected[scope] || scope == null)
-                    .Count(a => lastIteration.Value[a].DecisionOptionsHistories[dataSet].Activated.Any(decisionOption => decisionOption == selectedDecisionOptions));
-
-                int requiredParticipants = selectedDecisionOptions.RequiredParticipants - 1;
-
-                //add decision option to blocked
+                var scope = selectedDecisionOption.Scope;
+                // counting agents which selected this decision option
+                int numberOfInvolvedAgents = agent.ConnectedAgents.Where(
+                    connected => scope == null || agent[scope] == connected[scope])
+                    .Count(a => currentIterationNode.Value[a].DecisionOptionsHistories[dataSet]
+                    .Activated.Any(decisionOption => decisionOption == selectedDecisionOption));
+                int requiredParticipants = selectedDecisionOption.RequiredParticipants - 1;
+                // add decision option to blocked
                 if (numberOfInvolvedAgents < requiredParticipants)
                 {
-                    history.Blocked.Add(selectedDecisionOptions);
-
-                    history.Activated.Remove(selectedDecisionOptions);
-
-                    ExecutePartI(agent, lastIteration, rankedGoals, processedDecisionOptions, dataSet);
-
-                    ExecutePartII(agent, lastIteration, rankedGoals, processedDecisionOptions, dataSet);
+                    decisionOptionHistory.Blocked.Add(selectedDecisionOption);
+                    decisionOptionHistory.Activated.Remove(selectedDecisionOption);
+                    ExecutePartI(
+                        recursionLevel + 1, agent, currentIterationNode, rankedGoals,
+                        processedDecisionOptions, dataSet
+                    );
+                    ExecutePartII(
+                        recursionLevel + 1, agent, currentIterationNode, rankedGoals,
+                        processedDecisionOptions, dataSet
+                    );
                 }
             }
         }

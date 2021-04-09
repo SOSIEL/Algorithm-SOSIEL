@@ -6,6 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using NLog;
+
 using SOSIEL.Environments;
 using SOSIEL.Exceptions;
 using SOSIEL.Helpers;
@@ -14,6 +17,8 @@ namespace SOSIEL.Entities
 {
     public class Agent : IAgent, ICloneable<Agent>, IEquatable<Agent>
     {
+        private static Logger _logger = LogHelper.GetLogger();
+
         protected Dictionary<string, dynamic> privateVariables;
 
         public string Id { get; protected set; }
@@ -165,7 +170,6 @@ namespace SOSIEL.Entities
         /// <param name="newValue"></param>
         protected virtual void PostSetValue(string variable, dynamic newValue)
         {
-
         }
 
 
@@ -176,38 +180,6 @@ namespace SOSIEL.Entities
         /// <param name="oldValue"></param>
         protected virtual void PreSetValue(string variable, dynamic oldValue)
         {
-
-        }
-
-        /// <summary>
-        /// Assigns new decision option to mental model of current agent. If empty rooms ended, old decision options will be removed.
-        /// </summary>
-        /// <param name="newDecisionOption"></param>
-        public void AssignNewDecisionOption(DecisionOption newDecisionOption)
-        {
-            DecisionOptionLayer layer = newDecisionOption.Layer;
-
-            DecisionOption[] layerDecisionOptions = AssignedDecisionOptions.GroupBy(r => r.Layer).Where(g => g.Key == layer).SelectMany(g => g).ToArray();
-
-            if (layerDecisionOptions.Length < layer.LayerConfiguration.MaxNumberOfDecisionOptions)
-            {
-                AssignedDecisionOptions.Add(newDecisionOption);
-                AnticipationInfluence.Add(newDecisionOption, new Dictionary<Goal, double>());
-
-                DecisionOptionActivationFreshness[newDecisionOption] = 0;
-            }
-            else
-            {
-                DecisionOption decisionOptionForRemoving = DecisionOptionActivationFreshness.Where(kvp => kvp.Key.Layer == layer).GroupBy(kvp => kvp.Value).OrderByDescending(g => g.Key)
-                    .Take(1).SelectMany(g => g.Select(kvp => kvp.Key)).RandomizeOne();
-
-                AssignedDecisionOptions.Remove(decisionOptionForRemoving);
-                AnticipationInfluence.Remove(decisionOptionForRemoving);
-
-                DecisionOptionActivationFreshness.Remove(decisionOptionForRemoving);
-
-                AssignNewDecisionOption(newDecisionOption);
-            }
         }
 
         /// <summary>
@@ -218,12 +190,12 @@ namespace SOSIEL.Entities
         /// <param name="anticipatedInfluence"></param>
         public void AssignNewDecisionOption(DecisionOption newDecisionOption, Dictionary<Goal, double> anticipatedInfluence)
         {
+            if (_logger.IsDebugEnabled) 
+                _logger.Debug($"Agent {Id}: AssignNewDecisionOptionWithAI: {newDecisionOption.Id}");
             AssignNewDecisionOption(newDecisionOption);
-
             //copy ai to personal ai for assigned goals only
-
-            Dictionary<Goal, double> ai = anticipatedInfluence.Where(kvp => AssignedGoals.Contains(kvp.Key)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
+            var ai = anticipatedInfluence.Where(kvp => AssignedGoals.Contains(kvp.Key))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             AnticipationInfluence[newDecisionOption] = new Dictionary<Goal, double>(ai);
         }
 
@@ -234,11 +206,11 @@ namespace SOSIEL.Entities
         /// <param name="layer"></param>
         public void AddDecisionOption(DecisionOption newDecisionOption, DecisionOptionLayer layer)
         {
+            if (_logger.IsDebugEnabled) 
+                _logger.Debug($"Agent {Id}: AddDecisionOptionWithUpdateArchetype: {newDecisionOption.Id}");
             Archetype.AddNewDecisionOption(newDecisionOption, layer);
-
             AssignNewDecisionOption(newDecisionOption);
         }
-
 
         /// <summary>
         /// Adds decision option to agent archetype and then assign one to the decision option list of current agent.
@@ -249,11 +221,51 @@ namespace SOSIEL.Entities
         /// <param name="anticipatedInfluence"></param>
         public void AddDecisionOption(DecisionOption newDecisionOption, DecisionOptionLayer layer, Dictionary<Goal, double> anticipatedInfluence)
         {
+            if (_logger.IsDebugEnabled) 
+                _logger.Debug($"Agent {Id}: AddDecisionOptionWithAIAndUpdateArchetype: {newDecisionOption.Id}");
             Archetype.AddNewDecisionOption(newDecisionOption, layer);
-
             AssignNewDecisionOption(newDecisionOption, anticipatedInfluence);
         }
 
+        /// <summary>
+        /// Assigns new decision option to mental model of current agent. If empty rooms ended, old decision options will be removed.
+        /// </summary>
+        /// <param name="newDecisionOption"></param>
+        public void AssignNewDecisionOption(DecisionOption newDecisionOption)
+        {
+            int attempt = 0;
+            while (true)
+            {
+                ++attempt;
+                if (_logger.IsDebugEnabled) 
+                    _logger.Debug($"Agent {Id}: AssignNewDecisionOption: {newDecisionOption.Id} attempt={attempt}");
+
+                var layer = newDecisionOption.Layer;
+                var layerDecisionOptions = AssignedDecisionOptions.GroupBy(r => r.Layer)
+                    .Where(g => g.Key == layer).SelectMany(g => g).ToArray();
+
+                if (layerDecisionOptions.Length < layer.LayerConfiguration.MaxNumberOfDecisionOptions)
+                {
+                    AssignedDecisionOptions.Add(newDecisionOption);
+                    AnticipationInfluence.Add(newDecisionOption, new Dictionary<Goal, double>());
+                    DecisionOptionActivationFreshness[newDecisionOption] = 0;
+                    return;
+                }
+
+                var decisionOptionForRemoving = DecisionOptionActivationFreshness
+                    .Where(kvp => kvp.Key.Layer == layer).GroupBy(kvp => kvp.Value).OrderByDescending(g => g.Key)
+                    .Take(1).SelectMany(g => g.Select(kvp => kvp.Key)).RandomizeOne();
+                if (_logger.IsDebugEnabled)
+                {
+                    _logger.Debug($"  Layer {layer.PositionNumber}: number of DOs={layerDecisionOptions.Length}"
+                        + $" max number of DOs={layer.LayerConfiguration.MaxNumberOfDecisionOptions}");
+                    _logger.Debug($"Agent {Id}: Remove DecisionOption: {decisionOptionForRemoving.Id}");
+                }
+                AssignedDecisionOptions.Remove(decisionOptionForRemoving);
+                AnticipationInfluence.Remove(decisionOptionForRemoving);
+                DecisionOptionActivationFreshness.Remove(decisionOptionForRemoving);
+            }
+        }
 
         /// <summary>
         /// Equality checking.
@@ -265,7 +277,6 @@ namespace SOSIEL.Entities
             return ReferenceEquals(this, other)
                 || (other != null && Id == other.Id);
         }
-
 
         public override bool Equals(object obj)
         {
@@ -297,7 +308,5 @@ namespace SOSIEL.Entities
         {
             return !(a == b);
         }
-
-
     }
 }

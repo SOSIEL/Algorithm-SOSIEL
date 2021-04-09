@@ -21,7 +21,6 @@ namespace SOSIEL.Helpers
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T, int> action)
         {
             int i = 0;
-
             foreach (T obj in enumerable)
             {
                 action(obj, i);

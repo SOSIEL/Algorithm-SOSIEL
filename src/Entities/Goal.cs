@@ -52,24 +52,14 @@ namespace SOSIEL.Entities
 
         public override int GetHashCode()
         {
-            //turn off checking by hash code
-            return 0;
+            return Name.GetHashCode();
         }
 
         public static bool operator ==(Goal a, Goal b)
         {
-            if (Object.ReferenceEquals(a, b))
-            {
-                return true;
-            }
-
-            // If one is null, but not both, return false.
-            if (((object)a == null) || ((object)b == null))
-            {
-                return false;
-            }
-
-            return a.Equals(b);
+            return ReferenceEquals(a, b)
+                ? true
+                : ((object)a == null || (object)b == null ? false : a.Equals(b));
         }
 
         public static bool operator !=(Goal a, Goal b)
