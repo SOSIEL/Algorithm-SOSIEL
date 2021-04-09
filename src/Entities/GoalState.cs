@@ -39,7 +39,6 @@ namespace SOSIEL.Entities
 
         public AnticipatedDirection AnticipatedDirection { get; set; }
 
-
         public double MinGoalValueStatic { get; set; }
 
         public double MaxGoalValueStatic { get; set; }
@@ -48,9 +47,11 @@ namespace SOSIEL.Entities
 
         public string MaxGoalValueReference { get; set; }
 
-
-        public GoalState(IAgent agent, double value, double focalValue, double importance,
-            double minGoalValueStatic, double maxGoalValueStatic, string minGoalValueReference, string maxGoalValueReference)
+        public GoalState(
+            IAgent agent, double value, double focalValue, double importance,
+            double minGoalValueStatic, double maxGoalValueStatic,
+            string minGoalValueReference, string maxGoalValueReference
+        )
         {
             Agent = agent;
 
@@ -73,6 +74,28 @@ namespace SOSIEL.Entities
             Confidence = true;
         }
 
+        public GoalState(GoalState src)
+        {
+            Agent = src.Agent;
+
+            Value = src.Value;
+            PriorValue = src.PriorValue;
+
+            FocalValue = src.FocalValue;
+            PriorFocalValue = src.PriorFocalValue;
+
+            Importance = src.Importance;
+            AdjustedImportance = src.AdjustedImportance;
+
+            MinGoalValueStatic = src.MinGoalValueStatic;
+            MaxGoalValueStatic = src.MaxGoalValueStatic;
+
+            MinGoalValueReference = src.MinGoalValueReference;
+            MaxGoalValueReference = src.MaxGoalValueReference;
+
+            Confidence = src.Confidence;
+        }
+
         /// <summary>
         /// Creates goal state for next iteration. Current goal value, focal goal value and importance are copied to new instance.
         /// </summary>
@@ -90,7 +113,6 @@ namespace SOSIEL.Entities
         {
             if (string.IsNullOrEmpty(MinGoalValueReference))
                 return MinGoalValueStatic;
-
             return Agent[MinGoalValueReference];
         }
 
@@ -102,19 +124,23 @@ namespace SOSIEL.Entities
         {
             if (string.IsNullOrEmpty(MaxGoalValueReference))
                 return MaxGoalValueStatic;
-
             return Agent[MaxGoalValueReference];
         }
 
         /// <summary>
         /// Creates a goal state copy.
+        /// Not sure if this is really needed, but preserve for now.
+        /// TODO - Remove later (v3.0).
         /// </summary>
-        /// <param name="goalState">State of the goal.</param>
+        /// <param name="goalState">State of the goal</param>
         /// <returns></returns>
         public static GoalState CreateCopy(GoalState goalState)
         {
-            return new GoalState(goalState.Agent, goalState.Value, goalState.FocalValue, goalState.AdjustedImportance,
-                goalState.MinGoalValueStatic, goalState.MaxGoalValueStatic, goalState.MinGoalValueReference, goalState.MaxGoalValueReference);
+            return new GoalState(
+                goalState.Agent, goalState.Value, goalState.FocalValue, goalState.AdjustedImportance,
+                goalState.MinGoalValueStatic, goalState.MaxGoalValueStatic,
+                goalState.MinGoalValueReference, goalState.MaxGoalValueReference
+            );
         }
     }
 }

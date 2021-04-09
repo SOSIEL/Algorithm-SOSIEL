@@ -18,9 +18,7 @@ namespace SOSIEL.Processes
         private DemographicProcessesConfiguration _configuration;
         private ProbabilityTable<int> _birthProbability;
         private ProbabilityTable<int> _deathProbability;
-
         private Dictionary<int, List<IAgent>> _births = new Dictionary<int, List<IAgent>>();
-
 
         public Demographic(DemographicProcessesConfiguration configuration, ProbabilityTable<int> birthProbability, ProbabilityTable<int> deathProbability)
         {
@@ -29,26 +27,20 @@ namespace SOSIEL.Processes
             _deathProbability = deathProbability;
         }
 
-
         public void ChangeDemographic(int iteration, Dictionary<IAgent, AgentState<TDataSet>> iterationState, AgentList agents)
         {
             ProcessBirths(iteration, iterationState, agents);
-
             ProcessPairing(agents.ActiveAgents);
-
             ProcessDeaths(agents.ActiveAgents);
         }
 
         private void ProcessBirths(int iteration, Dictionary<IAgent, AgentState<TDataSet>> iterationState, AgentList agentList)
         {
             var iterationAgents = new List<IAgent>();
-
             var unactiveAgents = _births.Where(kvp => kvp.Key >= iteration - _configuration.YearsBetweenBirths)
                 .SelectMany(kvp => kvp.Value)
                 .ToList();
-
             var activeAgents = agentList.ActiveAgents.Except(unactiveAgents).ToList();
-
             var pairs = activeAgents.Where(a => a[SosielVariables.PairStatus] == PairStatus.Paired)
                 .GroupBy(a => a[SosielVariables.NuclearFamily])
                 .ToList();
@@ -56,29 +48,25 @@ namespace SOSIEL.Processes
             foreach (var pair in pairs)
             {
                 var pairList = pair.ToList();
-
                 if (pairList.Count != 2) continue;
 
                 var averageAge = (int)Math.Ceiling(pair.Average(a => (int)a[SosielVariables.Age]));
-
                 if (_birthProbability.IsVariableSpecificEventOccur(averageAge))
                 {
                     //generate random value to determine gender
                     var gender = LinearUniformRandom.GetInstance.Next(2);
                     var baseParent = LinearUniformRandom.GetInstance.Next(2);
-
                     var baseAgent = pairList[baseParent];
                     var baseAgentState = iterationState[baseAgent];
+                    var childId = agentList.GetAgentsWithPrefix(baseAgent.Archetype.NamePrefix).Count() + 1;
+                    var childName = $"{baseAgent.Archetype.NamePrefix}{childId}";
 
-                    var childName = $"{baseAgent.Archetype.NamePrefix}{agentList.GetAgentsWithPrefix(baseAgent.Archetype.NamePrefix).Count() + 1}";
                     var child = baseAgent.CreateChild(gender == 0 ? Gender.Male : Gender.Female, childName);
-
                     child[SosielVariables.Household] = baseAgent[SosielVariables.Household];
                     child[SosielVariables.NuclearFamily] = baseAgent[SosielVariables.NuclearFamily];
                     child[SosielVariables.ExtendedFamily] = baseAgent[SosielVariables.ExtendedFamily];
 
                     var extendedFamilies = baseAgent[SosielVariables.ExtendedFamily] as List<string>;
-
                     child.ConnectedAgents.AddRange(pairList);
 
                     foreach (var extendedFamily in extendedFamilies)
@@ -92,10 +80,8 @@ namespace SOSIEL.Processes
                     }
 
                     var childState = baseAgentState.CreateChildCopy(child);
-
                     agentList.Agents.Add(child);
                     iterationState[child] = childState;
-
                     iterationAgents.AddRange(pairList);
                 }
             }
@@ -200,6 +186,5 @@ namespace SOSIEL.Processes
                 }
             }
         }
-
     }
 }

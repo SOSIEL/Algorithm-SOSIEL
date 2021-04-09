@@ -20,6 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using NLog;
+
 using SOSIEL.Entities;
 using SOSIEL.Enums;
 using SOSIEL.Helpers;
@@ -31,71 +34,77 @@ namespace SOSIEL.Processes
     /// </summary>
     public class AnticipatoryLearning<TDataSet> : VolatileProcess
     {
-        Goal currentGoal;
-        GoalState currentGoalState;
+        private static Logger _logger = LogHelper.GetLogger();
+
+        Goal _currentGoal;
+        GoalState _currentGoalState;
 
         #region Specific logic for tendencies
         protected override void EqualToOrAboveFocalValue()
         {
-            if (currentGoalState.Value >= currentGoalState.FocalValue
-                 || currentGoalState.Value < currentGoalState.FocalValue
-                     && currentGoalState.Value > currentGoalState.PriorValue
-                     && currentGoalState.DiffCurrentAndPrior >= currentGoalState.DiffPriorAndTwicePrior)
+            if (_currentGoalState.Value >= _currentGoalState.FocalValue
+                 || _currentGoalState.Value < _currentGoalState.FocalValue
+                     && _currentGoalState.Value > _currentGoalState.PriorValue
+                     && _currentGoalState.DiffCurrentAndPrior >= _currentGoalState.DiffPriorAndTwicePrior)
             {
-                currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
-                currentGoalState.Confidence = true;
+                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
+                _currentGoalState.Confidence = true;
             }
             else
             {
-                currentGoalState.AnticipatedDirection = AnticipatedDirection.Up;
-                currentGoalState.Confidence = false;
+                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Up;
+                _currentGoalState.Confidence = false;
             }
         }
 
         protected override void Maximize()
         {
-            if (currentGoalState.Value == currentGoalState.FocalValue
-               || currentGoalState.Value > currentGoalState.PriorValue && currentGoalState.DiffCurrentAndPrior >= currentGoalState.DiffPriorAndTwicePrior)
+            if (_currentGoalState.Value == _currentGoalState.FocalValue
+               || _currentGoalState.Value > _currentGoalState.PriorValue
+                    && _currentGoalState.DiffCurrentAndPrior >= _currentGoalState.DiffPriorAndTwicePrior)
             {
-                currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
-                currentGoalState.Confidence = true;
+                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
+                _currentGoalState.Confidence = true;
             }
             else
             {
-                currentGoalState.AnticipatedDirection = AnticipatedDirection.Up;
-                currentGoalState.Confidence = false;
+                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Up;
+                _currentGoalState.Confidence = false;
             }
         }
 
         protected override void Minimize()
         {
-            if (currentGoalState.Value == currentGoalState.FocalValue
-                || currentGoalState.Value < currentGoalState.PriorValue && currentGoalState.PriorValue - currentGoalState.Value >= currentGoalState.TwicePriorValue - currentGoalState.PriorValue)
+            if (_currentGoalState.Value == _currentGoalState.FocalValue
+                || _currentGoalState.Value < _currentGoalState.PriorValue 
+                    && _currentGoalState.PriorValue - _currentGoalState.Value 
+                        >= _currentGoalState.TwicePriorValue - _currentGoalState.PriorValue)
             {
-                currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
-                currentGoalState.Confidence = true;
+                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
+                _currentGoalState.Confidence = true;
             }
             else
             {
-                currentGoalState.AnticipatedDirection = AnticipatedDirection.Down;
-                currentGoalState.Confidence = false;
+                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Down;
+                _currentGoalState.Confidence = false;
             }
         }
 
         protected override void MaintainAtValue()
         {
-            if (currentGoalState.Value == currentGoal.FocalValue
-                || Math.Abs(currentGoalState.Value - currentGoalState.FocalValue) < Math.Abs(currentGoalState.PriorValue - currentGoalState.PriorFocalValue))
+            if (_currentGoalState.Value == _currentGoal.FocalValue
+                || Math.Abs(_currentGoalState.Value - _currentGoalState.FocalValue)
+                    < Math.Abs(_currentGoalState.PriorValue - _currentGoalState.PriorFocalValue))
             {
-                currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
-                currentGoalState.Confidence = true;
+                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
+                _currentGoalState.Confidence = true;
             }
             else
             {
-                currentGoalState.AnticipatedDirection = currentGoalState.DiffCurrentAndFocal > 0
+                _currentGoalState.AnticipatedDirection = _currentGoalState.DiffCurrentAndFocal > 0
                     ? AnticipatedDirection.Down
                     : AnticipatedDirection.Up;
-                currentGoalState.Confidence = false;
+                _currentGoalState.Confidence = false;
             }
         }
 
@@ -106,59 +115,47 @@ namespace SOSIEL.Processes
         /// Executes anticipatory learning for specific agent and returns sorted by priority goals array
         /// </summary>
         /// <param name="agent"></param>
-        /// <param name="lastIteration"></param>
+        /// <param name="iteration"></param>
         /// <returns></returns>
-        public void Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> lastIteration)
+        public void Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> iteration)
         {
-            AgentState<TDataSet> currentIterationAgentState = lastIteration.Value[agent];
-            AgentState<TDataSet> previousIterationAgentState = lastIteration.Previous.Value[agent];
+            if (_logger.IsDebugEnabled) 
+                _logger.Debug($"AnticipatoryLearning.Execute: agent={agent.Id}");
+
+            var currentIterationAgentState = iteration.Value[agent];
+            var previousIterationAgentState = iteration.Previous.Value[agent];
 
             foreach (var goal in agent.AssignedGoals)
             {
-                currentGoal = goal;
-                currentGoalState = currentIterationAgentState.GoalsState[goal];
+                _currentGoal = goal;
+                _currentGoalState = currentIterationAgentState.GoalsState[goal];
+                _currentGoalState.Value = agent[goal.ReferenceVariable];
                 var previousGoalState = previousIterationAgentState.GoalsState[goal];
-
-                currentGoalState.Value = agent[goal.ReferenceVariable];
-                currentGoalState.PriorValue = previousGoalState.Value;
-                currentGoalState.TwicePriorValue = previousGoalState.PriorValue;
-
+                _currentGoalState.PriorValue = previousGoalState.Value;
+                _currentGoalState.TwicePriorValue = previousGoalState.PriorValue;
                 if (goal.ChangeFocalValueOnPrevious)
                 {
                     double reductionPercent = 1;
-
                     if (goal.ReductionPercent > 0d)
                         reductionPercent = goal.ReductionPercent;
-
-                    currentGoalState.FocalValue = reductionPercent * currentGoalState.PriorValue;
+                    _currentGoalState.FocalValue = reductionPercent * _currentGoalState.PriorValue;
                 }
+                _currentGoalState.FocalValue = string.IsNullOrEmpty(goal.FocalValueReference)
+                    ? _currentGoalState.FocalValue : agent[goal.FocalValueReference];
+                _currentGoalState.DiffCurrentAndFocal = _currentGoalState.Value - _currentGoalState.FocalValue;
+                _currentGoalState.DiffPriorAndFocal = _currentGoalState.PriorValue - _currentGoalState.FocalValue;
+                _currentGoalState.DiffCurrentAndPrior = _currentGoalState.Value - _currentGoalState.PriorValue;
+                _currentGoalState.DiffPriorAndTwicePrior = _currentGoalState.PriorValue - previousGoalState.PriorValue;
 
-                currentGoalState.FocalValue = string.IsNullOrEmpty(goal.FocalValueReference) ? currentGoalState.FocalValue : agent[goal.FocalValueReference];
+                var anticipatedInfluence = goal.IsCumulative
+                    ? _currentGoalState.Value - _currentGoalState.PriorValue
+                    : _currentGoalState.Value;
 
-                currentGoalState.DiffCurrentAndFocal = currentGoalState.Value - currentGoalState.FocalValue;
-
-                currentGoalState.DiffPriorAndFocal = currentGoalState.PriorValue - currentGoalState.FocalValue;
-
-                currentGoalState.DiffCurrentAndPrior = currentGoalState.Value - currentGoalState.PriorValue;
-
-                currentGoalState.DiffPriorAndTwicePrior = currentGoalState.PriorValue - previousGoalState.PriorValue;
-
-                double anticipatedInfluence = 0;
-
-                if (goal.IsCumulative)
-                {
-                    anticipatedInfluence = currentGoalState.Value - currentGoalState.PriorValue;
-                }
-                else
-                {
-                    anticipatedInfluence = currentGoalState.Value;
-                }
-
-                currentGoalState.AnticipatedInfluenceValue = anticipatedInfluence;
-
+                _currentGoalState.AnticipatedInfluenceValue = anticipatedInfluence;
 
                 //finds activated decision option for each site
-                IEnumerable<DecisionOption> activatedInPriorIteration = previousIterationAgentState.DecisionOptionsHistories.SelectMany(rh => rh.Value.Activated);
+                var activatedInPriorIteration =
+                    previousIterationAgentState.DecisionOptionsHistories.SelectMany(rh => rh.Value.Activated);
 
                 //update anticipated influences of found decision option
                 activatedInPriorIteration.ForEach(r =>

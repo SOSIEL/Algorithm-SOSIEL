@@ -16,6 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using NLog;
+
 using SOSIEL.Entities;
 using SOSIEL.Enums;
 using SOSIEL.Exceptions;
@@ -28,6 +31,8 @@ namespace SOSIEL.Processes
     /// </summary>
     public class GoalPrioritizing
     {
+        private static Logger _logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Prioritizes agent goals.
         /// </summary>
@@ -35,12 +40,13 @@ namespace SOSIEL.Processes
         /// <param name="goals">The goals.</param>
         public void Prioritize(IAgent agent, Dictionary<Goal, GoalState> goals)
         {
+            if (_logger.IsDebugEnabled) 
+                _logger.Debug($"GoalPrioritizing.Prioritize: agent={agent.Id}");
+
             if (goals.Count > 1)
             {
                 var importantGoals = goals.Where(kvp => kvp.Value.Importance > 0).ToArray();
-
                 var noConfidenceGoals = importantGoals.Where(kvp => kvp.Value.Confidence == false).ToArray();
-
                 if (noConfidenceGoals.Length > 0 && agent.Archetype.UseImportanceAdjusting)
                 {
                     var noConfidenceProportions = noConfidenceGoals.Select(kvp => new
@@ -50,19 +56,14 @@ namespace SOSIEL.Processes
                     }).ToArray();
 
                     var confidenceGoals = goals.Where(kvp => kvp.Value.Confidence).ToArray();
-
                     double totalConfidenceUnadjustedProportions = confidenceGoals.Sum(kvp => kvp.Value.Importance);
-
                     double totalNoConfidenceAdjustedProportions = noConfidenceProportions.Sum(p => p.Proportion);
-
                     var importanceSum = totalConfidenceUnadjustedProportions + totalNoConfidenceAdjustedProportions;
-
                     var confidenceProportions = confidenceGoals.Select(kvp => new
                     {
                         Proportion = kvp.Value.AdjustedImportance / importanceSum,
                         Goal = kvp.Key
                     }).ToArray();
-
                     Enumerable.Concat(noConfidenceProportions, confidenceProportions)
                         .ForEach(p =>
                         {
@@ -98,7 +99,6 @@ namespace SOSIEL.Processes
             {
                 if (priorFocalValue - priorValue == 0)
                     return 1;
-
                 return Math.Max(1, (focalValue - goalValue) / (priorFocalValue - priorValue));
             }
 
@@ -106,7 +106,6 @@ namespace SOSIEL.Processes
             {
                 if (priorFocalValue - priorValue == 0)
                     return 1;
-
                 return Math.Max(1, (focalValue - goalValue) / (priorFocalValue - priorValue));
             }
 
@@ -114,7 +113,6 @@ namespace SOSIEL.Processes
             {
                 if (priorFocalValue - priorValue == 0)
                     return 1;
-
                 return Math.Max(1, Math.Abs(focalValue - goalValue) / Math.Abs(priorFocalValue - priorValue));
             }
             
@@ -122,7 +120,6 @@ namespace SOSIEL.Processes
             {
                 if (priorValue - priorFocalValue == 0)
                     return 1;
-
                 return Math.Max(1, (goalValue - focalValue) / (priorValue - priorFocalValue));
             }
 

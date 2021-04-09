@@ -2,20 +2,30 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Copyright>Copyright © Garry Sotnik 2021</Copyright>
+    <Copyright>Copyright © Garry Sotnik 2018-2021</Copyright>
     <Authors>Garry Sotnik</Authors>
-    <AssemblyVersion>2.4.6</AssemblyVersion>
-    <FileVersion>2.4.6</FileVersion>
-    <Version>2.4.6</Version>
-    <AssemblyName>SOSIEL-v2.4.6</AssemblyName>
-    <PackageId>SOSIEL-v2.4.6</PackageId>
-    <Product>SOSIEL-v2.4.6</Product>
+    <AssemblyName>SOSIEL-v3</AssemblyName>
+    <AssemblyTitle>SOSIEL-v3</AssemblyTitle>
+    <AssemblyProduct>SOSIEL-v2</AssemblyProduct>
+    <AssemblyCompany>SOSIEL Foundation</AssemblyCompany>
+    <AssemblyCopyright>SOSIEL Foundation</AssemblyCopyright>
+    <AssemblyVersion>3.0.0</AssemblyVersion>
+    <Product>SOSIEL-v3</Product>
+    <Version>3.0.0</Version>
+    <FileVersion>3.0.0</FileVersion>
+    <PackageId>SOSIEL</PackageId>
+    <PackageLicenseUrl>https://github.com/SOSIEL/SOSIEL/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>http://www.sosiel.org</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SOSIEL/SOSIEL</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>English</NeutralLanguage>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="12.2.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NLog" Version="4.7.8" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

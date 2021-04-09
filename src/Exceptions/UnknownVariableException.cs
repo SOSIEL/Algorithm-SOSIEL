@@ -9,16 +9,16 @@ namespace SOSIEL.Exceptions
 {
     public class UnknownVariableException : Exception
     {
-        readonly string variableName;
+        readonly string _variableName;
 
         public UnknownVariableException(string variableName)
         {
-            this.variableName = variableName;
+            _variableName = variableName;
         }
 
         public override string ToString()
         {
-            return string.Format("{0} wasn't defined for agent. Maybe you forgot to define it in config", variableName);
+            return string.Format("{0} wasn't defined for agent. Maybe you forgot to define it in config", _variableName);
         }
     }
 }

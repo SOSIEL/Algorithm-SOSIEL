@@ -11,7 +11,7 @@ namespace SOSIEL.Entities
 {
     public class DecisionOptionAntecedentPart : ICloneable<DecisionOptionAntecedentPart>, IEquatable<DecisionOptionAntecedentPart>
     {
-        private Func<dynamic, dynamic, dynamic> antecedent;
+        private Func<dynamic, dynamic, dynamic> _antecedent;
 
         public string Param { get; private set; }
 
@@ -35,7 +35,7 @@ namespace SOSIEL.Entities
         /// </summary>
         private void BuildAntecedent()
         {
-            antecedent = AntecedentBuilder.Build(Sign);
+            _antecedent = AntecedentBuilder.Build(Sign);
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public bool IsMatch(IAgent agent)
         {
-            if (antecedent == null)
+            if (_antecedent == null)
             {
                 BuildAntecedent();
             }
@@ -57,7 +57,7 @@ namespace SOSIEL.Entities
                 value = agent[ReferenceVariable];
             }
 
-            return antecedent(agent[Param], value);
+            return _antecedent(agent[Param], value);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace SOSIEL.Entities
         {
             DecisionOptionAntecedentPart newAntecedent = old.Clone();
 
-            newAntecedent.antecedent = null;
+            newAntecedent._antecedent = null;
 
             newAntecedent.Value = newConst;
 

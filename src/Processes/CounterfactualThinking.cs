@@ -1,5 +1,6 @@
 /// Name: CounterfactualThinking.cs
-/// Description: Counterfactual thinking follows goal prioritizing only in the
+/// Description:
+///   Counterfactual thinking follows goal prioritizing only in the
 ///   case that a mental (sub)model is modifiable, there is a lack of confidence
 ///   in relation to a goal, and the number of decision options matching conditions
 ///   in the prior period was equal to or greater than two. A loss of confidence,
@@ -26,8 +27,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using NLog;
+
 using SOSIEL.Entities;
-using SOSIEL.Enums;
+using SOSIEL.Helpers;
 
 namespace SOSIEL.Processes
 {
@@ -36,103 +40,131 @@ namespace SOSIEL.Processes
     /// </summary>
     public class CounterfactualThinking<TSite> : VolatileProcess
     {
-        Goal selectedGoal;
-        GoalState selectedGoalState;
-        Dictionary<DecisionOption, Dictionary<Goal, double>> anticipatedInfluences;
+        private static Logger _logger = LogHelper.GetLogger();
 
-        DecisionOption[] matchedDecisionOptions;
-        DecisionOption activatedDecisionOption;
-
-        #region Specific logic for tendencies
-        protected override void EqualToOrAboveFocalValue()
-        {
-            if(selectedGoalState.PriorValue >= selectedGoalState.PriorFocalValue)
-                return;
-
-            DecisionOption[] selected = matchedDecisionOptions;
-
-            if (matchedDecisionOptions.Length > 1)
-            {
-                selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluences[r][selectedGoal] - (selectedGoalState.PriorFocalValue - selectedGoalState.PriorValue))
-                    .OrderBy(hg => hg.Key).First().ToArray();
-            }
-
-            selectedGoalState.Confidence = selected.Length > 0 && selected.Any(r => r != activatedDecisionOption);
-        }
-
-        protected override void Maximize()
-        {
-            if (matchedDecisionOptions.Length > 0)
-            {
-                DecisionOption[] selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluences[r][selectedGoal]).OrderByDescending(hg => hg.Key).First().ToArray();
-
-                selectedGoalState.Confidence = selected.Length > 0 && selected.Any(r => r != activatedDecisionOption);
-            }
-        }
-
-        protected override void Minimize()
-        {
-            if (matchedDecisionOptions.Length > 0)
-            {
-                DecisionOption[] selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluences[r][selectedGoal]).OrderBy(hg => hg.Key).First().ToArray();
-
-                selectedGoalState.Confidence = selected.Length > 0 && selected.Any(r => r != activatedDecisionOption);
-            }
-        }
-
-        protected override void MaintainAtValue()
-        {
-            if(selectedGoalState.PriorValue == selectedGoalState.PriorFocalValue)
-                return;
-
-            DecisionOption[] selected = matchedDecisionOptions;
-
-            if (matchedDecisionOptions.Length > 1)
-            {
-                selected = matchedDecisionOptions.GroupBy(r => anticipatedInfluences[r][selectedGoal] - Math.Abs(selectedGoalState.PriorFocalValue - selectedGoalState.PriorValue))
-                    .OrderBy(hg => hg.Key).First().ToArray();
-            }
-
-            selectedGoalState.Confidence = selected.Length > 0 && selected.Any(r => r != activatedDecisionOption);
-        }
-
-        #endregion
-
+        private Goal _selectedGoal;
+        private GoalState _selectedGoalState;
+        private Dictionary<DecisionOption, Dictionary<Goal, double>> _anticipatedInfluences;
+        private DecisionOption[] _matchedDecisionOptions;
+        private DecisionOption _activatedDecisionOption;
 
         /// <summary>
         /// Executes counterfactual thinking about most important agent goal for specific site
         /// </summary>
         /// <param name="agent"></param>
-        /// <param name="lastIteration"></param>
+        /// <param name="iterationNode"></param>
         /// <param name="goal"></param>
         /// <param name="matched"></param>
         /// <param name="layer"></param>
         /// <param name="site"></param>
         /// <returns></returns>
-        public bool Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> lastIteration, Goal goal,
-            DecisionOption[] matched, DecisionOptionLayer layer, TSite site)
+        public bool Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> iterationNode,
+            Goal goal, DecisionOptionLayer layer, TSite site)
         {
-            //Period currentPeriod = periodModel.Value;
-            AgentState<TSite> priorIterationAgentState = lastIteration.Previous.Value[agent];
+            var prevIterationAgentState = iterationNode.Previous.Value[agent];
 
-            selectedGoal = goal;
+            _matchedDecisionOptions = prevIterationAgentState.DecisionOptionsHistories[site]
+                .Matched.Where(h => h.Layer == layer).ToArray();
+            if (_matchedDecisionOptions.Length < 2) return false;
 
-            selectedGoalState = lastIteration.Value[agent].GoalsState[selectedGoal];
-            selectedGoalState.Confidence = false;
+            _selectedGoal = goal;
+            _selectedGoalState = iterationNode.Value[agent].GoalsState[_selectedGoal];
+            _selectedGoalState.Confidence = false;
+            var history = prevIterationAgentState.DecisionOptionsHistories[site];
+            _activatedDecisionOption = history.Activated.FirstOrDefault(r => r.Layer == layer);
+            
+            // First, copy old influences
+            _anticipatedInfluences = new Dictionary<DecisionOption, Dictionary<Goal, double>>();
+            foreach (var kvp in prevIterationAgentState.AnticipationInfluence)
+                _anticipatedInfluences.Add(kvp.Key, new Dictionary<Goal, double>(kvp.Value));
 
-            DecisionOptionsHistory history = priorIterationAgentState.DecisionOptionsHistories[site];
+            // Update with new influences where applicable
+            foreach (var kvp in agent.AnticipationInfluence)
+            {
+                Dictionary<Goal, double> influences;
+                if (_anticipatedInfluences.TryGetValue(kvp.Key, out influences))
+                {
+                    foreach (var kvp2 in kvp.Value)
+                        influences[kvp2.Key] = kvp2.Value;
+                }
+            }
 
-
-            activatedDecisionOption = history.Activated.FirstOrDefault(r => r.Layer == layer);
-
-            anticipatedInfluences = agent.AnticipationInfluence;
-
-            matchedDecisionOptions = matched;
-
-            SpecificLogic(selectedGoal.Tendency);
-
-
-            return selectedGoalState.Confidence;
+            if (_logger.IsDebugEnabled)
+            {
+                _logger.Debug($"CounterfactualThinking.Execute: agent={agent.Id} goal={goal}"
+                    + $" layer={layer.PositionNumber}\n"
+                    + $"  Matched DOs: {string.Join(", ", _matchedDecisionOptions.Select(x => x.Id).OrderBy(x => x))}");
+                _logger.Debug("  AnticipatedInfluences: "
+                    + $"{string.Join(", ", _anticipatedInfluences.Select(x => x.Key.Id).OrderBy(x => x))}\n");
+            }
+            SpecificLogic(_selectedGoal.Tendency);
+            return _selectedGoalState.Confidence;
         }
+
+        #region Specific logic for tendencies
+
+        protected override void EqualToOrAboveFocalValue()
+        {
+            if (_selectedGoalState.PriorValue >= _selectedGoalState.PriorFocalValue) return;
+            var dv = _selectedGoalState.PriorFocalValue - _selectedGoalState.PriorValue;
+            var decisionOptions = (_matchedDecisionOptions.Length > 1)
+                ? _matchedDecisionOptions
+                    .GroupBy(r => GetAnticipatedInfluence(r)[_selectedGoal] - dv)
+                    .OrderBy(hg => hg.Key)
+                    .First()
+                    .ToArray()
+                : _matchedDecisionOptions;
+            _selectedGoalState.Confidence = decisionOptions.Length > 0 
+                && decisionOptions.Any(r => r != _activatedDecisionOption);
+        }
+
+        private Dictionary<Goal, double> GetAnticipatedInfluence(DecisionOption decisionOption)
+        {
+            return _anticipatedInfluences[decisionOption];
+        }
+
+        protected override void Maximize()
+        {
+            if (_matchedDecisionOptions.Length > 0)
+            {
+                var decisionOptions = _matchedDecisionOptions
+                    .GroupBy(r => GetAnticipatedInfluence(r)[_selectedGoal])
+                    .OrderByDescending(hg => hg.Key)
+                    .First()
+                    .ToArray();
+                _selectedGoalState.Confidence = decisionOptions.Length > 0 
+                    && decisionOptions.Any(r => r != _activatedDecisionOption);
+            }
+        }
+
+        protected override void Minimize()
+        {
+            if (_matchedDecisionOptions.Length > 0)
+            {
+                var decisionOptions = _matchedDecisionOptions.GroupBy(r => GetAnticipatedInfluence(r)[_selectedGoal])
+                    .OrderBy(hg => hg.Key)
+                    .First()
+                    .ToArray();
+                _selectedGoalState.Confidence = decisionOptions.Length > 0
+                    && decisionOptions.Any(r => r != _activatedDecisionOption);
+            }
+        }
+
+        protected override void MaintainAtValue()
+        {
+            if (_selectedGoalState.PriorValue == _selectedGoalState.PriorFocalValue) return;
+            var dv = Math.Abs(_selectedGoalState.PriorFocalValue - _selectedGoalState.PriorValue);
+            var decisionOptions = (_matchedDecisionOptions.Length > 1)
+                ? _matchedDecisionOptions
+                    .GroupBy(r => GetAnticipatedInfluence(r)[_selectedGoal] - dv)
+                    .OrderBy(hg => hg.Key)
+                    .First()
+                    .ToArray()
+                : _matchedDecisionOptions;
+            _selectedGoalState.Confidence = decisionOptions.Length > 0
+                && decisionOptions.Any(r => r != _activatedDecisionOption);
+        }
+
+        #endregion
     }
 }

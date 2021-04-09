@@ -16,6 +16,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+
+using NLog;
+
 using SOSIEL.Entities;
 using SOSIEL.Helpers;
 
@@ -26,32 +29,34 @@ namespace SOSIEL.Processes
     /// </summary>
     public class SocialLearning<TSite>
     {
+        private static Logger _logger = LogHelper.GetLogger();
+
         /// <summary>
         /// Executes social learning process of current agent for specific decision option set layer
         /// </summary>
         /// <param name="agent"></param>
-        /// <param name="lastIteration"></param>
+        /// <param name="currentIterationNode"></param>
         /// <param name="layer"></param>
-        public void ExecuteLearning(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> lastIteration, DecisionOptionLayer layer)
+        public void Execute(
+            IAgent agent,
+            LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> currentIterationNode,
+            DecisionOptionLayer layer
+        )
         {
-            Dictionary<IAgent, AgentState<TSite>> priorIterationState = lastIteration.Previous.Value;
-
+            if (_logger.IsDebugEnabled) 
+                _logger.Debug($"SocialLearning.ExecuteLearning: agent={agent.Id}");
+            var priorIterationState = currentIterationNode.Previous.Value;
             agent.ConnectedAgents.Randomize().ForEach(neighbour =>
             {
                 AgentState<TSite> priorIteration;
                 if (!priorIterationState.TryGetValue(neighbour, out priorIteration)) return;
-
-                IEnumerable<DecisionOption> activatedDecisionOptions = priorIteration.DecisionOptionsHistories
+                var activatedDecisionOptions = priorIteration.DecisionOptionsHistories
                     .SelectMany(rh => rh.Value.Activated).Where(r => r.Layer == layer);
-
                 activatedDecisionOptions.ForEach(decisionOption =>
                 {
                     if (agent.AssignedDecisionOptions.Contains(decisionOption) == false)
-                    {
                         agent.AssignNewDecisionOption(decisionOption, neighbour.AnticipationInfluence[decisionOption]);
-                    }
                 });
-
             });
         }
     }

@@ -12,7 +12,7 @@ namespace SOSIEL.Entities
 {
     public class MentalModel: IComparable<MentalModel>
     {
-        int layerIndexer = 0;
+        int _layerIndexer = 0;
 
         public int PositionNumber { get; set; }
         public List<DecisionOptionLayer> Layers { get; private set; }
@@ -37,9 +37,9 @@ namespace SOSIEL.Entities
         /// <param name="layer"></param>
         public void Add(DecisionOptionLayer layer)
         {
-            layerIndexer++;
+            _layerIndexer++;
             layer.Set = this;
-            layer.PositionNumber = layerIndexer;
+            layer.PositionNumber = _layerIndexer;
 
             Layers.Add(layer);
         }

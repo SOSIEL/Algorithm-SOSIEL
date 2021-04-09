@@ -155,7 +155,5 @@ namespace SOSIEL.Entities
 
             return siteList;
         }
-
-
     }
 }

@@ -8,8 +8,12 @@
 /// Authors: Multiple.
 /// Copyright: Garry Sotnik
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using NLog;
+
 using SOSIEL.Entities;
 using SOSIEL.Helpers;
 
@@ -20,6 +24,8 @@ namespace SOSIEL.Processes
     /// </summary>
     public class ActionTaking<TSite>
     {
+        private static Logger _logger = LogHelper.GetLogger();
+
         /// <summary>
         /// Executes action taking.
         /// </summary>
@@ -28,10 +34,11 @@ namespace SOSIEL.Processes
         /// <param name="site"></param>
         public void Execute(IAgent agent, AgentState<TSite> state, TSite site)
         {
+            if (_logger.IsDebugEnabled)
+                _logger.Debug($"ActionTaking.Execute: agent={agent.Id}");
+
             DecisionOptionsHistory history = state.DecisionOptionsHistories[site];
-
             state.TakenActions.Add(site, new List<TakenAction>());
-
             history.Activated.OrderBy(r => r.Layer.Set).ThenBy(r => r.Layer).ForEach(r =>
                {
                    TakenAction result = r.Apply(agent);
