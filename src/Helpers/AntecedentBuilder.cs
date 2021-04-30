@@ -26,7 +26,6 @@ namespace SOSIEL.Helpers
                     return ExpressionType.LessThanOrEqual;
                 case "==":
                     return ExpressionType.Equal;
-
                 default:
                     throw new ArgumentException(string.Format("Unsupported antecedent condition: {0}", inequalitySign));
             }
@@ -48,10 +47,9 @@ namespace SOSIEL.Helpers
                     CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null)
                 });
             Func<dynamic, dynamic, dynamic> lambda =
-                Expression.Lambda<Func<object, object, object>>(Expression.Dynamic(binder, typeof(object), x, y), new[] { x, y }).Compile();
-
+                Expression.Lambda<Func<object, object, object>>(
+                    Expression.Dynamic(binder, typeof(object), x, y), new[] { x, y }).Compile();
             return lambda;
         }
-
     }
 }

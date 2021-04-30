@@ -4,6 +4,9 @@
 /// Copyright: Garry Sotnik
 
 using System;
+
+using NLog;
+
 using SOSIEL.Environments;
 using SOSIEL.Helpers;
 
@@ -11,6 +14,8 @@ namespace SOSIEL.Entities
 {
     public class DecisionOptionAntecedentPart : ICloneable<DecisionOptionAntecedentPart>, IEquatable<DecisionOptionAntecedentPart>
     {
+        private static Logger _logger = LogHelper.GetLogger();
+
         private Func<dynamic, dynamic, dynamic> _antecedent;
 
         public string Param { get; private set; }
@@ -51,13 +56,14 @@ namespace SOSIEL.Entities
             }
 
             dynamic value = Value;
-
-            if (string.IsNullOrEmpty(ReferenceVariable) == false)
+            if (!string.IsNullOrEmpty(ReferenceVariable))
             {
                 value = agent[ReferenceVariable];
             }
 
-            return _antecedent(agent[Param], value);
+            var p = agent[Param];
+            // _logger.Info($"Comparing [{Param}] '{p}':{p.GetType().Name} and '{value}':{value.GetType().Name}");
+            return _antecedent(p, value);
         }
 
         /// <summary>
@@ -78,11 +84,8 @@ namespace SOSIEL.Entities
         public static DecisionOptionAntecedentPart Renew(DecisionOptionAntecedentPart old, dynamic newConst)
         {
             DecisionOptionAntecedentPart newAntecedent = old.Clone();
-
             newAntecedent._antecedent = null;
-
             newAntecedent.Value = newConst;
-
             return newAntecedent;
         }
 
@@ -96,7 +99,12 @@ namespace SOSIEL.Entities
             //check on reference equality first
             //custom logic for comparing two objects
             return ReferenceEquals(this, other)
-                || (other != null && Param == other.Param && Sign == other.Sign && Value == other.Value && ReferenceVariable == other.ReferenceVariable);
+                || (
+                other != null 
+                && Param == other.Param 
+                && Sign == other.Sign 
+                && Value == other.Value 
+                && ReferenceVariable == other.ReferenceVariable);
         }
 
         public override bool Equals(object obj)
@@ -107,8 +115,13 @@ namespace SOSIEL.Entities
 
         public override int GetHashCode()
         {
-            //disable comparing by hash code
-            return 0;
+            unchecked
+            {
+                int result = Param.GetHashCode() * 31 + Sign.GetHashCode();
+                result = result * 31 + Value.GetHashCode();
+                result = result * 31 + ReferenceVariable.GetHashCode();
+                return result;
+            }
         }
 
         public static bool operator ==(DecisionOptionAntecedentPart a, DecisionOptionAntecedentPart b)

@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using NLog;
@@ -53,33 +54,37 @@ namespace SOSIEL.Entities
             DecisionOptionActivationFreshness = new Dictionary<DecisionOption, int>();
         }
 
-
         public virtual dynamic this[string key]
         {
             get
             {
                 if (privateVariables.ContainsKey(key))
-                {
                     return privateVariables[key];
-                }
+                else if (Archetype.CommonVariables.ContainsKey(key))
+                    return Archetype[key];
                 else
                 {
-                    if (Archetype.CommonVariables.ContainsKey(key))
-                        return Archetype[key];
+                    //Debugger.Launch();
+                    _logger.Error($"Agent '{Id}': Unknown variable '{key}'");
+                    throw new UnknownVariableException(key);
                 }
-
-
-                throw new UnknownVariableException(key);
             }
+
             set
             {
-                if (privateVariables.ContainsKey(key) || Archetype.CommonVariables.ContainsKey(key))
-                    PreSetValue(key, privateVariables[key]);
+                bool isCommon = Archetype.CommonVariables.ContainsKey(key);
+                bool isPrivate = !isCommon && privateVariables.ContainsKey(key);
 
-                if (Archetype.CommonVariables.ContainsKey(key))
+                if (isCommon)
+                {
+                    PreSetValue(key, Archetype[key]);
                     Archetype[key] = value;
+                }
                 else
+                {
+                    if (isPrivate) PreSetValue(key, privateVariables[key]);
                     privateVariables[key] = value;
+                }
 
                 PostSetValue(key, value);
             }
@@ -93,21 +98,16 @@ namespace SOSIEL.Entities
         public virtual Agent Clone()
         {
             Agent agent = CreateInstance();
-
             agent.Archetype = Archetype;
             agent.privateVariables = new Dictionary<string, dynamic>(privateVariables);
-
             agent.AssignedGoals = new List<Goal>(AssignedGoals);
             agent.AssignedDecisionOptions = new List<DecisionOption>(AssignedDecisionOptions);
-
             //copy ai
             AnticipationInfluence.ForEach(kvp =>
             {
                 agent.AnticipationInfluence.Add(kvp.Key, new Dictionary<Goal, double>(kvp.Value));
             });
-
             agent.DecisionOptionActivationFreshness = new Dictionary<DecisionOption, int>(DecisionOptionActivationFreshness);
-
             return agent;
         }
 

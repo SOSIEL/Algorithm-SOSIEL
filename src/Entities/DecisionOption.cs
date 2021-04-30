@@ -14,7 +14,6 @@ namespace SOSIEL.Entities
     {
         public DecisionOptionLayer Layer { get; set; }
 
-
         /// <summary>
         /// Set in configuration json only
         /// </summary>
@@ -44,10 +43,7 @@ namespace SOSIEL.Entities
 
         public bool IsCollectiveAction
         {
-            get
-            {
-                return RequiredParticipants > 1;
-            }
+            get => RequiredParticipants > 1;
         }
 
 
@@ -77,40 +73,28 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public TakenAction Apply(IAgent agent)
         {
-            dynamic value;
-
-            if (string.IsNullOrEmpty(Consequent.VariableValue) == false)
-            {
-                value = agent[Consequent.VariableValue];
-            }
-            else
-            {
-                value = Consequent.Value;
-            }
-
+            dynamic value = string.IsNullOrEmpty(Consequent.VariableValue)
+                ? Consequent.Value : agent[Consequent.VariableValue];
 
             if (Consequent.SavePrevious)
             {
                 string key = string.Format("{0}_{1}", SosielVariables.PreviousPrefix, Consequent.Param);
-
                 agent[key] = agent[Consequent.Param];
-
                 if (Consequent.CopyToCommon)
                 {
-                    agent.SetToCommon(string.Format("{0}_{1}_{2}", SosielVariables.AgentPrefix, agent.Id, key), agent[Consequent.Param]);
+                    agent.SetToCommon(
+                        string.Format(
+                            "{0}_{1}_{2}", SosielVariables.AgentPrefix, agent.Id, key), agent[Consequent.Param]);
                 }
             }
 
             if (Consequent.CopyToCommon)
             {
                 string key = string.Format("{0}_{1}_{2}", SosielVariables.AgentPrefix, agent.Id, Consequent.Param);
-
                 agent.SetToCommon(key, value);
             }
 
             agent[Consequent.Param] = value;
-
-
             agent.DecisionOptionActivationFreshness[this] = 0;
 
             return new TakenAction(Id, Consequent.Param, value);
@@ -122,9 +106,8 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public DecisionOption Clone()
         {
-            return (DecisionOption)this.MemberwiseClone();
+            return (DecisionOption) MemberwiseClone();
         }
-
 
 
         /// <summary>
@@ -133,15 +116,13 @@ namespace SOSIEL.Entities
         /// <param name="old"></param>
         /// <param name="newValue"></param>
         /// <returns></returns>
-        public static DecisionOption Renew(DecisionOption old, DecisionOptionAntecedentPart[] newAntecedent, DecisionOptionConsequent newConsequent)
+        public static DecisionOption Renew(
+            DecisionOption old, DecisionOptionAntecedentPart[] newAntecedent, DecisionOptionConsequent newConsequent)
         {
             DecisionOption decisionOption = old.Clone();
-
             decisionOption.Antecedent = newAntecedent;
             decisionOption.Consequent = newConsequent;
-
             decisionOption.Origin = old.Id;
-
             return decisionOption;
         }
 
@@ -170,7 +151,17 @@ namespace SOSIEL.Entities
 
         public override int GetHashCode()
         {
-            //disable comparing by hash code
+            // not sure if this would work correctly
+            /*
+            unchecked
+            {
+                int result = Consequent.GetHashCode();
+                foreach (var part in Antecedent)
+                    result = result * 31 + part.GetHashCode();
+                result = result * 31 + Id.GetHashCode();
+                return result;
+            }
+            */
             return 0;
         }
 
