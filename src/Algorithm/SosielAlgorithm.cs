@@ -73,7 +73,8 @@ namespace SOSIEL.Algorithm
         }
 
         /// <summary>
-        /// Executes last preparations before runs the algorithm. Executes after InitializeAgents and InitializeFirstIterationState.
+        /// Executes last preparations before runs the algorithm.
+        /// Executes after InitializeAgents() and InitializeFirstIterationState().
         /// </summary>
         protected virtual void AfterInitialization() { }
 

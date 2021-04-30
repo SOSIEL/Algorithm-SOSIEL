@@ -48,10 +48,8 @@ namespace SOSIEL.Entities
         public static DecisionOptionConsequent Renew(DecisionOptionConsequent old, dynamic newValue)
         {
             DecisionOptionConsequent newConsequent = old.Clone();
-
             newConsequent.Value = newValue;
             newConsequent.VariableValue = null;
-
             return newConsequent;
         }
 
@@ -80,8 +78,12 @@ namespace SOSIEL.Entities
 
         public override int GetHashCode()
         {
-            //disable comparing by hash code
-            return 0;
+            unchecked
+            {
+                int result = Param.GetHashCode() * 31 + Value.GetHashCode();
+                result = result * 31 + (VariableValue != null ? VariableValue.GetHashCode() : 0);
+                return result;
+            }
         }
 
         public static bool operator ==(DecisionOptionConsequent a, DecisionOptionConsequent b)

@@ -4,14 +4,24 @@
 /// Copyright: Garry Sotnik
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+
 using Newtonsoft.Json;
+
+using NLog;
+
 using SOSIEL.Exceptions;
+using SOSIEL.Helpers;
 
 namespace SOSIEL.Entities
 {
     public class AgentArchetype
     {
+        private static Logger _logger = LogHelper.GetLogger();
+
+        public string Name { get; private set; }
+
         public string NamePrefix { get; set; }
 
         public Dictionary<string, dynamic> CommonVariables { get; set; }
@@ -31,19 +41,21 @@ namespace SOSIEL.Entities
 
         public List<MentalModel> MentalProto
         {
-            get { return mentalProto == null ? TransformDOToMentalModel() : mentalProto; }
+            get { return mentalProto == null ? TransformDOsToMentalModel() : mentalProto; }
         }
 
         public bool IsDataSetOriented { get; set; }
 
         public bool UseImportanceAdjusting { get; set; }
 
-        public AgentArchetype()
+        public AgentArchetype(string name)
         {
+            Name = name;
             CommonVariables = new Dictionary<string, dynamic>();
             Goals = new List<Goal>();
             MentalModel = new Dictionary<string, MentalModelConfiguration>();
             DecisionOptions = new List<DecisionOption>();
+            // Debugger.Launch();
         }
 
         public dynamic this[string key]
@@ -53,26 +65,28 @@ namespace SOSIEL.Entities
                 if (CommonVariables.ContainsKey(key))
                     return CommonVariables[key];
 
+                _logger.Error($"AgentArchetype: '{Name}': Unknown variable '{key}'");
                 throw new UnknownVariableException(key);
             }
+
             set
             {
                 CommonVariables[key] = value;
             }
-
         }
 
         /// <summary>
         /// Transforms from kh list to mental model
         /// </summary>
         /// <returns></returns>
-        private List<MentalModel> TransformDOToMentalModel()
+        private List<MentalModel> TransformDOsToMentalModel()
         {
-            mentalProto = DecisionOptions.GroupBy(kh => kh.MentalModel).OrderBy(g => g.Key).Select(g =>
-                   new MentalModel(g.Key, Goals.Where(goal => MentalModel[g.Key.ToString()].AssociatedWith.Contains(goal.Name)).ToArray(),
+            mentalProto = DecisionOptions.GroupBy(kh => kh.MentalModel).OrderBy(g => g.Key)
+                .Select(g => new MentalModel(g.Key, 
+                    Goals.Where(goal => MentalModel[g.Key.ToString()].AssociatedWith.Contains(goal.Name)).ToArray(),
                        g.GroupBy(kh => kh.DecisionOptionsLayer).OrderBy(g2 => g2.Key).
-                       Select(g2 => new DecisionOptionLayer(MentalModel[g.Key.ToString()].Layer[g2.Key.ToString()], g2)))).ToList();
-
+                       Select(g2 => new DecisionOptionLayer(MentalModel[g.Key.ToString()].Layer[g2.Key.ToString()], g2))))
+                .ToList();
             return mentalProto;
         }
 
@@ -86,10 +100,8 @@ namespace SOSIEL.Entities
         public void AddNewDecisionOption(DecisionOption newDecisionOption, DecisionOptionLayer layer)
         {
             if (mentalProto == null)
-                TransformDOToMentalModel();
-
+                TransformDOsToMentalModel();
             layer.Add(newDecisionOption);
-
             DecisionOptions.Add(newDecisionOption);
         }
 
