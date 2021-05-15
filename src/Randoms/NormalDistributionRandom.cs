@@ -1,7 +1,6 @@
-/// Name: NormalDistributionRandom.cs
-/// Description:
-/// Authors: Multiple.
-/// Copyright: Garry Sotnik
+// Copyright (C) 2018-2021 The SOSIEL Foundation. All rights reserved.
+// Use of this source code is governed by a license that can be found
+// in the LICENSE file located in the repository root directory.
 
 using System;
 
@@ -22,14 +21,10 @@ namespace SOSIEL.Randoms
 
         public double Next(double mean, double stdDev)
         {
-            Random r = LinearUniformRandom.GetInstance;
-
+            var r = LinearUniformRandom.GetInstance;
             double u1 = 1 - r.NextDouble();
             double u2 = 1 - r.NextDouble();
-
             double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-
-
             return mean + stdDev * randStdNormal;
         }
 
@@ -39,7 +34,6 @@ namespace SOSIEL.Randoms
             {
                 if (_random == null)
                     _random = new NormalDistributionRandom(0.3, 0.3);
-
                 return _random;
             }
         }
@@ -49,6 +43,5 @@ namespace SOSIEL.Randoms
             _mean = mean;
             _stdDev = stdDev;
         }
-
     }
 }

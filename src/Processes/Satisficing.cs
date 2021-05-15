@@ -1,4 +1,7 @@
-/// Name: Satisficing.cs
+// Copyright (C) 2018-2021 The SOSIEL Foundation. All rights reserved.
+// Use of this source code is governed by a license that can be found
+// in the LICENSE file located in the repository root directory.
+
 /// Description: Goal selecting is the first cognitive process activated during
 ///   the first time period and subsequently the first activated decision-making
 ///   process in the second and later time periods. The aim of goal selecting is to
@@ -28,8 +31,6 @@
 ///   the number of agents signaling interest is not sufficient, then the collective
 ///   action is deactivated as a potential decision option during the current period
 ///   and the agents reengage in satisficing.
-/// Authors: Multiple.
-/// Copyright: Garry Sotnik
 
 using System;
 using System.Collections.Generic;

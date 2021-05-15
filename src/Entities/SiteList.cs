@@ -1,11 +1,11 @@
-/// Name: SiteList.cs
-/// Description:
-/// Authors: Multiple.
-/// Copyright: Garry Sotnik
+// Copyright (C) 2018-2021 The SOSIEL Foundation. All rights reserved.
+// Use of this source code is governed by a license that can be found
+// in the LICENSE file located in the repository root directory.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using SOSIEL.Enums;
 
 namespace SOSIEL.Entities
@@ -95,14 +95,17 @@ namespace SOSIEL.Entities
         {
             List<Site> temp = new List<Site>(centerSite.GroupSize);
 
-            for (int i = centerSite.VerticalPosition - circle > 0 ? centerSite.VerticalPosition - circle : 0; i <= centerSite.VerticalPosition + circle && i < MatrixSize; i++)
-                for (int j = centerSite.HorizontalPosition - circle > 0 ? centerSite.HorizontalPosition - circle : 0; j <= centerSite.HorizontalPosition + circle && j < MatrixSize; j++)
+            for (int i = centerSite.VerticalPosition - circle > 0 ? centerSite.VerticalPosition - circle : 0;
+                i <= centerSite.VerticalPosition + circle && i < MatrixSize; i++)
+            {
+                for (int j = centerSite.HorizontalPosition - circle > 0 ? centerSite.HorizontalPosition - circle : 0;
+                    j <= centerSite.HorizontalPosition + circle && j < MatrixSize; j++)
                 {
-                    Site site = Sites[i][j];
-
+                    var site = Sites[i][j];
                     if (includeCenter || site.Equals(centerSite) == false)
                         temp.Add(site);
                 }
+            }
 
             return temp;
         }
@@ -131,7 +134,6 @@ namespace SOSIEL.Entities
 
                     siteList.Sites[i][j] = newSite;
 
-
                     if (newSite.ResourceCoefficient == 1)
                     {
                         resourceCenters.Add(newSite);
@@ -141,12 +143,14 @@ namespace SOSIEL.Entities
 
             if (size >= 4)
             {
-                siteList.AsSiteEnumerable().AsParallel().Where(s => resourceCenters.Any(c => c.Equals(s)) == false).ForAll(s =>
+                siteList.AsSiteEnumerable().AsParallel().Where(s => resourceCenters.Any(c => c.Equals(s)) == false)
+                    .ForAll(s =>
                   {
                       int proximity = resourceCenters.Select(c => c.DistanceToAnotherSite(s))
                         .Min();
 
-                      s.ResourceCoefficient = (Math.Round(0.25 * (size - 1), MidpointRounding.AwayFromZero) - proximity) / Math.Round(0.25 * (size - 1), MidpointRounding.AwayFromZero);
+                      s.ResourceCoefficient = (Math.Round(0.25 * (size - 1), MidpointRounding.AwayFromZero) - proximity)
+                        / Math.Round(0.25 * (size - 1), MidpointRounding.AwayFromZero);
 
                       if (s.ResourceCoefficient < 0)
                           throw new Exception("Resource coeff is less than 0");
