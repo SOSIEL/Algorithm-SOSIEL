@@ -1,4 +1,7 @@
-/// Name: SosielVariables.cs
+// Copyright (C) 2018-2021 The SOSIEL Foundation. All rights reserved.
+// Use of this source code is governed by a license that can be found
+// in the LICENSE file located in the repository root directory.
+
 /// Description: Anticipatory learning is the first out of the learning
 ///   and decisionmaking processes that is activated in the second and later
 ///   time periods. the aim of the process is to use the change in the states of
@@ -12,10 +15,6 @@
 ///   agent is confident or unconfident in attaining the goal(s). The results of
 ///   anticipatory learning are updated goal-specific anticipated influences and
 ///   confidence states.
-/// Authors: Multiple.
-/// Copyright: Garry Sotnik
-
-
 
 using System;
 using System.Collections.Generic;

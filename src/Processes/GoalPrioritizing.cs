@@ -1,4 +1,7 @@
-/// Name: GoalPrioritizing.cs
+// Copyright (C) 2018-2021 The SOSIEL Foundation. All rights reserved.
+// Use of this source code is governed by a license that can be found
+// in the LICENSE file located in the repository root directory.
+
 /// Description: Goal prioritizing always follows anticipatory learning. the aim
 ///   of goal prioritizing is to use what was learned during anticipatory learning
 ///   to reevaluate the importance levels of goals and, if necessary, reprioritize
@@ -10,8 +13,6 @@
 ///   the proportional importance levels of goals respectively. The result of goal
 ///   prioritizing is a reevaluated and, if appropriate, a reprioritized set of
 ///   proportional importance levels.
-/// Authors: Multiple.
-/// Copyright: Garry Sotnik
 
 using System;
 using System.Collections.Generic;

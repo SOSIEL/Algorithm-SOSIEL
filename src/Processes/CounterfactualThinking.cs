@@ -1,4 +1,7 @@
-/// Name: CounterfactualThinking.cs
+// Copyright (C) 2018-2021 The SOSIEL Foundation. All rights reserved.
+// Use of this source code is governed by a license that can be found
+// in the LICENSE file located in the repository root directory.
+
 /// Description:
 ///   Counterfactual thinking follows goal prioritizing only in the
 ///   case that a mental (sub)model is modifiable, there is a lack of confidence
@@ -21,8 +24,6 @@
 ///   is knowledge of whether a potentially better decision option is present in
 ///   the corresponding mental (sub)model and whether there is a potential change
 ///   to the state of uncertainty.
-/// Authors: Multiple.
-/// Copyright: Garry Sotnik
 
 using System;
 using System.Collections.Generic;

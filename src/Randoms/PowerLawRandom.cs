@@ -1,7 +1,6 @@
-/// Name: PowerLawRandom.cs
-/// Description:
-/// Authors: Multiple.
-/// Copyright: Garry Sotnik
+// Copyright (C) 2018-2021 The SOSIEL Foundation. All rights reserved.
+// Use of this source code is governed by a license that can be found
+// in the LICENSE file located in the repository root directory.
 
 using System;
 
@@ -15,10 +14,7 @@ namespace SOSIEL.Randoms
 
         public int Next(double min, double max)
         {
-            Random r = LinearUniformRandom.GetInstance;
-
-            var x = r.NextDouble();
-
+            var x = LinearUniformRandom.GetInstance.NextDouble();
             return (int)Math.Pow((Math.Pow(max, (_power + 1)) - Math.Pow(min, (_power + 1))) 
                 * x + Math.Pow(min, (_power + 1)), (1 / (_power + 1)));
         }
@@ -29,7 +25,6 @@ namespace SOSIEL.Randoms
             {
                 if (_random == null)
                     _random = new PowerLawRandom(3);
-
                 return _random;
             }
         }

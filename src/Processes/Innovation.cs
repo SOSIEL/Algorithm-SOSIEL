@@ -1,4 +1,7 @@
-/// Name: Innovation.cs
+// Copyright (C) 2018-2021 The SOSIEL Foundation. All rights reserved.
+// Use of this source code is governed by a license that can be found
+// in the LICENSE file located in the repository root directory.
+
 /// Description: Innovating follows: (a) counterfactual thinking, when counterfactual
 ///   thinking is unsuccessful in reinstating confidence by finding a potentially
 ///   better decision option from the existing set of options; and (b) satisficing,
@@ -12,8 +15,6 @@
 ///   a new decision option is created, it is introduced into the respective mental
 ///   (sub)model and made available for decision-making. The result of innovating
 ///   is a new decision option.
-/// Authors: Multiple.
-/// Copyright: Garry Sotnik
 
 using System;
 using System.Collections.Generic;
