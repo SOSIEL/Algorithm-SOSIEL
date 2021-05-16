@@ -1,22 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Copyright>Copyright © Garry Sotnik 2018-2021</Copyright>
-    <Authors>Garry Sotnik</Authors>
+    <Copyright>SOSIEL Inc.</Copyright>
+    <Authors>SOSIEL Inc.</Authors>
     <AssemblyName>SOSIEL-v3</AssemblyName>
     <AssemblyTitle>SOSIEL-v3</AssemblyTitle>
-    <AssemblyProduct>SOSIEL-v2</AssemblyProduct>
-    <AssemblyCompany>SOSIEL Foundation</AssemblyCompany>
-    <AssemblyCopyright>SOSIEL Foundation</AssemblyCopyright>
+    <AssemblyProduct>SOSIEL-v3</AssemblyProduct>
+    <AssemblyCompany>SOSIEL Inc.</AssemblyCompany>
+    <AssemblyCopyright>SOSIEL Inc.</AssemblyCopyright>
     <AssemblyVersion>3.0.0</AssemblyVersion>
     <Product>SOSIEL-v3</Product>
     <Version>3.0.0</Version>
     <FileVersion>3.0.0</FileVersion>
     <PackageId>SOSIEL</PackageId>
-    <PackageLicenseUrl>https://github.com/SOSIEL/SOSIEL/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>http://www.sosiel.org</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/SOSIEL/SOSIEL</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/SOSIEL/Algorithm-SOSIEL/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://www.sosiel.org</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SOSIEL/Algorithm-SOSIEL</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>English</NeutralLanguage>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
