@@ -14,7 +14,7 @@
     <Version>3.0.0</Version>
     <FileVersion>3.0.0</FileVersion>
     <PackageId>SOSIEL</PackageId>
-    <PackageLicenseUrl>https://github.com/SOSIEL/Algorithm-SOSIEL/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/SOSIEL/Algorithm-SOSIEL/blob/master/COPYING.LESSER</PackageLicenseUrl>
     <PackageProjectUrl>https://www.sosiel.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SOSIEL/Algorithm-SOSIEL</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
