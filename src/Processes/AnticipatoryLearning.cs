@@ -2,8 +2,8 @@
 // Copyright (C) 2021 SOSIEL Inc. All rights reserved.
 
 /// Description: Anticipatory learning is the first out of the learning
-///   and decisionmaking processes that is activated in the second and later
-///   time periods. the aim of the process is to use the change in the states of
+///   and decision making processes that is activated in the second and later
+///   time periods. The aim of the process is to use the change in the states of
 ///   goal variables to update the anticipated influences of decision options,
 ///   assess the success of decision options, and gauge confidence in attaining
 ///   goals. The process of anticipatory learning consists of the following three
@@ -90,7 +90,7 @@ namespace SOSIEL.Processes
 
         protected override void MaintainAtValue()
         {
-            if (_currentGoalState.Value == _currentGoal.FocalValue
+            if (_currentGoalState.Value == _currentGoalState.FocalValue
                 || Math.Abs(_currentGoalState.Value - _currentGoalState.FocalValue)
                     < Math.Abs(_currentGoalState.PriorValue - _currentGoalState.PriorFocalValue))
             {
@@ -138,8 +138,8 @@ namespace SOSIEL.Processes
                         reductionPercent = goal.ReductionPercent;
                     _currentGoalState.FocalValue = reductionPercent * _currentGoalState.PriorValue;
                 }
-                _currentGoalState.FocalValue = string.IsNullOrEmpty(goal.FocalValueReference)
-                    ? _currentGoalState.FocalValue : agent[goal.FocalValueReference];
+                _currentGoalState.FocalValue = string.IsNullOrEmpty(goal.FocalValueReferenceVariable)
+                    ? _currentGoalState.FocalValue : agent[goal.FocalValueReferenceVariable];
                 _currentGoalState.DiffCurrentAndFocal = _currentGoalState.Value - _currentGoalState.FocalValue;
                 _currentGoalState.DiffPriorAndFocal = _currentGoalState.PriorValue - _currentGoalState.FocalValue;
                 _currentGoalState.DiffCurrentAndPrior = _currentGoalState.Value - _currentGoalState.PriorValue;

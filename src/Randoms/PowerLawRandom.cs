@@ -7,30 +7,22 @@ namespace SOSIEL.Randoms
 {
     public class PowerLawRandom
     {
-        private static PowerLawRandom _random;
+        private static PowerLawRandom _instance = new PowerLawRandom(3);
 
-        double _power;
+        private readonly double _power;
 
-        public int Next(double min, double max)
-        {
-            var x = LinearUniformRandom.GetInstance.NextDouble();
-            return (int)Math.Pow((Math.Pow(max, (_power + 1)) - Math.Pow(min, (_power + 1))) 
-                * x + Math.Pow(min, (_power + 1)), (1 / (_power + 1)));
-        }
-
-        public static PowerLawRandom GetInstance
-        {
-            get
-            {
-                if (_random == null)
-                    _random = new PowerLawRandom(3);
-                return _random;
-            }
-        }
+        public static PowerLawRandom Instance { get => _instance; }
 
         private PowerLawRandom(int powerOfDistribution)
         {
             _power = powerOfDistribution;
+        }
+
+        public int Next(double min, double max)
+        {
+            var x = LinearUniformRandom.Instance.NextDouble();
+            return (int)Math.Pow((Math.Pow(max, (_power + 1)) - Math.Pow(min, (_power + 1))) 
+                * x + Math.Pow(min, (_power + 1)), (1 / (_power + 1)));
         }
     }
 }

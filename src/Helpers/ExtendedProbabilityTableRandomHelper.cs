@@ -26,13 +26,13 @@ namespace SOSIEL.Helpers
             int batchCount = table.ValueCount;
             double batchSize = Math.Abs(max - min) / batchCount;
 
-            double r1 = LinearUniformRandom.GetInstance.NextDouble();
+            double r1 = LinearUniformRandom.Instance.NextDouble();
 
             int batch = table.GetValueByCumulative(r1);
 
             double batchMin = min + (batch - 1) * batchSize;
 
-            double r2 = LinearUniformRandom.GetInstance.NextDouble();
+            double r2 = LinearUniformRandom.Instance.NextDouble();
 
             double randomValue = batchMin + batchSize * r2;
 

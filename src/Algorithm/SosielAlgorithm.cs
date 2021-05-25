@@ -402,9 +402,9 @@ namespace SOSIEL.Algorithm
                     //5th round: TA
                     foreach (var agentGroup in agentGroups)
                     {
-                        foreach (IAgent agent in agentGroup)
+                        foreach (var agent in agentGroup)
                         {
-                            foreach (TDataSet dataSet in GetDataSets(agent, orderedDataSets, notDataSetOriented))
+                            foreach (var dataSet in GetDataSets(agent, orderedDataSets, notDataSetOriented))
                             {
                                 actionTaking.Execute(agent, currentIteration[agent], dataSet);
                                 AfterActionTaking(agent, dataSet);

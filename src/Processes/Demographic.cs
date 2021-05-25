@@ -53,8 +53,8 @@ namespace SOSIEL.Processes
                 if (_birthProbability.IsVariableSpecificEventOccur(averageAge))
                 {
                     //generate random value to determine gender
-                    var gender = LinearUniformRandom.GetInstance.Next(2);
-                    var baseParent = LinearUniformRandom.GetInstance.Next(2);
+                    var gender = LinearUniformRandom.Instance.Next(2);
+                    var baseParent = LinearUniformRandom.Instance.Next(2);
                     var baseAgent = pairList[baseParent];
                     var baseAgentState = iterationState[baseAgent];
                     var childId = agentList.GetAgentsWithPrefix(baseAgent.Archetype.NamePrefix).Count() + 1;
