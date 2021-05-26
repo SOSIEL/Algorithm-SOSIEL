@@ -27,7 +27,7 @@ namespace SOSIEL.Helpers
         /// <param name="source"></par
         public static T RandomizeOne<T>(this List<T> source)
         {
-            int position = LinearUniformRandom.GetInstance.Next(source.Count);
+            int position = LinearUniformRandom.Instance.Next(source.Count);
 
             return source.Count > 0 ? source[position] : default(T);
         }
@@ -38,7 +38,7 @@ namespace SOSIEL.Helpers
 
             while (temp.Count > 0)
             {
-                T item = temp[LinearUniformRandom.GetInstance.Next(temp.Count)];
+                T item = temp[LinearUniformRandom.Instance.Next(temp.Count)];
 
                 temp.Remove(item);
 

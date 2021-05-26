@@ -14,7 +14,7 @@ namespace SOSIEL.Processes
         protected abstract void Minimize();
         protected abstract void MaintainAtValue();
 
-        protected void SpecificLogic(string tendency)
+        protected void SpecificLogic(GoalTendency tendency)
         {
             switch (tendency)
             {

@@ -39,7 +39,7 @@ namespace SOSIEL.Helpers
                     .Select(i => v.Value))
                 .ToList();
 
-            var random = LinearUniformRandom.GetInstance.Next(randomTable.Count);
+            var random = LinearUniformRandom.Instance.Next(randomTable.Count);
 
             return randomTable[random];
         }
