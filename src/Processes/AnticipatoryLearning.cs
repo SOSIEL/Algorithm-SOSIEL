@@ -138,8 +138,8 @@ namespace SOSIEL.Processes
                         reductionPercent = goal.ReductionPercent;
                     _currentGoalState.FocalValue = reductionPercent * _currentGoalState.PriorValue;
                 }
-                _currentGoalState.FocalValue = string.IsNullOrEmpty(goal.FocalValueReferenceVariable)
-                    ? _currentGoalState.FocalValue : agent[goal.FocalValueReferenceVariable];
+                if (!string.IsNullOrEmpty(goal.FocalValueReferenceVariable))
+                    _currentGoalState.FocalValue = agent[goal.FocalValueReferenceVariable];
                 _currentGoalState.DiffCurrentAndFocal = _currentGoalState.Value - _currentGoalState.FocalValue;
                 _currentGoalState.DiffPriorAndFocal = _currentGoalState.PriorValue - _currentGoalState.FocalValue;
                 _currentGoalState.DiffCurrentAndPrior = _currentGoalState.Value - _currentGoalState.PriorValue;
