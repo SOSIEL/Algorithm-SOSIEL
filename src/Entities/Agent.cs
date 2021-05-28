@@ -56,16 +56,15 @@ namespace SOSIEL.Entities
         {
             get
             {
-                if (privateVariables.ContainsKey(key))
-                    return privateVariables[key];
-                else if (Archetype.CommonVariables.ContainsKey(key))
-                    return Archetype[key];
-                else
-                {
-                    //Debugger.Launch();
-                    _logger.Error($"Agent '{Id}': Unknown variable '{key}'");
-                    throw new UnknownVariableException(key);
-                }
+                dynamic result1;
+                if (privateVariables.TryGetValue(key, out result1))
+                    return result1;
+
+                dynamic result2;
+                if (Archetype.CommonVariables.TryGetValue(key, out result2))
+                    return result2;
+
+                throw new UnknownVariableException(key, Id);
             }
 
             set

@@ -8,6 +8,8 @@ namespace SOSIEL.Exceptions
     public class SosielAlgorithmException : Exception
     {
         public SosielAlgorithmException(string message)
-            : base(message) { }
+            : base(message)
+        {
+        }
     }
 }

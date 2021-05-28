@@ -60,11 +60,11 @@ namespace SOSIEL.Entities
         {
             get
             {
-                if (CommonVariables.ContainsKey(key))
-                    return CommonVariables[key];
-
-                _logger.Error($"AgentArchetype: '{Name}': Unknown variable '{key}'");
-                throw new UnknownVariableException(key);
+                dynamic result;
+                if (CommonVariables.TryGetValue(key, out result))
+                    return result;
+                else
+                    throw new UnknownVariableException(key, Name, false);
             }
 
             set

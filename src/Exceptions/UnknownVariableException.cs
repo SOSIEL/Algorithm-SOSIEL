@@ -7,16 +7,18 @@ namespace SOSIEL.Exceptions
 {
     public class UnknownVariableException : Exception
     {
-        private readonly string _variableName;
+        public string VariableName { get; private set; }
+        public string AgentId { get; private set; }
 
-        public UnknownVariableException(string variableName)
+        public UnknownVariableException(string variableName, string agentId, bool isForAgent = true) :
+            base(
+                isForAgent
+                ? $"Variable {variableName} is not defined for the agent {agentId}"
+                : $"Variable {variableName} is not defined for the agent archetype {agentId}"
+            )
         {
-            _variableName = variableName;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0} wasn't defined for agent. Maybe you forgot to define it in config", _variableName);
+            VariableName = variableName;
+            AgentId = agentId;
         }
     }
 }

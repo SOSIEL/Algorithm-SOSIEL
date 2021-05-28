@@ -7,18 +7,12 @@ namespace SOSIEL.Exceptions
 {
     public class InputParameterException: Exception
     {
-        private readonly string _parameter;
-        private readonly string _message;
+        public string Parameter { get; private set; }
 
-        public InputParameterException(string parameter, string message)
+        public InputParameterException(string parameter, string message):
+            base($"Invalid value of the parameter '{parameter}': {message}")
         {
-            _parameter = parameter;
-            _message = message;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("Value of {0} is wrong. {1}", _parameter, _message);
+            Parameter = parameter;
         }
     }
 }
