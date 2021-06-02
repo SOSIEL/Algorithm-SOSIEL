@@ -40,7 +40,6 @@ namespace SOSIEL.Entities
             _layerIndexer++;
             layer.Set = this;
             layer.PositionNumber = _layerIndexer;
-
             Layers.Add(layer);
         }
 

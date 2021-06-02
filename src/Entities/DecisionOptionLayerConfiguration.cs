@@ -24,11 +24,8 @@ namespace SOSIEL.Entities
         {
             switch (sign)
             {
-                case "+":
-                    return ConsequentRelationship.Positive;
-                case "-":
-                    return ConsequentRelationship.Negative;
-
+                case "+": return ConsequentRelationship.Positive;
+                case "-": return ConsequentRelationship.Negative;
                 default:
                     throw new Exception("Unknown consequent relationship. See configuration.");
             }
@@ -52,13 +49,9 @@ namespace SOSIEL.Entities
         public double MinValue(IAgent agent)
         {
             if(string.IsNullOrEmpty(MinConsequentReference) == false)
-            {
                 return (double)agent[MinConsequentReference];
-            }
             else
-            {
                 return ConsequentValueInterval[0];
-            }
         }
 
         /// <summary>
@@ -69,13 +62,9 @@ namespace SOSIEL.Entities
         public double MaxValue(IAgent agent)
         {
             if (string.IsNullOrEmpty(MaxConsequentReference) == false)
-            {
                 return (double)agent[MaxConsequentReference];
-            }
             else
-            {
                 return ConsequentValueInterval[1];
-            }
         }
     }
 }

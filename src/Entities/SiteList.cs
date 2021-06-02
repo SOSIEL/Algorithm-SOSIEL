@@ -34,7 +34,6 @@ namespace SOSIEL.Entities
             {
                 site.Type = SiteType.Corner;
                 site.GroupSize = 3;
-
                 return site;
             }
 
@@ -43,7 +42,6 @@ namespace SOSIEL.Entities
             {
                 site.Type = SiteType.Edge;
                 site.GroupSize = 5;
-
                 return site;
             }
 
@@ -54,7 +52,8 @@ namespace SOSIEL.Entities
             int tq = Convert.ToInt32(Math.Round(0.75 * size, MidpointRounding.AwayFromZero));
 
 
-            if ((horizontalPosition == fq || horizontalPosition == tq) && (verticalPosition == fq || verticalPosition == tq))
+            if ((horizontalPosition == fq || horizontalPosition == tq) 
+                && (verticalPosition == fq || verticalPosition == tq))
             {
                 site.ResourceCoefficient = 1;
             }
@@ -70,9 +69,7 @@ namespace SOSIEL.Entities
         public Site[] TakeClosestEmptySites(Site centerSite)
         {
             Site[] closestEmptySites = null;
-
             int circle = 1;
-
             do
             {
                 closestEmptySites = AdjacentSites(centerSite, circle).Where(s => s.IsOccupied == false).ToArray();
@@ -80,8 +77,6 @@ namespace SOSIEL.Entities
                 circle++;
 
             } while (closestEmptySites.Length < 1 && circle < MatrixSize); //Defence from looping
-
-
             return closestEmptySites;
         }
 
@@ -92,8 +87,7 @@ namespace SOSIEL.Entities
 
         public IEnumerable<Site> CommonPool(Site centerSite, bool includeCenter = true, int circle = 1)
         {
-            List<Site> temp = new List<Site>(centerSite.GroupSize);
-
+            var temp = new List<Site>(centerSite.GroupSize);
             for (int i = centerSite.VerticalPosition - circle > 0 ? centerSite.VerticalPosition - circle : 0;
                 i <= centerSite.VerticalPosition + circle && i < MatrixSize; i++)
             {
@@ -105,18 +99,14 @@ namespace SOSIEL.Entities
                         temp.Add(site);
                 }
             }
-
             return temp;
         }
 
         public static SiteList Generate(int agentCount, double vacantProportion)
         {
-            List<Site> resourceCenters = new List<Site>(4);
-
+            var resourceCenters = new List<Site>(4);
             int size = CalculateMatrixSize(agentCount, vacantProportion);
-
-            SiteList siteList = new SiteList() { MatrixSize = size };
-
+            var siteList = new SiteList() { MatrixSize = size };
 
             int startIndex = 0;
 
@@ -125,18 +115,13 @@ namespace SOSIEL.Entities
             for (int i = startIndex; i < size; i++)
             {
                 siteList.Sites[i] = new Site[size];
-
                 for (int j = startIndex; j < size; j++)
                 {
                     Site newSite = CreateSite(j, i, startIndex, size - 1);
                     newSite.SiteList = siteList;
-
                     siteList.Sites[i][j] = newSite;
-
                     if (newSite.ResourceCoefficient == 1)
-                    {
                         resourceCenters.Add(newSite);
-                    }
                 }
             }
 
@@ -145,12 +130,9 @@ namespace SOSIEL.Entities
                 siteList.AsSiteEnumerable().AsParallel().Where(s => resourceCenters.Any(c => c.Equals(s)) == false)
                     .ForAll(s =>
                   {
-                      int proximity = resourceCenters.Select(c => c.DistanceToAnotherSite(s))
-                        .Min();
-
+                      int proximity = resourceCenters.Select(c => c.DistanceToAnotherSite(s)).Min();
                       s.ResourceCoefficient = (Math.Round(0.25 * (size - 1), MidpointRounding.AwayFromZero) - proximity)
                         / Math.Round(0.25 * (size - 1), MidpointRounding.AwayFromZero);
-
                       if (s.ResourceCoefficient < 0)
                           throw new Exception("Resource coeff is less than 0");
                   });

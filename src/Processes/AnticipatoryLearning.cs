@@ -30,7 +30,7 @@ namespace SOSIEL.Processes
     /// <summary>
     /// Anticipatory learning process implementation.
     /// </summary>
-    public class AnticipatoryLearning<TDataSet> : VolatileProcess
+    public class AnticipatoryLearning : VolatileProcess
     {
         private static Logger _logger = LogHelper.GetLogger();
 
@@ -115,7 +115,7 @@ namespace SOSIEL.Processes
         /// <param name="agent"></param>
         /// <param name="iteration"></param>
         /// <returns></returns>
-        public void Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> iteration)
+        public void Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState>> iteration)
         {
             if (_logger.IsDebugEnabled) 
                 _logger.Debug($"AnticipatoryLearning.Execute: agent={agent.Id}");
@@ -126,9 +126,9 @@ namespace SOSIEL.Processes
             foreach (var goal in agent.AssignedGoals)
             {
                 _currentGoal = goal;
-                _currentGoalState = currentIterationAgentState.GoalsState[goal];
+                _currentGoalState = currentIterationAgentState.GoalStates[goal];
                 _currentGoalState.Value = agent[goal.ReferenceVariable];
-                var previousGoalState = previousIterationAgentState.GoalsState[goal];
+                var previousGoalState = previousIterationAgentState.GoalStates[goal];
                 _currentGoalState.PriorValue = previousGoalState.Value;
                 _currentGoalState.TwicePriorValue = previousGoalState.PriorValue;
                 if (goal.ChangeFocalValueOnPrevious)
@@ -153,7 +153,7 @@ namespace SOSIEL.Processes
 
                 //finds activated decision option for each site
                 var activatedInPriorIteration =
-                    previousIterationAgentState.DecisionOptionsHistories.SelectMany(rh => rh.Value.Activated);
+                    previousIterationAgentState.DecisionOptionHistories.SelectMany(rh => rh.Value.Activated);
 
                 //update anticipated influences of found decision option
                 activatedInPriorIteration.ForEach(r =>

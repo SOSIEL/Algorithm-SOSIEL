@@ -37,8 +37,7 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public bool Equals(Goal other)
         {
-            return ReferenceEquals(this, other)
-                || (other != null && Name == other.Name);
+            return ReferenceEquals(this, other) || (other != null && Name == other.Name);
         }
 
         public override bool Equals(object obj)

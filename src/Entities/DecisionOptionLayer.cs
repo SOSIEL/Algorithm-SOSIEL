@@ -39,7 +39,6 @@ namespace SOSIEL.Entities
             _indexer++;
             decisionOption.PositionNumber = _indexer;
             decisionOption.Layer = this;
-
             DecisionOptions.Add(decisionOption);
         }
 
@@ -50,7 +49,6 @@ namespace SOSIEL.Entities
         public void Remove(DecisionOption decisionOption)
         {
             decisionOption.Layer = null;
-
             DecisionOptions.Remove(decisionOption);
         }
 

@@ -49,15 +49,11 @@ namespace SOSIEL.Entities
         public bool IsMatch(IAgent agent)
         {
             if (_antecedent == null)
-            {
                 BuildAntecedent();
-            }
 
             dynamic value = Value;
             if (!string.IsNullOrEmpty(ReferenceVariable))
-            {
                 value = agent[ReferenceVariable];
-            }
 
             var p = agent[Param];
             // _logger.Info($"Comparing [{Param}] '{p}':{p.GetType().Name} and '{value}':{value.GetType().Name}");
@@ -125,15 +121,11 @@ namespace SOSIEL.Entities
         public static bool operator ==(DecisionOptionAntecedentPart a, DecisionOptionAntecedentPart b)
         {
             if (Object.ReferenceEquals(a, b))
-            {
                 return true;
-            }
 
             // If one is null, but not both, return false.
             if (((object)a == null) || ((object)b == null))
-            {
                 return false;
-            }
 
             return a.Equals(b);
         }

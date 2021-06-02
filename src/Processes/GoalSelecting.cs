@@ -67,10 +67,10 @@ namespace SOSIEL.Processes
                     yield return nextGoal;
                 }
 
-                Goal[] otherGoals = goals.Where(kvp => (int)Math.Round(kvp.Value.AdjustedImportance * 100) == 0)
+                var otherGoals = goals.Where(kvp => (int)Math.Round(kvp.Value.AdjustedImportance * 100) == 0)
                     .OrderByDescending(kvp => kvp.Key.RankingEnabled).Select(kvp => kvp.Key).ToArray();
 
-                foreach (Goal goal in otherGoals)
+                foreach (var goal in otherGoals)
                 {
                     yield return goal;
                 }

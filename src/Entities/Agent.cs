@@ -94,7 +94,7 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public virtual Agent Clone()
         {
-            Agent agent = CreateInstance();
+            var agent = CreateInstance();
             agent.Archetype = Archetype;
             agent.privateVariables = new Dictionary<string, dynamic>(privateVariables);
             agent.AssignedGoals = new List<Goal>(AssignedGoals);
@@ -110,7 +110,7 @@ namespace SOSIEL.Entities
 
         public virtual Agent CreateChild(string gender, string name)
         {
-            Agent agent = CreateInstance();
+            var agent = CreateInstance();
 
             agent.Id = name;
             agent.Archetype = Archetype;
@@ -271,8 +271,7 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public bool Equals(Agent other)
         {
-            return ReferenceEquals(this, other)
-                || (other != null && Id == other.Id);
+            return ReferenceEquals(this, other) || (other != null && Id == other.Id);
         }
 
         public override bool Equals(object obj)
@@ -288,15 +287,11 @@ namespace SOSIEL.Entities
         public static bool operator ==(Agent a, Agent b)
         {
             if (Object.ReferenceEquals(a, b))
-            {
                 return true;
-            }
 
             // If one is null, but not both, return false.
             if (((object)a == null) || ((object)b == null))
-            {
                 return false;
-            }
 
             return a.Equals(b);
         }

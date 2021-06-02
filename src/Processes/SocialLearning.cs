@@ -27,7 +27,7 @@ namespace SOSIEL.Processes
     /// <summary>
     /// Social learning process implementation.
     /// </summary>
-    public class SocialLearning<TSite>
+    public class SocialLearning
     {
         private static Logger _logger = LogHelper.GetLogger();
 
@@ -39,7 +39,7 @@ namespace SOSIEL.Processes
         /// <param name="layer"></param>
         public void Execute(
             IAgent agent,
-            LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> currentIterationNode,
+            LinkedListNode<Dictionary<IAgent, AgentState>> currentIterationNode,
             DecisionOptionLayer layer
         )
         {
@@ -48,9 +48,9 @@ namespace SOSIEL.Processes
             var priorIterationState = currentIterationNode.Previous.Value;
             agent.ConnectedAgents.Randomize().ForEach(neighbour =>
             {
-                AgentState<TSite> priorIteration;
+                AgentState priorIteration;
                 if (!priorIterationState.TryGetValue(neighbour, out priorIteration)) return;
-                var activatedDecisionOptions = priorIteration.DecisionOptionsHistories
+                var activatedDecisionOptions = priorIteration.DecisionOptionHistories
                     .SelectMany(rh => rh.Value.Activated).Where(r => r.Layer == layer);
                 activatedDecisionOptions.ForEach(decisionOption =>
                 {
