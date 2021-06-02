@@ -45,7 +45,7 @@ namespace SOSIEL.Processes
     /// <summary>
     /// Action selection process implementation.
     /// </summary>
-    public class Satisficing<TDataSet> : VolatileProcess
+    public class Satisficing : VolatileProcess
     {
         private static Logger _logger = LogHelper.GetLogger();
 
@@ -119,7 +119,7 @@ namespace SOSIEL.Processes
         /// <param name="decisionOption"></param>
         /// <param name="agentStates"></param>
         List<IAgent> SignalingInterest(IAgent currentAgent, DecisionOption decisionOption,
-            Dictionary<IAgent, AgentState<TDataSet>> agentStates)
+            Dictionary<IAgent, AgentState> agentStates)
         {
             if (_logger.IsDebugEnabled)
                 _logger.Debug($"Satisficing.SignalingInterest: {currentAgent.Id}");
@@ -151,10 +151,10 @@ namespace SOSIEL.Processes
         public void ExecutePartI(
             int recursionLevel,
             IAgent agent,
-            LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> currentIterationNode,
+            LinkedListNode<Dictionary<IAgent, AgentState>> currentIterationNode,
             Goal[] rankedGoals,
             DecisionOption[] processedDecisionOptions,
-            TDataSet dataSet
+            IDataSet dataSet
         )
         {
             if (_logger.IsDebugEnabled)
@@ -166,16 +166,16 @@ namespace SOSIEL.Processes
             var priorPeriodAgentState = currentIterationNode.Previous?.Value[agent];
 
             //adds new decisionOption history for specific data set if it doesn't exist
-            DecisionOptionsHistory decisionOptionHistory;
-            if (!currentAgentState.DecisionOptionsHistories.TryGetValue(dataSet, out decisionOptionHistory))
+            DecisionOptionHistory decisionOptionHistory;
+            if (!currentAgentState.DecisionOptionHistories.TryGetValue(dataSet, out decisionOptionHistory))
             {
-                decisionOptionHistory = new DecisionOptionsHistory();
-                currentAgentState.DecisionOptionsHistories.Add(dataSet, decisionOptionHistory);
+                decisionOptionHistory = new DecisionOptionHistory();
+                currentAgentState.DecisionOptionHistories.Add(dataSet, decisionOptionHistory);
             }
 
             _processedGoal = rankedGoals.First(
                 g => processedDecisionOptions.First().Layer.Set.AssociatedWith.Contains(g));
-            _goalState = currentAgentState.GoalsState[_processedGoal];
+            _goalState = currentAgentState.GoalStates[_processedGoal];
             _matchedDecisionOptions = processedDecisionOptions.Except(decisionOptionHistory.Blocked)
                 .Where(h => h.IsMatch(agent)).ToArray();
 
@@ -187,7 +187,7 @@ namespace SOSIEL.Processes
                 {
                     if (priorPeriodAgentState != null)
                     {
-                        _priorPeriodActivatedDecisionOption = priorPeriodAgentState.DecisionOptionsHistories[dataSet]
+                        _priorPeriodActivatedDecisionOption = priorPeriodAgentState.DecisionOptionHistories[dataSet]
                             .Activated.FirstOrDefault(r => r.Layer == processedDecisionOptions.First().Layer);
                     }
                     //set anticipated influence before execute specific logic
@@ -210,7 +210,7 @@ namespace SOSIEL.Processes
                 var agents = SignalingInterest(agent, _decisionOptionForActivating, currentIterationNode.Value);
                 foreach (var agent1 in agents)
                 {
-                    var agentHistory = currentIterationNode.Value[agent1].DecisionOptionsHistories[dataSet];
+                    var agentHistory = currentIterationNode.Value[agent1].DecisionOptionHistories[dataSet];
                     var layer = _decisionOptionForActivating.Layer;
                     if (agentHistory.Activated.Any(h => h.Layer == layer))
                     {
@@ -236,16 +236,16 @@ namespace SOSIEL.Processes
         public void ExecutePartII(
             int recursionLevel,
             IAgent agent,
-            LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> currentIterationNode,
+            LinkedListNode<Dictionary<IAgent, AgentState>> currentIterationNode,
             Goal[] rankedGoals,
             DecisionOption[] processedDecisionOptions,
-            TDataSet dataSet
+            IDataSet dataSet
          )
         {
             if (_logger.IsDebugEnabled)
                 _logger.Debug($"Satisficing.ExecutePartII: recursionLevel={recursionLevel} agent={agent.Id}");
             var agentState = currentIterationNode.Value[agent];
-            var decisionOptionHistory = agentState.DecisionOptionsHistories[dataSet];
+            var decisionOptionHistory = agentState.DecisionOptionHistories[dataSet];
             var layer = processedDecisionOptions.First().Layer;
             var selectedDecisionOption = decisionOptionHistory.Activated
                 .SingleOrDefault(r => r.Layer == layer);
@@ -255,7 +255,7 @@ namespace SOSIEL.Processes
                 // counting agents which selected this decision option
                 int numberOfInvolvedAgents = agent.ConnectedAgents.Where(
                     connected => scope == null || agent[scope] == connected[scope])
-                    .Count(a => currentIterationNode.Value[a].DecisionOptionsHistories[dataSet]
+                    .Count(a => currentIterationNode.Value[a].DecisionOptionHistories[dataSet]
                     .Activated.Any(decisionOption => decisionOption == selectedDecisionOption));
                 int requiredParticipants = selectedDecisionOption.RequiredParticipants - 1;
                 // add decision option to blocked

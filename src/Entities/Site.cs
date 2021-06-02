@@ -38,7 +38,10 @@ namespace SOSIEL.Entities
 
         public int DistanceToAnotherSite(Site site)
         {
-            return Math.Max(Math.Abs(HorizontalPosition - site.HorizontalPosition), Math.Abs(VerticalPosition - site.VerticalPosition));
+            return Math.Max(
+                Math.Abs(HorizontalPosition - site.HorizontalPosition),
+                Math.Abs(VerticalPosition - site.VerticalPosition)
+                );
         }
 
         public bool Equals(Site other)

@@ -7,23 +7,23 @@ using SOSIEL.Helpers;
 
 namespace SOSIEL.Entities
 {
-    public sealed class AgentState<TDataSet>
+    public sealed class AgentState
     {
-        private Dictionary<DecisionOption, Dictionary<Goal, double>> _anticipationInfluence;
+        private Dictionary<DecisionOption, Dictionary<Goal, double>> _anticipatedInfluences;
 
-        public Dictionary<Goal, GoalState> GoalsState { get; private set; }
+        public Dictionary<Goal, GoalState> GoalStates { get; private set; }
 
-        public Dictionary<TDataSet, DecisionOptionsHistory> DecisionOptionsHistories { get; private set; }
+        public Dictionary<IDataSet, DecisionOptionHistory> DecisionOptionHistories { get; private set; }
 
-        public Dictionary<TDataSet, List<TakenAction>> TakenActions { get; private set; }
+        public Dictionary<IDataSet, List<TakenAction>> TakenActions { get; private set; }
 
         public Goal[] RankedGoals { get; set; }
 
-        public Dictionary<DecisionOption, Dictionary<Goal, double>> AnticipationInfluence 
+        public Dictionary<DecisionOption, Dictionary<Goal, double>> AnticipatedInfluences 
         {
             get
             {
-                return _anticipationInfluence;
+                return _anticipatedInfluences;
             }
             set
             {
@@ -36,7 +36,7 @@ namespace SOSIEL.Entities
                         elementValueCopy.Add(e.Key, e.Value);
                     valueCopy.Add(element.Key, elementValueCopy);
                 }
-                _anticipationInfluence = valueCopy;
+                _anticipatedInfluences = valueCopy;
             }
         }
 
@@ -44,11 +44,11 @@ namespace SOSIEL.Entities
 
         private AgentState()
         {
-            GoalsState = new Dictionary<Goal, GoalState>();
-            DecisionOptionsHistories = new Dictionary<TDataSet, DecisionOptionsHistory>();
-            TakenActions = new Dictionary<TDataSet, List<TakenAction>>();
+            GoalStates = new Dictionary<Goal, GoalState>();
+            DecisionOptionHistories = new Dictionary<IDataSet, DecisionOptionHistory>();
+            TakenActions = new Dictionary<IDataSet, List<TakenAction>>();
             RankedGoals = new Goal[0];
-            _anticipationInfluence = new Dictionary<DecisionOption, Dictionary<Goal, double>>();
+            _anticipatedInfluences = new Dictionary<DecisionOption, Dictionary<Goal, double>>();
         }
 
         /// <summary>
@@ -56,9 +56,9 @@ namespace SOSIEL.Entities
         /// </summary>
         /// <param name="isDataSetOriented"></param>
         /// <returns></returns>
-        public static AgentState<TDataSet> Create(bool isDataSetOriented)
+        public static AgentState Create(bool isDataSetOriented)
         {
-            return new AgentState<TDataSet> { IsDataSetOriented = isDataSetOriented };
+            return new AgentState { IsDataSetOriented = isDataSetOriented };
         }
 
         /// <summary>
@@ -67,10 +67,10 @@ namespace SOSIEL.Entities
         /// <param name="defaultSite"></param>
         /// <param name="history"></param>
         /// <returns></returns>
-        public static AgentState<TDataSet> CreateWithoutSite(TDataSet defaultSite, DecisionOptionsHistory history)
+        public static AgentState CreateWithoutSite(IDataSet defaultSite, DecisionOptionHistory history)
         {
-            AgentState<TDataSet> state = Create(false);
-            state.DecisionOptionsHistories.Add(defaultSite, history);
+            var state = Create(false);
+            state.DecisionOptionHistories.Add(defaultSite, history);
             return state;
         }
 
@@ -80,10 +80,10 @@ namespace SOSIEL.Entities
         /// <param name="isDataSetOriented"></param>
         /// <param name="history"></param>
         /// <returns></returns>
-        public static AgentState<TDataSet> Create(bool isDataSetOriented, Dictionary<TDataSet, DecisionOptionsHistory> history)
+        public static AgentState Create(bool isDataSetOriented, Dictionary<IDataSet, DecisionOptionHistory> history)
         {
-            AgentState<TDataSet> state = Create(isDataSetOriented);
-            state.DecisionOptionsHistories = new Dictionary<TDataSet, DecisionOptionsHistory>(history);
+            var state = Create(isDataSetOriented);
+            state.DecisionOptionHistories = new Dictionary<IDataSet, DecisionOptionHistory>(history);
             return state;
         }
 
@@ -92,9 +92,9 @@ namespace SOSIEL.Entities
         /// </summary>
         /// <param name="defaultSite">The default site.</param>
         /// <param name="history">The history.</param>
-        public void AddDecisionOptionsHistory(TDataSet defaultSite, DecisionOptionsHistory history)
+        public void AddDecisionOptionsHistory(IDataSet defaultSite, DecisionOptionHistory history)
         {
-            DecisionOptionsHistories.Add(defaultSite, history);
+            DecisionOptionHistories.Add(defaultSite, history);
         }
 
         /// <summary>
@@ -102,69 +102,48 @@ namespace SOSIEL.Entities
         /// </summary>
         /// <param name="history"></param>
         /// <param name="site"></param>
-        public void AddDecisionOptionsHistory(DecisionOptionsHistory history, TDataSet site)
+        public void AddDecisionOptionsHistory(DecisionOptionHistory history, IDataSet site)
         {
-            DecisionOptionsHistories.Add(site, history);
+            DecisionOptionHistories.Add(site, history);
         }
 
         /// <summary>
         /// Creates new instance of agent site with copied anticipation influence and goals state from current state
         /// </summary>
         /// <returns></returns>
-        public AgentState<TDataSet> CreateForNextIteration()
+        public AgentState CreateForNextIteration()
         {
-            AgentState<TDataSet> agentState = Create(IsDataSetOriented);
+            var agentState = Create(IsDataSetOriented);
 
-            GoalsState.ForEach(kvp =>
+            GoalStates.ForEach(kvp =>
             {
-                agentState.GoalsState.Add(kvp.Key, kvp.Value.CreateForNextIteration());
+                agentState.GoalStates.Add(kvp.Key, kvp.Value.CreateForNextIteration());
             });
 
-            DecisionOptionsHistories.Keys.ForEach(site =>
+            DecisionOptionHistories.Keys.ForEach(site =>
             {
-                agentState.DecisionOptionsHistories.Add(site, new DecisionOptionsHistory());
+                agentState.DecisionOptionHistories.Add(site, new DecisionOptionHistory());
             });
 
             return agentState;
-        }
-
-        public AgentState<TDataSet> CreateChildCopy(IAgent agent)
-        {
-            var copy = Create(IsDataSetOriented);
-
-            foreach (var state in GoalsState)
-            {
-                var value = state.Value;
-                copy.GoalsState.Add(state.Key, new GoalState(agent,0, value.FocalValue, value.Importance,
-                    value.MinGoalValueStatic, value.MaxGoalValueStatic, value.MinGoalValueReference,
-                    value.MaxGoalValueReference));
-            }
-
-            foreach (var decisionOptionsHistory in DecisionOptionsHistories)
-                copy.DecisionOptionsHistories.Add(decisionOptionsHistory.Key, new DecisionOptionsHistory());
-
-            foreach (var takenAction in TakenActions)
-                copy.TakenActions.Add(takenAction.Key, new List<TakenAction>());
-
-            return copy;
         }
 
         /// <summary>
         /// Creates deep copy of this object.
         /// </summary>
         /// <returns>Object copy</returns>
-        public AgentState<TDataSet> CreateCopy()
+        public AgentState CreateCopy()
         {
             var copy = Create(IsDataSetOriented);
 
-            copy.GoalsState = new Dictionary<Goal, GoalState>();
-            foreach (var kvp in GoalsState) copy.GoalsState.Add(kvp.Key, new GoalState(kvp.Value));
+            copy.GoalStates = new Dictionary<Goal, GoalState>();
+            foreach (var kvp in GoalStates) copy.GoalStates.Add(kvp.Key, new GoalState(kvp.Value));
 
-            copy.DecisionOptionsHistories = new Dictionary<TDataSet, DecisionOptionsHistory>();
-            foreach (var kvp in DecisionOptionsHistories)
-                copy.DecisionOptionsHistories.Add(kvp.Key, kvp.Value.CreateCopy());
+            copy.DecisionOptionHistories = new Dictionary<IDataSet, DecisionOptionHistory>();
+            foreach (var kvp in DecisionOptionHistories)
+                copy.DecisionOptionHistories.Add(kvp.Key, kvp.Value.CreateCopy());
 
-            copy.TakenActions = new Dictionary<TDataSet, List<TakenAction>>();
+            copy.TakenActions = new Dictionary<IDataSet, List<TakenAction>>();
             foreach (var kvp in TakenActions)
             {
                 var actionListCopy = new List<TakenAction>();
@@ -173,7 +152,28 @@ namespace SOSIEL.Entities
             }
 
             copy.RankedGoals = (Goal[])RankedGoals.Clone();
-            copy.AnticipationInfluence = AnticipationInfluence;
+            copy.AnticipatedInfluences = AnticipatedInfluences;
+            return copy;
+        }
+
+        public AgentState CreateCopyForChild(IAgent agent)
+        {
+            var copy = Create(IsDataSetOriented);
+
+            foreach (var state in GoalStates)
+            {
+                var value = state.Value;
+                copy.GoalStates.Add(state.Key, new GoalState(agent,0, value.FocalValue, value.Importance,
+                    value.MinGoalValueStatic, value.MaxGoalValueStatic, value.MinGoalValueReference,
+                    value.MaxGoalValueReference));
+            }
+
+            foreach (var decisionOptionsHistory in DecisionOptionHistories)
+                copy.DecisionOptionHistories.Add(decisionOptionsHistory.Key, new DecisionOptionHistory());
+
+            foreach (var takenAction in TakenActions)
+                copy.TakenActions.Add(takenAction.Key, new List<TakenAction>());
+
             return copy;
         }
     }

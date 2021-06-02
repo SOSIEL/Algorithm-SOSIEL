@@ -22,32 +22,23 @@ namespace SOSIEL.Entities
         public ProbabilityTable<T> GetProbabilityTable<T>(string name)
         {
             dynamic table;
-
             if (!_probabilityTables.TryGetValue(name, out table))
-            {
                 throw new ArgumentException("Cannot found probability table by name:" + name);
-            }
-
             return table;
         }
 
         public ExtendedProbabilityTable<T> GetExtendedProbabilityTable<T>(string name)
         {
             dynamic table;
-
             if (!_extendedTables.TryGetValue(name, out table))
             {
                 dynamic notExtended;
-
                 if (!_probabilityTables.TryGetValue(name, out notExtended))
                     throw new ArgumentException("Cannot found probability table by name:" + name);
-
                 ProbabilityTable<T> archetype = (ProbabilityTable<T>) notExtended;
-
                 table = new ExtendedProbabilityTable<T>(archetype);
                 _extendedTables.Add(name, table);
             }
-
             return table;
         }
     }

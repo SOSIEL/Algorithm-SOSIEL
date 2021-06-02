@@ -89,7 +89,7 @@ namespace SOSIEL.Entities
 
             if (Consequent.CopyToCommon)
             {
-                string key = string.Format("{0}_{1}_{2}", SosielVariables.AgentPrefix, agent.Id, Consequent.Param);
+                var key = string.Format("{0}_{1}_{2}", SosielVariables.AgentPrefix, agent.Id, Consequent.Param);
                 agent.SetToCommon(key, value);
             }
 
@@ -167,15 +167,11 @@ namespace SOSIEL.Entities
         public static bool operator ==(DecisionOption a, DecisionOption b)
         {
             if (Object.ReferenceEquals(a, b))
-            {
                 return true;
-            }
 
             // If one is null, but not both, return false.
             if (((object)a == null) || ((object)b == null))
-            {
                 return false;
-            }
 
             return a.Equals(b);
         }

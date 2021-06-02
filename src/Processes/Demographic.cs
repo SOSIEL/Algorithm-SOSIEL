@@ -12,7 +12,7 @@ using SOSIEL.Randoms;
 
 namespace SOSIEL.Processes
 {
-    public class Demographic<TDataSet>
+    public class Demographic
     {
         private DemographicProcessesConfiguration _configuration;
         private ProbabilityTable<int> _birthProbability;
@@ -26,14 +26,14 @@ namespace SOSIEL.Processes
             _deathProbability = deathProbability;
         }
 
-        public void ChangeDemographic(int iteration, Dictionary<IAgent, AgentState<TDataSet>> iterationState, AgentList agents)
+        public void ChangeDemographic(int iteration, Dictionary<IAgent, AgentState> iterationState, AgentList agents)
         {
             ProcessBirths(iteration, iterationState, agents);
             ProcessPairing(agents.ActiveAgents);
             ProcessDeaths(agents.ActiveAgents);
         }
 
-        private void ProcessBirths(int iteration, Dictionary<IAgent, AgentState<TDataSet>> iterationState, AgentList agentList)
+        private void ProcessBirths(int iteration, Dictionary<IAgent, AgentState> iterationState, AgentList agentList)
         {
             var iterationAgents = new List<IAgent>();
             var unactiveAgents = _births.Where(kvp => kvp.Key >= iteration - _configuration.YearsBetweenBirths)
@@ -78,7 +78,7 @@ namespace SOSIEL.Processes
                         agent.ConnectedAgents.Add(child);
                     }
 
-                    var childState = baseAgentState.CreateChildCopy(child);
+                    var childState = baseAgentState.CreateCopyForChild(child);
                     agentList.Agents.Add(child);
                     iterationState[child] = childState;
                     iterationAgents.AddRange(pairList);
@@ -136,12 +136,11 @@ namespace SOSIEL.Processes
         private static void FillConnectedAgents(IAgent firstPartner, IAgent secondPartner)
         {
             var possibleConnectedAgents = secondPartner.ConnectedAgents
-                .Where(a => a[SosielVariables.NuclearFamily] == secondPartner[SosielVariables.NuclearFamily]).ToList();
+                .Where(a => a[SosielVariables.NuclearFamily] == secondPartner[SosielVariables.NuclearFamily])
+                .ToList();
 
             foreach (var agent in possibleConnectedAgents)
-            {
                 agent.ConnectedAgents.Add(firstPartner);
-            }
 
             firstPartner.ConnectedAgents.AddRange(possibleConnectedAgents);
         }

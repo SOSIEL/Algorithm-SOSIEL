@@ -30,7 +30,7 @@ namespace SOSIEL.Processes
     /// <summary>
     /// Innovation process implementation.
     /// </summary>
-    public class Innovation<TDataSet>
+    public class Innovation
     {
         private static Logger _logger = LogHelper.GetLogger();
 
@@ -46,10 +46,10 @@ namespace SOSIEL.Processes
         /// <exception cref="Exception">Not implemented for AnticipatedDirection == 'stay'</exception>
         public DecisionOption Execute(
             IAgent agent,
-            LinkedListNode<Dictionary<IAgent, AgentState<TDataSet>>> currentIterationNode,
+            LinkedListNode<Dictionary<IAgent, AgentState>> currentIterationNode,
             Goal goal,
             DecisionOptionLayer layer,
-            TDataSet dataSet,
+            IDataSet dataSet,
             Probabilities probabilities
          )
         {
@@ -60,7 +60,7 @@ namespace SOSIEL.Processes
             var priorIteration = currentIterationNode.Previous.Value;
 
             //gets prior period activated decision options
-            var history = priorIteration[agent].DecisionOptionsHistories[dataSet];
+            var history = priorIteration[agent].DecisionOptionHistories[dataSet];
             var protDecisionOption = history.Activated.FirstOrDefault(r => r.Layer == layer);
 
             //if prior period decision option is do nothing then looking for any do something decision option
@@ -68,7 +68,7 @@ namespace SOSIEL.Processes
             while (protDecisionOption == null && tempNode.Previous != null)
             {
                 tempNode = tempNode.Previous;
-                history = tempNode.Value[agent].DecisionOptionsHistories[dataSet];
+                history = tempNode.Value[agent].DecisionOptionHistories[dataSet];
                 protDecisionOption = history.Activated.SingleOrDefault(r => r.Layer == layer);
             }
 
@@ -85,7 +85,7 @@ namespace SOSIEL.Processes
             {
                 var parameters = layer.LayerConfiguration;
                 var selectedGoal = goal;
-                var selectedGoalState = currentIterationNode.Value[agent].GoalsState[selectedGoal];
+                var selectedGoalState = currentIterationNode.Value[agent].GoalStates[selectedGoal];
 
                 #region Generating consequent
                 double min = parameters.MinValue(agent);

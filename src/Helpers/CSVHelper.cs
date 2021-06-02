@@ -60,7 +60,6 @@ namespace SOSIEL.Helpers
         {
             var isFileExist = File.Exists(filePath);
             var configuration = createConfiguration();
-
             using (FileStream fs = File.Open(filePath, isFileExist ? FileMode.Append : FileMode.Create))
             using (StreamWriter sw = new StreamWriter(fs))
             using (CsvWriter csv = new CsvWriter(sw, configuration))
@@ -87,7 +86,6 @@ namespace SOSIEL.Helpers
             var isFileExist = File.Exists(filePath);
             var configuration = createConfiguration();
             configuration.HasHeaderRecord = !isFileExist;
-
             using (FileStream fs = File.Open(filePath, isFileExist ? FileMode.Append : FileMode.Create))
             using (StreamWriter sw = new StreamWriter(fs))
             using (CsvWriter csv = new CsvWriter(sw, configuration))

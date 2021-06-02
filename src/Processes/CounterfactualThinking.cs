@@ -38,7 +38,7 @@ namespace SOSIEL.Processes
     /// <summary>
     /// Counterfactual thinking process implementation.
     /// </summary>
-    public class CounterfactualThinking<TSite> : VolatileProcess
+    public class CounterfactualThinking : VolatileProcess
     {
         private static Logger _logger = LogHelper.GetLogger();
 
@@ -58,24 +58,24 @@ namespace SOSIEL.Processes
         /// <param name="layer"></param>
         /// <param name="site"></param>
         /// <returns></returns>
-        public bool Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState<TSite>>> iterationNode,
-            Goal goal, DecisionOptionLayer layer, TSite site)
+        public bool Execute(IAgent agent, LinkedListNode<Dictionary<IAgent, AgentState>> iterationNode,
+            Goal goal, DecisionOptionLayer layer, IDataSet site)
         {
             var prevIterationAgentState = iterationNode.Previous.Value[agent];
 
-            _matchedDecisionOptions = prevIterationAgentState.DecisionOptionsHistories[site]
+            _matchedDecisionOptions = prevIterationAgentState.DecisionOptionHistories[site]
                 .Matched.Where(h => h.Layer == layer).ToArray();
             if (_matchedDecisionOptions.Length < 2) return false;
 
             _selectedGoal = goal;
-            _selectedGoalState = iterationNode.Value[agent].GoalsState[_selectedGoal];
+            _selectedGoalState = iterationNode.Value[agent].GoalStates[_selectedGoal];
             _selectedGoalState.Confidence = false;
-            var history = prevIterationAgentState.DecisionOptionsHistories[site];
+            var history = prevIterationAgentState.DecisionOptionHistories[site];
             _activatedDecisionOption = history.Activated.FirstOrDefault(r => r.Layer == layer);
             
             // First, copy old influences
             _anticipatedInfluences = new Dictionary<DecisionOption, Dictionary<Goal, double>>();
-            foreach (var kvp in prevIterationAgentState.AnticipationInfluence)
+            foreach (var kvp in prevIterationAgentState.AnticipatedInfluences)
                 _anticipatedInfluences.Add(kvp.Key, new Dictionary<Goal, double>(kvp.Value));
 
             // Update with new influences where applicable

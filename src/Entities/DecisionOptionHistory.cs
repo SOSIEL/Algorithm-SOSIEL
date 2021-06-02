@@ -5,20 +5,20 @@ using System.Collections.Generic;
 
 namespace SOSIEL.Entities
 {
-    public class DecisionOptionsHistory
+    public class DecisionOptionHistory
     {
         public List<DecisionOption> Matched { get; private set; }
         public List<DecisionOption> Activated { get; private set; }
         public List<DecisionOption> Blocked { get; private set; }
 
-        public DecisionOptionsHistory()
+        public DecisionOptionHistory()
         {
             Matched = new List<DecisionOption>();
             Activated = new List<DecisionOption>();
             Blocked = new List<DecisionOption>();
         }
 
-        public DecisionOptionsHistory(
+        public DecisionOptionHistory(
             IEnumerable<DecisionOption> matched,
             IEnumerable<DecisionOption> activated,
             IEnumerable<DecisionOption> blocked = null
@@ -29,9 +29,9 @@ namespace SOSIEL.Entities
             if (blocked != null) Blocked.AddRange(blocked);
         }
 
-        public DecisionOptionsHistory CreateCopy()
+        public DecisionOptionHistory CreateCopy()
         {
-            return new DecisionOptionsHistory(Matched, Activated, Blocked);
+            return new DecisionOptionHistory(Matched, Activated, Blocked);
         }
     }
 }

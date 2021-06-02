@@ -28,24 +28,19 @@ namespace SOSIEL.Helpers
         public static T RandomizeOne<T>(this List<T> source)
         {
             int position = LinearUniformRandom.Instance.Next(source.Count);
-
             return source.Count > 0 ? source[position] : default(T);
         }
 
         private static IEnumerable<T> RandomizeEnumeration<T>(this IEnumerable<T> original)
         {
-            List<T> temp = new List<T>(original);
-
+            var temp = new List<T>(original);
             while (temp.Count > 0)
             {
-                T item = temp[LinearUniformRandom.Instance.Next(temp.Count)];
-
+                var item = temp[LinearUniformRandom.Instance.Next(temp.Count)];
                 temp.Remove(item);
-
                 yield return item;
             }
         }
-
 
         /// <summary>
         /// Shuffles elements using linear uniform distribution.
@@ -56,14 +51,7 @@ namespace SOSIEL.Helpers
         /// <returns></returns>
         public static IEnumerable<T> Randomize<T>(this IEnumerable<T> original, bool randomize = true)
         {
-            if (randomize)
-            {
-                return RandomizeEnumeration(original);
-            }
-            else
-            {
-                return original;
-            }
+            return randomize ? RandomizeEnumeration(original) : original; ;
         }
     }
 }

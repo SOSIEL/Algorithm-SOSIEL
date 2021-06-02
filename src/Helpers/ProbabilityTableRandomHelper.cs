@@ -28,30 +28,20 @@ namespace SOSIEL.Helpers
         public static int GetRandomValue(this ProbabilityTable<int> table, int min, int max, bool isReversed)
         {
             var potentialValues = Enumerable.Range(min, max - min).ToList();
-
             var batchSize = potentialValues.Count / _batchCount;
-
             var potentialValuesTable = potentialValues.GroupBy(v => (v - min) / batchSize + 1)
                 .SelectMany(g => g.Select(v => new { Value = v, Probability = table.GetProbability(GetBatchNumber((int)g.Key, isReversed)) })).ToList();
-
             var randomTable = potentialValuesTable
                 .SelectMany(v => Enumerable.Range(1, (int)Math.Ceiling(v.Probability * _probabilityMultiplier))
                     .Select(i => v.Value))
                 .ToList();
-
             var random = LinearUniformRandom.Instance.Next(randomTable.Count);
-
             return randomTable[random];
         }
 
         private static int GetBatchNumber(int batchNumber, bool isReversed)
         {
-            if (isReversed)
-            {
-                return (int)_batchCount + 1 - batchNumber;
-            }
-
-            return batchNumber;
+            return isReversed ? (int)_batchCount + 1 - batchNumber : batchNumber;
         }
     }
 }

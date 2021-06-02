@@ -68,9 +68,7 @@ namespace SOSIEL.Entities
             foreach (T key in archetype.Keys.OrderBy(k => k))
             {
                 double probability = archetype.GetProbability(key);
-
                 sum += probability;
-
                 ExtentedProbabilityRecord<T> newRecord = new ExtentedProbabilityRecord<T>(key, probability);
                 _table[key] = newRecord;
             }
@@ -80,9 +78,7 @@ namespace SOSIEL.Entities
             foreach (var tableKey in _table.Keys)
             {
                 var record = _table[tableKey];
-
                 record.NormalizedProbability = record.Probability / sum;
-
                 cumulative += record.NormalizedProbability;
                 record.CumulativeProbability = cumulative;
             }
@@ -107,7 +103,6 @@ namespace SOSIEL.Entities
         public double GetProbability(T value)
         {
             var record = GetExtentedProbabilityRecord(value);
-
             return record.Probability;
         }
 
@@ -119,7 +114,6 @@ namespace SOSIEL.Entities
         public double GetNormalizedProbability(T value)
         {
             var record = GetExtentedProbabilityRecord(value);
-
             return record.NormalizedProbability;
         }
 
@@ -131,7 +125,6 @@ namespace SOSIEL.Entities
         public double GetCumulativeProbability(T value)
         {
             var record = GetExtentedProbabilityRecord(value);
-
             return record.CumulativeProbability;
         }
 
@@ -145,7 +138,6 @@ namespace SOSIEL.Entities
             foreach (var tableKey in _table.Keys)
             {
                 var record = _table[tableKey];
-
                 if (comulative <= record.CumulativeProbability)
                     return tableKey;
             }
@@ -158,7 +150,6 @@ namespace SOSIEL.Entities
             ExtentedProbabilityRecord<T> record;
             if (!_table.TryGetValue(value, out record))
                 throw new ArgumentOutOfRangeException("Cannot find a probability for the value: " + value);
-
             return record;
         }
     }
