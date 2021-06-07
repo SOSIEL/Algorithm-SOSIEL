@@ -9,6 +9,6 @@ namespace SOSIEL.Algorithm
 
         void Initialize(TData data);
 
-        TData Run(TData data);
+        void Run(TData data);
     }
 }
