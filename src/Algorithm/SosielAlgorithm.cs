@@ -28,30 +28,36 @@ namespace SOSIEL.Algorithm
         protected int numberOfAgentsAfterInitialize;
         protected bool algorithmStoppage;
         protected AgentList agentList;
-        protected LinkedList<Dictionary<IAgent, AgentState>> iterations =
+
+        protected readonly LinkedList<Dictionary<IAgent, AgentState>> iterations =
             new LinkedList<Dictionary<IAgent, AgentState>>();
 
-        protected Probabilities probabilities = new Probabilities();
+        protected readonly Probabilities probabilities = new Probabilities();
 
-        //processes
-        protected GoalPrioritizing goalPrioritizing = new GoalPrioritizing();
-        protected GoalSelecting goalSelecting = new GoalSelecting();
-        protected AnticipatoryLearning anticipatoryLearning = new AnticipatoryLearning();
-        protected CounterfactualThinking counterfactualThinking = new CounterfactualThinking();
-        protected Innovation innovation = new Innovation();
-        protected SocialLearning socliaLearning = new SocialLearning();
-        protected Satisficing satisficing = new Satisficing();
-        protected ActionTaking actionTaking = new ActionTaking();
+        // Processes
+        protected readonly IGoalPrioritizing goalPrioritizing;
+        protected readonly GoalSelecting goalSelecting = new GoalSelecting();
+        protected readonly AnticipatoryLearning anticipatoryLearning = new AnticipatoryLearning();
+        protected readonly CounterfactualThinking counterfactualThinking = new CounterfactualThinking();
+        protected readonly Innovation innovation = new Innovation();
+        protected readonly SocialLearning socliaLearning = new SocialLearning();
+        protected readonly Satisficing satisficing = new Satisficing();
+        protected readonly ActionTaking actionTaking = new ActionTaking();
 
         protected Demographic demographic;
 
 
-        public SosielAlgorithm(int numberOfIterations, ProcessesConfiguration processConfiguration, IDataSet defaultDataSet)
+        public SosielAlgorithm(
+            int numberOfIterations,
+            ProcessesConfiguration processConfiguration,
+            IDataSet defaultDataSet,
+            IGoalPrioritizing goalPrioritizing)
         {
             _numberOfIterations = numberOfIterations;
             _processConfiguration = processConfiguration;
             _currentIterationNumber = 0;
             this.defaultDataSet = defaultDataSet;
+            this.goalPrioritizing = (goalPrioritizing != null) ? goalPrioritizing : new DefaultGoalPrioritizing();
         }
 
         /// <summary>

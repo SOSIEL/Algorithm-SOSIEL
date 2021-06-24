@@ -11,7 +11,7 @@ namespace SOSIEL.Helpers
     /// </summary>
     public static class ReflectionHelper
     {
-        public static MethodInfo GetGenerecMethod(Type passedType, Type type, string methodName)
+        public static MethodInfo GetGenericMethod(Type passedType, Type type, string methodName)
         {
             var method = type.GetMethod(methodName);
             if (method == null)

@@ -6,12 +6,12 @@
 ///   to reevaluate the importance levels of goals and, if necessary, reprioritize
 ///   them. The process of goal prioritizing has a stabilizing effect on agent
 ///   behavior and has the option of being turned off as a mechanism if its
-///   stabilizing effect contradicts reference behavior. The process of goal
-///   prioritizing consists of the following two subprocesses: (a) determine the
-///   relative difference between goal value and focal goal value and (b) adjust
-///   the proportional importance levels of goals respectively. The result of goal
-///   prioritizing is a reevaluated and, if appropriate, a reprioritized set of
-///   proportional importance levels.
+///   stabilizing effect contradicts reference behavior.
+///   SOSIEL's default goal prioritizing consists of the following two subprocesses:
+///   (a) determine the relative difference between goal value and focal goal value
+///   (b) adjust the proportional importance levels of goals respectively
+///   The result of goal prioritizing is a reevaluated and, if appropriate,
+///   a reprioritized set of proportional importance levels.
 
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,7 @@ namespace SOSIEL.Processes
     /// <summary>
     /// Goal prioritizing process implementation.
     /// </summary>
-    public class GoalPrioritizing
+    public class DefaultGoalPrioritizing : IGoalPrioritizing
     {
         private static Logger _logger = LogManager.GetCurrentClassLogger();
 
@@ -38,7 +38,7 @@ namespace SOSIEL.Processes
         /// </summary>
         /// <param name="agent">The agent.</param>
         /// <param name="goals">The goals.</param>
-        public void Prioritize(IAgent agent, Dictionary<Goal, GoalState> goals)
+        public void Prioritize(IAgent agent, IReadOnlyDictionary<Goal, GoalState> goals)
         {
             if (_logger.IsDebugEnabled) 
                 _logger.Debug($"GoalPrioritizing.Prioritize: agent={agent.Id}");
