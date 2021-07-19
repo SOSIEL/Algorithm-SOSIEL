@@ -72,7 +72,7 @@ namespace SOSIEL.Processes
                     r => _anticipatedInfluence[r][_processedGoal] - (_goalState.FocalValue - _goalState.Value))
                     .OrderBy(hg => hg.Key).First().ToArray();
             }
-            _decisionOptionForActivating = selectedDecisionOptions.RandomizeOne();
+            _decisionOptionForActivating = selectedDecisionOptions.ChooseRandomElement();
         }
 
         protected override void Maximize()
@@ -83,7 +83,7 @@ namespace SOSIEL.Processes
                     r => _anticipatedInfluence[r][_processedGoal])
                     .OrderByDescending(hg => hg.Key).First().ToArray();
 
-                _decisionOptionForActivating = selectedDecisionOptions.RandomizeOne();
+                _decisionOptionForActivating = selectedDecisionOptions.ChooseRandomElement();
             }
         }
 
@@ -94,7 +94,7 @@ namespace SOSIEL.Processes
                 var selectedDecisionOptions = _matchedDecisionOptions
                     .GroupBy(r => _anticipatedInfluence[r][_processedGoal]).OrderBy(hg => hg.Key).First().ToArray();
 
-                _decisionOptionForActivating = selectedDecisionOptions.RandomizeOne();
+                _decisionOptionForActivating = selectedDecisionOptions.ChooseRandomElement();
             }
         }
 
@@ -108,7 +108,7 @@ namespace SOSIEL.Processes
                     r => _anticipatedInfluence[r][_processedGoal] - Math.Abs(_goalState.FocalValue - _goalState.Value))
                   .OrderBy(hg => hg.Key).First().ToArray();
             }
-            _decisionOptionForActivating = selectedDecisionOptions.RandomizeOne();
+            _decisionOptionForActivating = selectedDecisionOptions.ChooseRandomElement();
         }
         #endregion
 

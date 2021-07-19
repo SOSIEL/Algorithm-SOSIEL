@@ -15,9 +15,9 @@ namespace SOSIEL.Helpers
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></par
-        public static T RandomizeOne<T>(this IEnumerable<T> source)
+        public static T ChooseRandomElement<T>(this IEnumerable<T> source)
         {
-            return RandomizeOne(source.ToList());
+            return ChooseRandomElement(source.ToList());
         }
 
         /// <summary>
@@ -25,13 +25,19 @@ namespace SOSIEL.Helpers
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></par
-        public static T RandomizeOne<T>(this List<T> source)
+        public static T ChooseRandomElement<T>(this List<T> source)
         {
             int position = LinearUniformRandom.Instance.Next(source.Count);
             return source.Count > 0 ? source[position] : default(T);
         }
 
-        private static IEnumerable<T> RandomizeEnumeration<T>(this IEnumerable<T> original)
+        /// <summary>
+        /// Shuffles elements using linear uniform distribution.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="original"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Randomize<T>(this IEnumerable<T> original)
         {
             var temp = new List<T>(original);
             while (temp.Count > 0)
@@ -40,18 +46,6 @@ namespace SOSIEL.Helpers
                 temp.Remove(item);
                 yield return item;
             }
-        }
-
-        /// <summary>
-        /// Shuffles elements using linear uniform distribution.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="original"></param>
-        /// <param name="randomize"></param>
-        /// <returns></returns>
-        public static IEnumerable<T> Randomize<T>(this IEnumerable<T> original, bool randomize = true)
-        {
-            return randomize ? RandomizeEnumeration(original) : original; ;
         }
     }
 }

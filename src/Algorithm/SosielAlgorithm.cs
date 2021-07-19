@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2021 SOSIEL Inc. All rights reserved.
 
-#define USE_PREV_DO
-
 using System.Collections.Generic;
 using System.Linq;
 
@@ -206,8 +204,7 @@ namespace SOSIEL.Algorithm
                 iterations.AddLast(currentIteration);
 
                 var priorIteration = iterations.Last.Previous?.Value;
-                var orderedAgents = agentList.ActiveAgents.Randomize(
-                    _processConfiguration.AgentRandomizationEnabled).ToArray();
+                var orderedAgents = _processConfiguration.AgentRandomizationEnabled ? agentList.ActiveAgents.Randomize().ToArray() : agentList.ActiveAgents;
                 var agentGroups = orderedAgents
                     .GroupBy(a => a.Archetype.NamePrefix)
                     .OrderBy(group => group.Key).ToArray();
@@ -232,8 +229,7 @@ namespace SOSIEL.Algorithm
                         foreach (var agent in agentGroup)
                         {
                             var agentState = currentIteration[agent];
-                            agentState.RankedGoals = goalSelecting.SortByImportance(
-                                agent, currentIteration[agent].GoalStates).ToArray();
+                            agentState.RankedGoals = goalSelecting.SortByImportance(agent, agentState.GoalStates);
                             if (_processConfiguration.AnticipatoryLearningEnabled)
                                 agentState.AnticipatedInfluences = agent.AnticipationInfluence;
                         }
@@ -256,8 +252,7 @@ namespace SOSIEL.Algorithm
                             goalPrioritizing.Prioritize(agent, agentState.GoalStates);
 
                             //goal selecting
-                            agentState.RankedGoals = goalSelecting.SortByImportance(
-                                agent, agentState.GoalStates).ToArray();
+                            agentState.RankedGoals = goalSelecting.SortByImportance(agent, agentState.GoalStates);
 
                             if (!_processConfiguration.CounterfactualThinkingEnabled) continue;
 
