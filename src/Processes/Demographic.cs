@@ -105,10 +105,10 @@ namespace SOSIEL.Processes
                     ? homosexualType
                     : (homosexualType == Gender.Male ? Gender.Female : Gender.Male);
 
-                var firstPartner = agentsToPairing.Where(a => a[SosielVariables.Gender] == homosexualType).RandomizeOne();
+                var firstPartner = agentsToPairing.Where(a => a[SosielVariables.Gender] == homosexualType).ChooseRandomElement();
                 var secondPartner = agentsToPairing.Except(new[] { firstPartner })
                     .Where(a => a[SosielVariables.Gender] == secondPartnerGender)
-                    .RandomizeOne();
+                    .ChooseRandomElement();
 
                 if(firstPartner == null || secondPartner == null) return;
 
@@ -171,7 +171,7 @@ namespace SOSIEL.Processes
                             .OrderByDescending(g => g.Key)
                             .Take(1)
                             .SelectMany(g => g)
-                            .RandomizeOne();
+                            .ChooseRandomElement();
 
                         //we found new household head
                         if (newHead != null)

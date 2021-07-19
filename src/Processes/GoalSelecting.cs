@@ -44,41 +44,49 @@ namespace SOSIEL.Processes
         /// <param name="agent"></param>
         /// <param name="goals"></param>
         /// <returns></returns>
-        public IEnumerable<Goal> SortByImportance(IAgent agent, Dictionary<Goal, GoalState> goals)
+        public Goal[] SortByImportance(IAgent agent, Dictionary<Goal, GoalState> goals)
         {
-            if (_logger.IsDebugEnabled) 
-                _logger.Debug($"GoalSelecting.SortByImportance: agent={agent.Id}");
+            var goalCount = goals.Count;
+            if (_logger.IsDebugEnabled)
+                _logger.Debug($"GoalSelecting.SortByImportance: agent={agent.Id} goals.Count={goalCount}");
+
+            if (goalCount == 0)
+            {
+                throw new ArgumentException(
+                    $"Goal selecting can't run for the agent {agent.Id}, because it doesn't have any goals");
+            }
+
+            var result = new Goal[goalCount];
 
             if (goals.Count > 1)
             {
-                var importantGoals = goals.Where(kvp => kvp.Value.Importance > 0).ToArray();
-                var vector = new List<Goal>(100);
-
+                var v = new List<Goal>(100);
                 goals.ForEach(kvp =>
                 {
-                    int numberOfInsertions = (int)Math.Round((double) (kvp.Value.AdjustedImportance * 100));
-                    for (int i = 0; i < numberOfInsertions; i++) { vector.Add(kvp.Key); }
+                    int n = (int)Math.Round(kvp.Value.AdjustedImportance * 100);
+                    for (int i = 0; i < n; i++) v.Add(kvp.Key);
                 });
 
-                for (int i = 0; i < importantGoals.Length && vector.Count > 0; i++)
+                var index = 0;
+                var importantGoalCount = goals.Where(kvp => kvp.Value.Importance > 0).Count();
+                while (v.Count > 0 && index < importantGoalCount)
                 {
-                    var nextGoal = vector.RandomizeOne();
-                    vector.RemoveAll(o => o == nextGoal);
-                    yield return nextGoal;
+                    var nextGoal = v.ChooseRandomElement();
+                    result[index++] = nextGoal;
+                    v.RemoveAll(o => o == nextGoal);
                 }
 
-                var otherGoals = goals.Where(kvp => (int)Math.Round(kvp.Value.AdjustedImportance * 100) == 0)
-                    .OrderByDescending(kvp => kvp.Key.RankingEnabled).Select(kvp => kvp.Key).ToArray();
-
-                foreach (var goal in otherGoals)
+                foreach (var otherGoal in goals.Where(kvp => (int)Math.Round(kvp.Value.AdjustedImportance * 100) == 0)
+                                          .OrderByDescending(kvp => kvp.Key.RankingEnabled).Select(kvp => kvp.Key))
                 {
-                    yield return goal;
+                    result[index++] = otherGoal;
                 }
             }
             else
             {
-                yield return goals.Keys.First();
+                result[0] = goals.Keys.First();
             }
+            return result;
         }
     }
 }

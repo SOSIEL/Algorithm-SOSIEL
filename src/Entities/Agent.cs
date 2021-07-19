@@ -251,7 +251,7 @@ namespace SOSIEL.Entities
 
                 var decisionOptionForRemoving = DecisionOptionActivationFreshness
                     .Where(kvp => kvp.Key.Layer == layer).GroupBy(kvp => kvp.Value).OrderByDescending(g => g.Key)
-                    .Take(1).SelectMany(g => g.Select(kvp => kvp.Key)).RandomizeOne();
+                    .Take(1).SelectMany(g => g.Select(kvp => kvp.Key)).ChooseRandomElement();
                 if (_logger.IsDebugEnabled)
                 {
                     _logger.Debug($"  Layer {layer.PositionNumber}: number of DOs={layerDecisionOptions.Length}"

@@ -76,7 +76,7 @@ namespace SOSIEL.Processes
             if (!agent.AssignedDecisionOptions.Contains(protDecisionOption))
             {
                 protDecisionOption = agent.AssignedDecisionOptions.Where(a => a.Layer == layer)
-                    .RandomizeOne();
+                    .ChooseRandomElement();
             }
 
             //if the layer or prior period decision option are modifiable then generate new decision option
