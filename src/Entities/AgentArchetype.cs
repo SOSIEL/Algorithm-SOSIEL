@@ -26,7 +26,7 @@ namespace SOSIEL.Entities
 
         public List<Goal> Goals { get; set; }
 
-        public Dictionary<string, MentalModelConfiguration> MentalModel { get; set; }
+        public Dictionary<string, MentalModelConfiguration> MentalModels { get; set; }
 
         [JsonProperty]
         public List<DecisionOption> DecisionOptions { get; set; }
@@ -51,7 +51,7 @@ namespace SOSIEL.Entities
             Name = name;
             CommonVariables = new Dictionary<string, dynamic>();
             Goals = new List<Goal>();
-            MentalModel = new Dictionary<string, MentalModelConfiguration>();
+            MentalModels = new Dictionary<string, MentalModelConfiguration>();
             DecisionOptions = new List<DecisionOption>();
             // Debugger.Launch();
         }
@@ -79,16 +79,19 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         private List<MentalModel> TransformDOsToMentalModel()
         {
-            mentalProto = DecisionOptions.GroupBy(kh => kh.MentalModel).OrderBy(g => g.Key)
-                .Select(g => new MentalModel(g.Key, 
-                    Goals.Where(goal => MentalModel[g.Key.ToString()].AssociatedWith.Contains(goal.Name)).ToArray(),
-                       g.GroupBy(kh => kh.DecisionOptionsLayer).OrderBy(g2 => g2.Key).
-                       Select(g2 => new DecisionOptionLayer(MentalModel[g.Key.ToString()].Layer[g2.Key.ToString()], g2))))
-                .ToList();
-            return mentalProto;
+            var result = new List<MentalModel>();
+            foreach (var g in DecisionOptions.GroupBy(kh => kh.ParentMentalModelId).OrderBy(g => g.Key))
+            {
+                var goals = Goals.Where(
+                    goal => MentalModels[g.Key.ToString()].AssociatedWith.Contains(goal.Name)).ToArray();
+                var layers = g.GroupBy(kh => kh.ParentDecisionOptionLayerId).OrderBy(g2 => g2.Key).
+                   Select(g2 => new DecisionOptionLayer(MentalModels[g.Key.ToString()].Layer[g2.Key.ToString()], g2));
+                var mentalModel = new MentalModel(g.Key, goals, layers);
+                result.Add(mentalModel);
+            }
+            mentalProto = result;
+            return result;
         }
-
-
 
         /// <summary>
         /// Adds decision option to mental model of current archetype if it isn't exists in the scope.

@@ -24,7 +24,7 @@ namespace SOSIEL.Algorithm
         private ProcessesConfiguration _processConfiguration;
 
         protected int numberOfAgentsAfterInitialize;
-        protected bool algorithmStoppage;
+        protected bool stopAlgorithm;
         protected AgentList agentList;
 
         protected readonly LinkedList<Dictionary<IAgent, AgentState>> iterations =
@@ -175,7 +175,7 @@ namespace SOSIEL.Algorithm
         {
             agentList.ActiveAgents.ForEach(a =>
             {
-                //increment decision option activation freshness
+                // increment decision option activation freshness
                 a.DecisionOptionActivationFreshness.Keys.ToList().ForEach(k =>
                 {
                     a.DecisionOptionActivationFreshness[k] += 1;
@@ -204,7 +204,9 @@ namespace SOSIEL.Algorithm
                 iterations.AddLast(currentIteration);
 
                 var priorIteration = iterations.Last.Previous?.Value;
-                var orderedAgents = _processConfiguration.AgentRandomizationEnabled ? agentList.ActiveAgents.Randomize().ToArray() : agentList.ActiveAgents;
+                var orderedAgents = _processConfiguration.AgentRandomizationEnabled
+                    ? agentList.ActiveAgents.Randomize().ToArray()
+                    : agentList.ActiveAgents;
                 var agentGroups = orderedAgents
                     .GroupBy(a => a.Archetype.NamePrefix)
                     .OrderBy(group => group.Key).ToArray();
@@ -238,20 +240,20 @@ namespace SOSIEL.Algorithm
 
                 if (_processConfiguration.AnticipatoryLearningEnabled && _currentIterationNumber > 1)
                 {
-                    //1st round: AL, CT, IR
+                    // 1st round: AL, CT, IR
                     foreach (var agentGroup in agentGroups)
                     {
                         foreach (var agent in agentGroup)
                         {
                             var agentState = currentIteration[agent];
 
-                            //anticipatory learning process
+                            // anticipatory learning process
                             anticipatoryLearning.Execute(agent, iterations.Last);
 
-                            //goal prioritizing
+                            // goal prioritizing
                             goalPrioritizing.Prioritize(agent, agentState.GoalStates);
 
-                            //goal selecting
+                            // goal selecting
                             agentState.RankedGoals = goalSelecting.SortByImportance(agent, agentState.GoalStates);
 
                             if (!_processConfiguration.CounterfactualThinkingEnabled) continue;
@@ -265,7 +267,7 @@ namespace SOSIEL.Algorithm
                                     _logger.Debug($"iteration #{_currentIterationNumber}: " +
                                         $"Save agent.AnticipationInfluence: " +
                                         string.Join(", ", agentState.AnticipatedInfluences
-                                            .Select(x => x.Key.Id).OrderBy(x => x)) + '\n');
+                                            .Select(x => x.Key.Name).OrderBy(x => x)) + '\n');
                                 }
                                 continue;
                             }
@@ -274,19 +276,19 @@ namespace SOSIEL.Algorithm
                             {
                                 BeforeCounterfactualThinking(agent, dataSet);
 
-                                foreach (var set in agent.AssignedDecisionOptions
-                                    .GroupBy(h => h.Layer.Set).OrderBy(g => g.Key.PositionNumber))
+                                foreach (var decisionOptionSet in agent.AssignedDecisionOptions
+                                    .GroupBy(h => h.ParentLayer.ParentMentalModel).OrderBy(g => g.Key.ModelId))
                                 {
                                     // optimization
                                     var selectedGoal = agentState.RankedGoals
-                                        .First(g => set.Key.AssociatedWith.Contains(g));
-
+                                        .First(g => decisionOptionSet.Key.AssociatedGoals.Contains(g));
                                     var selectedGoalState = agentState.GoalStates[selectedGoal];
                                     if (selectedGoalState.Confidence) continue;
 
-                                    foreach (var layer in set.GroupBy(h => h.Layer).OrderBy(g => g.Key.PositionNumber))
+                                    foreach (var layer in decisionOptionSet.GroupBy(h => h.ParentLayer)
+                                        .OrderBy(g => g.Key.LayerId))
                                     {
-                                        if (!layer.Key.LayerConfiguration.Modifiable && !layer.Any(r => r.IsModifiable))
+                                        if (!layer.Key.Configuration.Modifiable && !layer.Any(r => r.IsModifiable))
                                             continue;
 
                                         if (_logger.IsDebugEnabled)
@@ -294,7 +296,7 @@ namespace SOSIEL.Algorithm
                                             var dataSetId = 0;
                                             _logger.Debug($"****** Preparing for CT with " +
                                                 $"agent={agent.Id} goal={selectedGoal.Name} dataSet={dataSetId} " +
-                                                $"layer={layer.Key.PositionNumber}");
+                                                $"layer={layer.Key.LayerId}");
                                         }
 
                                         // counterfactual thinking process
@@ -309,7 +311,7 @@ namespace SOSIEL.Algorithm
                                             var decisionOption = innovation.Execute(
                                                 agent, iterations.Last, selectedGoal, layer.Key, dataSet, probabilities);
                                             if (_logger.IsDebugEnabled)
-                                                _logger.Debug($"Generated new decision option: {decisionOption.Id}");
+                                                _logger.Debug($"Generated new decision option: {decisionOption.Name}");
                                             AfterInnovation(agent, dataSet, decisionOption);
                                         }
                                     }
@@ -320,9 +322,10 @@ namespace SOSIEL.Algorithm
                             agentState.AnticipatedInfluences = agent.AnticipationInfluence;
                             if (_logger.IsDebugEnabled)
                             {
-                                _logger.Debug($"iteration #{_currentIterationNumber}: Save agent.AnticipationInfluence: "
+                                _logger.Debug(
+                                    $"iteration #{_currentIterationNumber}: Save agent.AnticipationInfluence: "
                                     + string.Join(", ", agentState.AnticipatedInfluences
-                                        .Select(x => x.Key.Id).OrderBy(x => x)) + '\n');
+                                        .Select(x => x.Key.Name).OrderBy(x => x)) + '\n');
                             }
                         }
                     }
@@ -335,10 +338,11 @@ namespace SOSIEL.Algorithm
                     {
                         foreach (var agent in agentGroup)
                         {
-                            foreach (var set in agent.AssignedDecisionOptions
-                                .GroupBy(h => h.Layer.Set).OrderBy(g => g.Key.PositionNumber))
+                            foreach (var decisionOptionSet in agent.AssignedDecisionOptions
+                                .GroupBy(h => h.ParentLayer.ParentMentalModel).OrderBy(g => g.Key.ModelId))
                             {
-                                foreach (var layer in set.GroupBy(h => h.Layer).OrderBy(g => g.Key.PositionNumber))
+                                foreach (var layer in decisionOptionSet.GroupBy(h => h.ParentLayer)
+                                    .OrderBy(g => g.Key.LayerId))
                                 {
                                     //social learning process
                                     socliaLearning.Execute(agent, iterations.Last, layer.Key);
@@ -350,20 +354,20 @@ namespace SOSIEL.Algorithm
 
                 if (_processConfiguration.DecisionOptionSelectionEnabled)
                 {
-                    //AS part I
+                    // AS part I
                     foreach (var agentGroup in agentGroups)
                     {
                         foreach (var agent in agentGroup)
                         {
                             foreach (var dataSet in GetDataSets(agent, orderedDataSets, notDataSetOriented))
                             {
-                                foreach (var set in agent.AssignedDecisionOptions
-                                    .GroupBy(h => h.Layer.Set).OrderBy(g => g.Key.PositionNumber))
+                                foreach (var decisionOptionSet in agent.AssignedDecisionOptions
+                                    .GroupBy(h => h.ParentLayer.ParentMentalModel).OrderBy(g => g.Key.ModelId))
                                 {
-                                    foreach (var layer in set.GroupBy(h => h.Layer).OrderBy(g => g.Key.PositionNumber))
+                                    foreach (var layer in decisionOptionSet.GroupBy(h => h.ParentLayer)
+                                        .OrderBy(g => g.Key.LayerId))
                                     {
                                         BeforeActionSelection(agent, dataSet);
-                                        //satisficing
                                         satisficing.ExecutePartI(1, agent, iterations.Last,
                                             currentIteration[agent].RankedGoals, layer.ToArray(), dataSet);
                                     }
@@ -374,21 +378,21 @@ namespace SOSIEL.Algorithm
 
                     if (_processConfiguration.DecisionOptionSelectionPart2Enabled && _currentIterationNumber > 1)
                     {
-                        //4th round: AS part II
+                        // 4th round: AS part II
                         foreach (var agentGroup in agentGroups)
                         {
                             foreach (var agent in agentGroup)
                             {
                                 foreach (var dataSet in GetDataSets(agent, orderedDataSets, notDataSetOriented))
                                 {
-                                    foreach (var set in agent.AssignedDecisionOptions
-                                        .GroupBy(r => r.Layer.Set).OrderBy(g => g.Key.PositionNumber))
+                                    foreach (var decisionOptionSet in agent.AssignedDecisionOptions
+                                        .GroupBy(r => r.ParentLayer.ParentMentalModel).OrderBy(g => g.Key.ModelId))
                                     {
-                                        foreach (var layer in set.GroupBy(h => h.Layer)
-                                            .OrderBy(g => g.Key.PositionNumber))
+                                        foreach (var layer in decisionOptionSet.GroupBy(h => h.ParentLayer)
+                                            .OrderBy(g => g.Key.LayerId))
                                         {
                                             BeforeActionSelection(agent, dataSet);
-                                            //action selection process part II
+                                            // Action selection process part II
                                             satisficing.ExecutePartII(1, agent, iterations.Last,
                                                 currentIteration[agent].RankedGoals, layer.ToArray(), dataSet);
                                         }
@@ -401,7 +405,7 @@ namespace SOSIEL.Algorithm
 
                 if (_processConfiguration.ActionTakingEnabled)
                 {
-                    //5th round: TA
+                    // 5th round: TA
                     foreach (var agentGroup in agentGroups)
                     {
                         foreach (var agent in agentGroup)
@@ -417,9 +421,10 @@ namespace SOSIEL.Algorithm
 
                 if (_processConfiguration.AlgorithmStopIfAllAgentsSelectDoNothing && _currentIterationNumber > 1)
                 {
-                    if (!currentIteration.SelectMany(kvp => kvp.Value.DecisionOptionHistories.Values.SelectMany(rh => rh.Activated)).Any())
+                    if (!currentIteration.SelectMany(
+                        kvp => kvp.Value.DecisionOptionHistories.Values.SelectMany(rh => rh.Activated)).Any())
                     {
-                        algorithmStoppage = true;
+                        stopAlgorithm = true;
                     }
                 }
 
@@ -439,7 +444,7 @@ namespace SOSIEL.Algorithm
                     Reproduction(0);
                 }
 
-                if (algorithmStoppage || agentList.ActiveAgents.Length == 0)
+                if (stopAlgorithm || agentList.ActiveAgents.Length == 0)
                     break;
 
                 Maintenance();

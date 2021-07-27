@@ -7,6 +7,8 @@ namespace SOSIEL.Entities
 {
     public sealed class GoalState
     {
+        public Goal Goal { get; private set; }
+
         public IAgent Agent { get; private set; }
 
         public double Value { get; set; }
@@ -46,11 +48,12 @@ namespace SOSIEL.Entities
         public string MaxGoalValueReference { get; set; }
 
         public GoalState(
-            IAgent agent, double value, double focalValue, double importance,
+            Goal goal, IAgent agent, double value, double focalValue, double importance,
             double minGoalValueStatic, double maxGoalValueStatic,
             string minGoalValueReference, string maxGoalValueReference
         )
         {
+            Goal = goal;
             Agent = agent;
 
             //value will be changed in AL
@@ -74,6 +77,7 @@ namespace SOSIEL.Entities
 
         public GoalState(GoalState src)
         {
+            Goal = src.Goal;
             Agent = src.Agent;
 
             Value = src.Value;
@@ -136,8 +140,8 @@ namespace SOSIEL.Entities
         public static GoalState CreateCopy(GoalState goalState)
         {
             return new GoalState(
-                goalState.Agent, goalState.Value, goalState.FocalValue, goalState.AdjustedImportance,
-                goalState.MinGoalValueStatic, goalState.MaxGoalValueStatic,
+                goalState.Goal, goalState.Agent, goalState.Value, goalState.FocalValue,
+                goalState.AdjustedImportance, goalState.MinGoalValueStatic, goalState.MaxGoalValueStatic,
                 goalState.MinGoalValueReference, goalState.MaxGoalValueReference
             );
         }

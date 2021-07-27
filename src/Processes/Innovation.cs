@@ -61,7 +61,7 @@ namespace SOSIEL.Processes
 
             //gets prior period activated decision options
             var history = priorIteration[agent].DecisionOptionHistories[dataSet];
-            var protDecisionOption = history.Activated.FirstOrDefault(r => r.Layer == layer);
+            var protDecisionOption = history.Activated.FirstOrDefault(r => r.ParentLayer == layer);
 
             //if prior period decision option is do nothing then looking for any do something decision option
             var tempNode = currentIterationNode.Previous;
@@ -69,21 +69,21 @@ namespace SOSIEL.Processes
             {
                 tempNode = tempNode.Previous;
                 history = tempNode.Value[agent].DecisionOptionHistories[dataSet];
-                protDecisionOption = history.Activated.SingleOrDefault(r => r.Layer == layer);
+                protDecisionOption = history.Activated.SingleOrDefault(r => r.ParentLayer == layer);
             }
 
             //if activated DO is missed, then select random DO
             if (!agent.AssignedDecisionOptions.Contains(protDecisionOption))
             {
-                protDecisionOption = agent.AssignedDecisionOptions.Where(a => a.Layer == layer)
+                protDecisionOption = agent.AssignedDecisionOptions.Where(a => a.ParentLayer == layer)
                     .ChooseRandomElement();
             }
 
             //if the layer or prior period decision option are modifiable then generate new decision option
-            if (layer.LayerConfiguration.Modifiable
-                || (!layer.LayerConfiguration.Modifiable && protDecisionOption.IsModifiable))
+            if (layer.Configuration.Modifiable
+                || (!layer.Configuration.Modifiable && protDecisionOption.IsModifiable))
             {
-                var parameters = layer.LayerConfiguration;
+                var parameters = layer.Configuration;
                 var selectedGoal = goal;
                 var selectedGoalState = currentIterationNode.Value[agent].GoalStates[selectedGoal];
 
@@ -152,7 +152,7 @@ namespace SOSIEL.Processes
                 #region Generating antecedent
                 var antecedentList = new List<DecisionOptionAntecedentPart>(protDecisionOption.Antecedent.Length);
 
-                bool isTopLevelDO = protDecisionOption.Layer.PositionNumber == 1;
+                bool isTopLevelDO = protDecisionOption.ParentLayer.LayerId == 1;
 
                 foreach (DecisionOptionAntecedentPart antecedent in protDecisionOption.Antecedent)
                 {
@@ -219,7 +219,7 @@ namespace SOSIEL.Processes
                     agent.AssignNewDecisionOption(kh, proportionalAI);
                 }
 
-                if (layer.Set.Layers.Count > 1)
+                if (layer.ParentMentalModel.Layers.Count > 1)
                 {
                     //set consequent to actor's variables for next layers
                     newDecisionOption.Apply(agent);

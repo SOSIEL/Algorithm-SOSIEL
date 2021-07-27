@@ -33,6 +33,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using NLog;
@@ -49,92 +50,33 @@ namespace SOSIEL.Processes
     {
         private static Logger _logger = LogHelper.GetLogger();
 
-        Goal _processedGoal;
-        GoalState _goalState;
-
-
-        Dictionary<DecisionOption, Dictionary<Goal, double>> _anticipatedInfluence;
-
-        DecisionOption[] _matchedDecisionOptions;
-
-
-        DecisionOption _priorPeriodActivatedDecisionOption;
-        DecisionOption _decisionOptionForActivating;
-
-        #region Specific logic for tendencies
-        protected override void EqualToOrAboveFocalValue()
+        private class SpecificLogicCustomData
         {
-            if(_goalState.Value >= _goalState.FocalValue) return;
-            var selectedDecisionOptions = _matchedDecisionOptions;
-            if (_matchedDecisionOptions.Length > 1)
-            {
-                selectedDecisionOptions = _matchedDecisionOptions.GroupBy(
-                    r => _anticipatedInfluence[r][_processedGoal] - (_goalState.FocalValue - _goalState.Value))
-                    .OrderBy(hg => hg.Key).First().ToArray();
-            }
-            _decisionOptionForActivating = selectedDecisionOptions.ChooseRandomElement();
+            public DecisionOption[] MatchedDecisionOptions { get; set; }
+            public Dictionary<DecisionOption, Dictionary<Goal, double>> AnticipatedInfluence { get; set; }
         }
-
-        protected override void Maximize()
-        {
-            if (_matchedDecisionOptions.Length > 0)
-            {
-                var selectedDecisionOptions = _matchedDecisionOptions.GroupBy(
-                    r => _anticipatedInfluence[r][_processedGoal])
-                    .OrderByDescending(hg => hg.Key).First().ToArray();
-
-                _decisionOptionForActivating = selectedDecisionOptions.ChooseRandomElement();
-            }
-        }
-
-        protected override void Minimize()
-        {
-            if (_matchedDecisionOptions.Length > 0)
-            {
-                var selectedDecisionOptions = _matchedDecisionOptions
-                    .GroupBy(r => _anticipatedInfluence[r][_processedGoal]).OrderBy(hg => hg.Key).First().ToArray();
-
-                _decisionOptionForActivating = selectedDecisionOptions.ChooseRandomElement();
-            }
-        }
-
-        protected override void MaintainAtValue()
-        {
-            if(_goalState.Value == _goalState.FocalValue) return;
-            var selectedDecisionOptions = _matchedDecisionOptions;
-            if (_matchedDecisionOptions.Length > 1)
-            {
-                selectedDecisionOptions = _matchedDecisionOptions.GroupBy(
-                    r => _anticipatedInfluence[r][_processedGoal] - Math.Abs(_goalState.FocalValue - _goalState.Value))
-                  .OrderBy(hg => hg.Key).First().ToArray();
-            }
-            _decisionOptionForActivating = selectedDecisionOptions.ChooseRandomElement();
-        }
-        #endregion
 
         /// <summary>
         /// Shares collective action among same household agents
         /// </summary>
         /// <param name="currentAgent"></param>
         /// <param name="decisionOption"></param>
-        /// <param name="agentStates"></param>
-        List<IAgent> SignalingInterest(IAgent currentAgent, DecisionOption decisionOption,
-            Dictionary<IAgent, AgentState> agentStates)
+        List<IAgent> SignalingInterest(IAgent currentAgent, DecisionOption decisionOption)
         {
             if (_logger.IsDebugEnabled)
                 _logger.Debug($"Satisficing.SignalingInterest: {currentAgent.Id}");
             var scope = decisionOption.Scope;
             var agents = new List<IAgent>();
-            foreach (IAgent neighbour in currentAgent.ConnectedAgents
-                .Where(connected => scope == null || (connected.ContainsVariable(scope)
-                                                      && currentAgent.ContainsVariable(scope)
-                                                      && connected[scope] == currentAgent[scope])))
+            var hasScope = currentAgent.ContainsVariable(scope);
+            foreach (IAgent neighbor in currentAgent.ConnectedAgents.Where(
+                connectedAgent => scope == null || (hasScope && connectedAgent.ContainsVariable(scope)
+                                                      && connectedAgent[scope] == currentAgent[scope])))
             {
-                if (neighbour.AssignedDecisionOptions.Contains(decisionOption) == false)
+                if (!neighbor.AssignedDecisionOptions.Contains(decisionOption))
                 {
-                    neighbour.AssignNewDecisionOption(
-                        decisionOption, currentAgent.AnticipationInfluence[decisionOption]);
-                    agents.Add(neighbour);
+                    var influence = currentAgent.AnticipationInfluence[decisionOption];
+                    neighbor.AssignNewDecisionOption(decisionOption, influence);
+                    agents.Add(neighbor);
                 }
             }
             return agents;
@@ -146,26 +88,23 @@ namespace SOSIEL.Processes
         /// <param name="agent"></param>
         /// <param name="currentIterationNode"></param>
         /// <param name="rankedGoals"></param>
-        /// <param name="processedDecisionOptions"></param>
+        /// <param name="decisionOptions"></param>
         /// <param name="dataSet"></param>
         public void ExecutePartI(
             int recursionLevel,
             IAgent agent,
             LinkedListNode<Dictionary<IAgent, AgentState>> currentIterationNode,
             Goal[] rankedGoals,
-            DecisionOption[] processedDecisionOptions,
+            DecisionOption[] decisionOptions,
             IDataSet dataSet
         )
         {
             if (_logger.IsDebugEnabled)
                 _logger.Debug($"Satisficing.ExecutePartI: recursionLevel={recursionLevel} agent={agent.Id}");
 
-            _decisionOptionForActivating = null;
-
             var currentAgentState = currentIterationNode.Value[agent];
             var priorPeriodAgentState = currentIterationNode.Previous?.Value[agent];
 
-            //adds new decisionOption history for specific data set if it doesn't exist
             DecisionOptionHistory decisionOptionHistory;
             if (!currentAgentState.DecisionOptionHistories.TryGetValue(dataSet, out decisionOptionHistory))
             {
@@ -173,53 +112,58 @@ namespace SOSIEL.Processes
                 currentAgentState.DecisionOptionHistories.Add(dataSet, decisionOptionHistory);
             }
 
-            _processedGoal = rankedGoals.First(
-                g => processedDecisionOptions.First().Layer.Set.AssociatedWith.Contains(g));
-            _goalState = currentAgentState.GoalStates[_processedGoal];
-            _matchedDecisionOptions = processedDecisionOptions.Except(decisionOptionHistory.Blocked)
+            var firstDecisionOptionGoals = decisionOptions.First().ParentLayer.ParentMentalModel.AssociatedGoals;
+            //Debugger.Launch();
+            var goal = rankedGoals.First(g => firstDecisionOptionGoals.Contains(g));
+            var goalState = currentAgentState.GoalStates[goal];
+            var matchedDecisionOptions = decisionOptions.Except(decisionOptionHistory.Blocked)
                 .Where(h => h.IsMatch(agent)).ToArray();
 
-            switch (_matchedDecisionOptions.Length)
+            DecisionOption decisionOptionToActivate = null;
+            switch (matchedDecisionOptions.Length)
             {
                 case 0: return;
-                case 1: _decisionOptionForActivating = _matchedDecisionOptions[0]; break;
+                case 1: decisionOptionToActivate = matchedDecisionOptions[0]; break;
                 default:
                 {
-                    if (priorPeriodAgentState != null)
-                    {
-                        _priorPeriodActivatedDecisionOption = priorPeriodAgentState.DecisionOptionHistories[dataSet]
-                            .Activated.FirstOrDefault(r => r.Layer == processedDecisionOptions.First().Layer);
-                    }
                     //set anticipated influence before execute specific logic
-                    _anticipatedInfluence = agent.AnticipationInfluence;
-                    SpecificLogic(_processedGoal.Tendency);
+                    decisionOptionToActivate = (DecisionOption)SpecificLogic(
+                        goalState,
+                        new SpecificLogicCustomData
+                        {
+                            MatchedDecisionOptions = matchedDecisionOptions,
+                            AnticipatedInfluence = agent.AnticipationInfluence
+                        }
+                        );
                     break;
                 }
             }
 
-            if (processedDecisionOptions.First().Layer.Set.Layers.Count > 1)
-                _decisionOptionForActivating.Apply(agent);
-
-            if (_decisionOptionForActivating != null)
-                decisionOptionHistory.Activated.Add(_decisionOptionForActivating);
-
-            decisionOptionHistory.Matched.AddRange(_matchedDecisionOptions);
-
-            if (_decisionOptionForActivating != null && _decisionOptionForActivating.IsCollectiveAction)
+            if (decisionOptionToActivate != null)
             {
-                var agents = SignalingInterest(agent, _decisionOptionForActivating, currentIterationNode.Value);
-                foreach (var agent1 in agents)
+                if (decisionOptions.First().ParentLayer.ParentMentalModel.Layers.Count > 1)
+                    decisionOptionToActivate.Apply(agent);
+                decisionOptionHistory.Activated.Add(decisionOptionToActivate);
+            }
+
+            decisionOptionHistory.Matched.AddRange(matchedDecisionOptions);
+
+            if (decisionOptionToActivate != null && decisionOptionToActivate.IsCollectiveAction)
+            {
+                var signaledAgents = SignalingInterest(agent, decisionOptionToActivate);
+                foreach (var signaledAgent in signaledAgents)
                 {
-                    var agentHistory = currentIterationNode.Value[agent1].DecisionOptionHistories[dataSet];
-                    var layer = _decisionOptionForActivating.Layer;
-                    if (agentHistory.Activated.Any(h => h.Layer == layer))
+                    var agentHistory = currentIterationNode.Value[signaledAgent].DecisionOptionHistories[dataSet];
+                    var layer = decisionOptionToActivate.ParentLayer;
+                    if (agentHistory.Activated.Any(h => h.ParentLayer == layer))
                     {
-                        //clean previous choice
-                        agentHistory.Activated.RemoveAll(h => h.Layer == layer);
-                        agentHistory.Matched.RemoveAll(h => h.Layer == layer);
-                        var decisionOptions = agent1.AssignedDecisionOptions.Where(h => h.Layer == layer).ToArray();
-                        ExecutePartI(
-                            recursionLevel + 1, agent1, currentIterationNode, rankedGoals, decisionOptions, dataSet);
+                        // clear previous choices
+                        agentHistory.Activated.RemoveAll(h => h.ParentLayer == layer);
+                        agentHistory.Matched.RemoveAll(h => h.ParentLayer == layer);
+                        var decisionOptions1 = signaledAgent.AssignedDecisionOptions
+                            .Where(h => h.ParentLayer == layer).ToArray();
+                        ExecutePartI(recursionLevel + 1, signaledAgent, currentIterationNode,
+                            rankedGoals, decisionOptions1, dataSet);
                     }
                 }
             }
@@ -231,14 +175,14 @@ namespace SOSIEL.Processes
         /// <param name="agent"></param>
         /// <param name="currentIterationNode"></param>
         /// <param name="rankedGoals"></param>
-        /// <param name="processedDecisionOptions"></param>
+        /// <param name="decisionOptions"></param>
         /// <param name="dataSet"></param>
         public void ExecutePartII(
             int recursionLevel,
             IAgent agent,
             LinkedListNode<Dictionary<IAgent, AgentState>> currentIterationNode,
             Goal[] rankedGoals,
-            DecisionOption[] processedDecisionOptions,
+            DecisionOption[] decisionOptions,
             IDataSet dataSet
          )
         {
@@ -246,9 +190,8 @@ namespace SOSIEL.Processes
                 _logger.Debug($"Satisficing.ExecutePartII: recursionLevel={recursionLevel} agent={agent.Id}");
             var agentState = currentIterationNode.Value[agent];
             var decisionOptionHistory = agentState.DecisionOptionHistories[dataSet];
-            var layer = processedDecisionOptions.First().Layer;
-            var selectedDecisionOption = decisionOptionHistory.Activated
-                .SingleOrDefault(r => r.Layer == layer);
+            var layer = decisionOptions.First().ParentLayer;
+            var selectedDecisionOption = decisionOptionHistory.Activated.SingleOrDefault(r => r.ParentLayer == layer);
             if (selectedDecisionOption != null && selectedDecisionOption.IsCollectiveAction)
             {
                 var scope = selectedDecisionOption.Scope;
@@ -257,22 +200,71 @@ namespace SOSIEL.Processes
                     connected => scope == null || agent[scope] == connected[scope])
                     .Count(a => currentIterationNode.Value[a].DecisionOptionHistories[dataSet]
                     .Activated.Any(decisionOption => decisionOption == selectedDecisionOption));
-                int requiredParticipants = selectedDecisionOption.RequiredParticipants - 1;
+                int requiredNumberOfParticipants = selectedDecisionOption.RequiredParticipants - 1;
                 // add decision option to blocked
-                if (numberOfInvolvedAgents < requiredParticipants)
+                if (numberOfInvolvedAgents < requiredNumberOfParticipants)
                 {
                     decisionOptionHistory.Blocked.Add(selectedDecisionOption);
                     decisionOptionHistory.Activated.Remove(selectedDecisionOption);
                     ExecutePartI(
                         recursionLevel + 1, agent, currentIterationNode, rankedGoals,
-                        processedDecisionOptions, dataSet
+                        decisionOptions, dataSet
                     );
                     ExecutePartII(
                         recursionLevel + 1, agent, currentIterationNode, rankedGoals,
-                        processedDecisionOptions, dataSet
+                        decisionOptions, dataSet
                     );
                 }
             }
         }
+
+        #region Specific logic for tendencies
+        protected override object EqualToOrAboveFocalValue(GoalState goalState, object customData)
+        {
+            if (goalState.Value >= goalState.FocalValue) return null;
+            var data = (SpecificLogicCustomData)customData;
+            var selectedDecisionOptions = data.MatchedDecisionOptions;
+            if (data.MatchedDecisionOptions.Length > 1)
+            {
+                selectedDecisionOptions = data.MatchedDecisionOptions.GroupBy(
+                    r => data.AnticipatedInfluence[r][goalState.Goal] - (goalState.FocalValue - goalState.Value))
+                    .OrderBy(hg => hg.Key).First().ToArray();
+            }
+            return selectedDecisionOptions.ChooseRandomElement();
+        }
+
+        protected override object Maximize(GoalState goalState, object customData)
+        {
+            var data = (SpecificLogicCustomData)customData;
+            if (data.MatchedDecisionOptions.Length == 0) return null;
+            var selectedDecisionOptions = data.MatchedDecisionOptions.GroupBy(
+                r => data.AnticipatedInfluence[r][goalState.Goal])
+                .OrderByDescending(hg => hg.Key).First().ToArray();
+            return selectedDecisionOptions.ChooseRandomElement();
+        }
+
+        protected override object Minimize(GoalState goalState, object customData)
+        {
+            var data = (SpecificLogicCustomData)customData;
+            if (data.MatchedDecisionOptions.Length == 0) return null;
+            var selectedDecisionOptions = data.MatchedDecisionOptions
+                .GroupBy(r => data.AnticipatedInfluence[r][goalState.Goal]).OrderBy(hg => hg.Key).First().ToArray();
+            return selectedDecisionOptions.ChooseRandomElement();
+        }
+
+        protected override object MaintainAtValue(GoalState goalState, object customData)
+        {
+            if (goalState.Value == goalState.FocalValue) return null;
+            var data = (SpecificLogicCustomData)customData;
+            var selectedDecisionOptions = data.MatchedDecisionOptions;
+            if (data.MatchedDecisionOptions.Length > 1)
+            {
+                selectedDecisionOptions = data.MatchedDecisionOptions.GroupBy(
+                    r => data.AnticipatedInfluence[r][goalState.Goal] - Math.Abs(goalState.FocalValue - goalState.Value))
+                  .OrderBy(hg => hg.Key).First().ToArray();
+            }
+            return selectedDecisionOptions.ChooseRandomElement();
+        }
+        #endregion
     }
 }

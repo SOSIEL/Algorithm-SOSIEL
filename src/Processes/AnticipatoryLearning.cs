@@ -34,81 +34,6 @@ namespace SOSIEL.Processes
     {
         private static Logger _logger = LogHelper.GetLogger();
 
-        Goal _currentGoal;
-        GoalState _currentGoalState;
-
-        #region Specific logic for tendencies
-        protected override void EqualToOrAboveFocalValue()
-        {
-            if (_currentGoalState.Value >= _currentGoalState.FocalValue
-                 || _currentGoalState.Value < _currentGoalState.FocalValue
-                     && _currentGoalState.Value > _currentGoalState.PriorValue
-                     && _currentGoalState.DiffCurrentAndPrior >= _currentGoalState.DiffPriorAndTwicePrior)
-            {
-                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
-                _currentGoalState.Confidence = true;
-            }
-            else
-            {
-                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Up;
-                _currentGoalState.Confidence = false;
-            }
-        }
-
-        protected override void Maximize()
-        {
-            if (_currentGoalState.Value == _currentGoalState.FocalValue
-               || _currentGoalState.Value > _currentGoalState.PriorValue
-                    && _currentGoalState.DiffCurrentAndPrior >= _currentGoalState.DiffPriorAndTwicePrior)
-            {
-                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
-                _currentGoalState.Confidence = true;
-            }
-            else
-            {
-                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Up;
-                _currentGoalState.Confidence = false;
-            }
-        }
-
-        protected override void Minimize()
-        {
-            if (_currentGoalState.Value == _currentGoalState.FocalValue
-                || _currentGoalState.Value < _currentGoalState.PriorValue 
-                    && _currentGoalState.PriorValue - _currentGoalState.Value 
-                        >= _currentGoalState.TwicePriorValue - _currentGoalState.PriorValue)
-            {
-                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
-                _currentGoalState.Confidence = true;
-            }
-            else
-            {
-                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Down;
-                _currentGoalState.Confidence = false;
-            }
-        }
-
-        protected override void MaintainAtValue()
-        {
-            if (_currentGoalState.Value == _currentGoalState.FocalValue
-                || Math.Abs(_currentGoalState.Value - _currentGoalState.FocalValue)
-                    < Math.Abs(_currentGoalState.PriorValue - _currentGoalState.PriorFocalValue))
-            {
-                _currentGoalState.AnticipatedDirection = AnticipatedDirection.Stay;
-                _currentGoalState.Confidence = true;
-            }
-            else
-            {
-                _currentGoalState.AnticipatedDirection = _currentGoalState.DiffCurrentAndFocal > 0
-                    ? AnticipatedDirection.Down
-                    : AnticipatedDirection.Up;
-                _currentGoalState.Confidence = false;
-            }
-        }
-
-        #endregion
-
-
         /// <summary>
         /// Executes anticipatory learning for specific agent and returns sorted by priority goals array
         /// </summary>
@@ -125,31 +50,30 @@ namespace SOSIEL.Processes
 
             foreach (var goal in agent.AssignedGoals)
             {
-                _currentGoal = goal;
-                _currentGoalState = currentIterationAgentState.GoalStates[goal];
-                _currentGoalState.Value = agent[goal.ReferenceVariable];
+                var goalState = currentIterationAgentState.GoalStates[goal];
+                goalState.Value = agent[goal.ReferenceVariable];
                 var previousGoalState = previousIterationAgentState.GoalStates[goal];
-                _currentGoalState.PriorValue = previousGoalState.Value;
-                _currentGoalState.TwicePriorValue = previousGoalState.PriorValue;
+                goalState.PriorValue = previousGoalState.Value;
+                goalState.TwicePriorValue = previousGoalState.PriorValue;
                 if (goal.ChangeFocalValueOnPrevious)
                 {
                     double reductionPercent = 1;
                     if (goal.ReductionPercent > 0d)
                         reductionPercent = goal.ReductionPercent;
-                    _currentGoalState.FocalValue = reductionPercent * _currentGoalState.PriorValue;
+                    goalState.FocalValue = reductionPercent * goalState.PriorValue;
                 }
                 if (!string.IsNullOrEmpty(goal.FocalValueReferenceVariable))
-                    _currentGoalState.FocalValue = agent[goal.FocalValueReferenceVariable];
-                _currentGoalState.DiffCurrentAndFocal = _currentGoalState.Value - _currentGoalState.FocalValue;
-                _currentGoalState.DiffPriorAndFocal = _currentGoalState.PriorValue - _currentGoalState.FocalValue;
-                _currentGoalState.DiffCurrentAndPrior = _currentGoalState.Value - _currentGoalState.PriorValue;
-                _currentGoalState.DiffPriorAndTwicePrior = _currentGoalState.PriorValue - previousGoalState.PriorValue;
+                    goalState.FocalValue = agent[goal.FocalValueReferenceVariable];
+                goalState.DiffCurrentAndFocal = goalState.Value - goalState.FocalValue;
+                goalState.DiffPriorAndFocal = goalState.PriorValue - goalState.FocalValue;
+                goalState.DiffCurrentAndPrior = goalState.Value - goalState.PriorValue;
+                goalState.DiffPriorAndTwicePrior = goalState.PriorValue - previousGoalState.PriorValue;
 
                 var anticipatedInfluence = goal.IsCumulative
-                    ? _currentGoalState.Value - _currentGoalState.PriorValue
-                    : _currentGoalState.Value;
+                    ? goalState.Value - goalState.PriorValue
+                    : goalState.Value;
 
-                _currentGoalState.AnticipatedInfluenceValue = anticipatedInfluence;
+                goalState.AnticipatedInfluenceValue = anticipatedInfluence;
 
                 //finds activated decision option for each site
                 var activatedInPriorIteration =
@@ -161,10 +85,84 @@ namespace SOSIEL.Processes
                     agent.AnticipationInfluence[r][goal] = anticipatedInfluence;
                 });
 
-                SpecificLogic(goal.Tendency);
+                SpecificLogic(goalState);
             }
 
             //return SortByImportance(agent, currentIterationAgentState.GoalsState).ToArray();
         }
+        #region Specific logic for tendencies
+        protected override object EqualToOrAboveFocalValue(GoalState goalState, object customData)
+        {
+            if (goalState.Value >= goalState.FocalValue
+                 || goalState.Value < goalState.FocalValue
+                     && goalState.Value > goalState.PriorValue
+                     && goalState.DiffCurrentAndPrior >= goalState.DiffPriorAndTwicePrior)
+            {
+                goalState.AnticipatedDirection = AnticipatedDirection.Stay;
+                goalState.Confidence = true;
+            }
+            else
+            {
+                goalState.AnticipatedDirection = AnticipatedDirection.Up;
+                goalState.Confidence = false;
+            }
+            return null;
+        }
+
+        protected override object Maximize(GoalState goalState, object customData)
+        {
+            if (goalState.Value == goalState.FocalValue
+               || goalState.Value > goalState.PriorValue
+                    && goalState.DiffCurrentAndPrior >= goalState.DiffPriorAndTwicePrior)
+            {
+                goalState.AnticipatedDirection = AnticipatedDirection.Stay;
+                goalState.Confidence = true;
+            }
+            else
+            {
+                goalState.AnticipatedDirection = AnticipatedDirection.Up;
+                goalState.Confidence = false;
+            }
+            return null;
+        }
+
+        protected override object Minimize(GoalState goalState, object customData)
+        {
+            if (goalState.Value == goalState.FocalValue
+                || goalState.Value < goalState.PriorValue
+                    && goalState.PriorValue - goalState.Value
+                        >= goalState.TwicePriorValue - goalState.PriorValue)
+            {
+                goalState.AnticipatedDirection = AnticipatedDirection.Stay;
+                goalState.Confidence = true;
+            }
+            else
+            {
+                goalState.AnticipatedDirection = AnticipatedDirection.Down;
+                goalState.Confidence = false;
+            }
+            return null;
+        }
+
+        protected override object MaintainAtValue(GoalState goalState, object customData)
+        {
+            if (goalState.Value == goalState.FocalValue
+                || Math.Abs(goalState.Value - goalState.FocalValue)
+                    < Math.Abs(goalState.PriorValue - goalState.PriorFocalValue))
+            {
+                goalState.AnticipatedDirection = AnticipatedDirection.Stay;
+                goalState.Confidence = true;
+            }
+            else
+            {
+                goalState.AnticipatedDirection = goalState.DiffCurrentAndFocal > 0
+                    ? AnticipatedDirection.Down
+                    : AnticipatedDirection.Up;
+                goalState.Confidence = false;
+            }
+            return null;
+        }
+
+        #endregion
     }
 }

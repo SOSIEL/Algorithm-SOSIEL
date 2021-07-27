@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using SOSIEL.Helpers;
@@ -11,18 +12,19 @@ namespace SOSIEL.Entities
 {
     public class MentalModel: IComparable<MentalModel>
     {
-        int _layerIndexer = 0;
+        int _nextLayerId = 1;
 
-        public int PositionNumber { get; set; }
+        public int ModelId { get; set; }
         public List<DecisionOptionLayer> Layers { get; private set; }
 
-        public Goal[] AssociatedWith { get; private set; }
+        public Goal[] AssociatedGoals { get; private set; }
 
         private MentalModel(int number, Goal[] associatedGoals)
         {
-            PositionNumber = number;
+            // Debugger.Launch();
+            ModelId = number;
             Layers = new List<DecisionOptionLayer>();
-            AssociatedWith = associatedGoals;
+            AssociatedGoals = associatedGoals;
         }
 
         public MentalModel(int number, Goal[] associatedGoals, IEnumerable<DecisionOptionLayer> layers) 
@@ -37,9 +39,8 @@ namespace SOSIEL.Entities
         /// <param name="layer"></param>
         public void Add(DecisionOptionLayer layer)
         {
-            _layerIndexer++;
-            layer.Set = this;
-            layer.PositionNumber = _layerIndexer;
+            layer.ParentMentalModel = this;
+            layer.LayerId = _nextLayerId++;
             Layers.Add(layer);
         }
 
@@ -51,7 +52,7 @@ namespace SOSIEL.Entities
 
         public int CompareTo(MentalModel other)
         {
-            return this == other ? 0 : other.PositionNumber > PositionNumber ? -1 : 1;
+            return this == other ? 0 : other.ModelId > ModelId ? -1 : 1;
         }
     }
 }

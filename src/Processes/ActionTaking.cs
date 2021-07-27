@@ -45,7 +45,7 @@ namespace SOSIEL.Processes
             }
 
             state.TakenActions.Add(site, new List<TakenAction>());
-            history.Activated.OrderBy(r => r.Layer.Set).ThenBy(r => r.Layer).ForEach(r =>
+            history.Activated.OrderBy(r => r.ParentLayer.ParentMentalModel).ThenBy(r => r.ParentLayer).ForEach(r =>
                {
                    TakenAction result = r.Apply(agent);
 
