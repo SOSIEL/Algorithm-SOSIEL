@@ -188,7 +188,7 @@ namespace SOSIEL.Entities
         public void AssignNewDecisionOption(DecisionOption newDecisionOption, Dictionary<Goal, double> anticipatedInfluence)
         {
             if (_logger.IsDebugEnabled) 
-                _logger.Debug($"Agent {Id}: AssignNewDecisionOptionWithAI: {newDecisionOption.Id}");
+                _logger.Debug($"Agent {Id}: AssignNewDecisionOptionWithAI: {newDecisionOption.Name}");
             AssignNewDecisionOption(newDecisionOption);
             //copy ai to personal ai for assigned goals only
             var ai = anticipatedInfluence.Where(kvp => AssignedGoals.Contains(kvp.Key))
@@ -204,7 +204,7 @@ namespace SOSIEL.Entities
         public void AddDecisionOption(DecisionOption newDecisionOption, DecisionOptionLayer layer)
         {
             if (_logger.IsDebugEnabled) 
-                _logger.Debug($"Agent {Id}: AddDecisionOptionWithUpdateArchetype: {newDecisionOption.Id}");
+                _logger.Debug($"Agent {Id}: AddDecisionOptionWithUpdateArchetype: {newDecisionOption.Name}");
             Archetype.AddNewDecisionOption(newDecisionOption, layer);
             AssignNewDecisionOption(newDecisionOption);
         }
@@ -219,7 +219,7 @@ namespace SOSIEL.Entities
         public void AddDecisionOption(DecisionOption newDecisionOption, DecisionOptionLayer layer, Dictionary<Goal, double> anticipatedInfluence)
         {
             if (_logger.IsDebugEnabled) 
-                _logger.Debug($"Agent {Id}: AddDecisionOptionWithAIAndUpdateArchetype: {newDecisionOption.Id}");
+                _logger.Debug($"Agent {Id}: AddDecisionOptionWithAIAndUpdateArchetype: {newDecisionOption.Name}");
             Archetype.AddNewDecisionOption(newDecisionOption, layer);
             AssignNewDecisionOption(newDecisionOption, anticipatedInfluence);
         }
@@ -235,13 +235,13 @@ namespace SOSIEL.Entities
             {
                 ++attempt;
                 if (_logger.IsDebugEnabled) 
-                    _logger.Debug($"Agent {Id}: AssignNewDecisionOption: {newDecisionOption.Id} attempt={attempt}");
+                    _logger.Debug($"Agent {Id}: AssignNewDecisionOption: {newDecisionOption.Name} attempt={attempt}");
 
-                var layer = newDecisionOption.Layer;
-                var layerDecisionOptions = AssignedDecisionOptions.GroupBy(r => r.Layer)
+                var layer = newDecisionOption.ParentLayer;
+                var layerDecisionOptions = AssignedDecisionOptions.GroupBy(r => r.ParentLayer)
                     .Where(g => g.Key == layer).SelectMany(g => g).ToArray();
 
-                if (layerDecisionOptions.Length < layer.LayerConfiguration.MaxNumberOfDecisionOptions)
+                if (layerDecisionOptions.Length < layer.Configuration.MaxNumberOfDecisionOptions)
                 {
                     AssignedDecisionOptions.Add(newDecisionOption);
                     AnticipationInfluence.Add(newDecisionOption, new Dictionary<Goal, double>());
@@ -250,13 +250,13 @@ namespace SOSIEL.Entities
                 }
 
                 var decisionOptionForRemoving = DecisionOptionActivationFreshness
-                    .Where(kvp => kvp.Key.Layer == layer).GroupBy(kvp => kvp.Value).OrderByDescending(g => g.Key)
+                    .Where(kvp => kvp.Key.ParentLayer == layer).GroupBy(kvp => kvp.Value).OrderByDescending(g => g.Key)
                     .Take(1).SelectMany(g => g.Select(kvp => kvp.Key)).ChooseRandomElement();
                 if (_logger.IsDebugEnabled)
                 {
-                    _logger.Debug($"  Layer {layer.PositionNumber}: number of DOs={layerDecisionOptions.Length}"
-                        + $" max number of DOs={layer.LayerConfiguration.MaxNumberOfDecisionOptions}");
-                    _logger.Debug($"Agent {Id}: Remove DecisionOption: {decisionOptionForRemoving.Id}");
+                    _logger.Debug($"  Layer {layer.LayerId}: number of DOs={layerDecisionOptions.Length}"
+                        + $" max number of DOs={layer.Configuration.MaxNumberOfDecisionOptions}");
+                    _logger.Debug($"Agent {Id}: Remove DecisionOption: {decisionOptionForRemoving.Name}");
                 }
                 AssignedDecisionOptions.Remove(decisionOptionForRemoving);
                 AnticipationInfluence.Remove(decisionOptionForRemoving);
@@ -286,7 +286,7 @@ namespace SOSIEL.Entities
 
         public static bool operator ==(Agent a, Agent b)
         {
-            if (Object.ReferenceEquals(a, b))
+            if (ReferenceEquals(a, b))
                 return true;
 
             // If one is null, but not both, return false.

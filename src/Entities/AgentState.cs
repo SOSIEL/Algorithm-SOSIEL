@@ -163,9 +163,9 @@ namespace SOSIEL.Entities
             foreach (var state in GoalStates)
             {
                 var value = state.Value;
-                copy.GoalStates.Add(state.Key, new GoalState(agent,0, value.FocalValue, value.Importance,
-                    value.MinGoalValueStatic, value.MaxGoalValueStatic, value.MinGoalValueReference,
-                    value.MaxGoalValueReference));
+                copy.GoalStates.Add(state.Key, new GoalState(state.Key, agent, 0, value.FocalValue,
+                    value.Importance, value.MinGoalValueStatic, value.MaxGoalValueStatic,
+                    value.MinGoalValueReference, value.MaxGoalValueReference));
             }
 
             foreach (var decisionOptionsHistory in DecisionOptionHistories)

@@ -11,20 +11,19 @@ namespace SOSIEL.Entities
 {
     public class DecisionOption : ICloneable<DecisionOption>, IEquatable<DecisionOption>
     {
-        public DecisionOptionLayer Layer { get; set; }
+        public DecisionOptionLayer ParentLayer { get; set; }
 
         /// <summary>
         /// Set in configuration json only
         /// </summary>
-        public int MentalModel { get; set; }
+        public int ParentMentalModelId { get; set; }
 
         /// <summary>
         /// Set in configuration json only
         /// </summary>
-        public int DecisionOptionsLayer { get; set; }
+        public int ParentDecisionOptionLayerId { get; set; }
 
-
-        public int PositionNumber { get; set; }
+        public int Id { get; set; }
 
         public DecisionOptionAntecedentPart[] Antecedent { get; set; }
 
@@ -45,12 +44,11 @@ namespace SOSIEL.Entities
             get => RequiredParticipants > 1;
         }
 
-
-        public string Id
+        public string Name
         {
             get
             {
-                return string.Format("MM{0}-{1}_DO{2}", Layer.Set.PositionNumber, Layer.PositionNumber, PositionNumber);
+                return $"MM{ParentLayer.ParentMentalModel.ModelId}-{ParentLayer.LayerId}_DO{Id}";
             }
         }
 
@@ -96,7 +94,7 @@ namespace SOSIEL.Entities
             agent[Consequent.Param] = value;
             agent.DecisionOptionActivationFreshness[this] = 0;
 
-            return new TakenAction(Id, Consequent.Param, value);
+            return new TakenAction(Name, Consequent.Param, value);
         }
 
         /// <summary>
@@ -118,10 +116,10 @@ namespace SOSIEL.Entities
         public static DecisionOption Renew(
             DecisionOption old, DecisionOptionAntecedentPart[] newAntecedent, DecisionOptionConsequent newConsequent)
         {
-            DecisionOption decisionOption = old.Clone();
+            var decisionOption = old.Clone();
             decisionOption.Antecedent = newAntecedent;
             decisionOption.Consequent = newConsequent;
-            decisionOption.Origin = old.Id;
+            decisionOption.Origin = old.Name;
             return decisionOption;
         }
 
@@ -139,7 +137,7 @@ namespace SOSIEL.Entities
                 && Consequent == other.Consequent
                 && Antecedent.Length == other.Antecedent.Length
                 && Antecedent.All(ant => other.Antecedent.Any(ant2 => ant == ant2))
-                && Id == other.Id);
+                && Name == other.Name);
         }
 
         public override bool Equals(object obj)
@@ -166,7 +164,7 @@ namespace SOSIEL.Entities
 
         public static bool operator ==(DecisionOption a, DecisionOption b)
         {
-            if (Object.ReferenceEquals(a, b))
+            if (ReferenceEquals(a, b))
                 return true;
 
             // If one is null, but not both, return false.
@@ -183,7 +181,7 @@ namespace SOSIEL.Entities
 
         public override string ToString()
         {
-            return Id;
+            return Name;
         }
     }
 }

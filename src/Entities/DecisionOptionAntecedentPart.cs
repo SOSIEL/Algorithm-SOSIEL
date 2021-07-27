@@ -120,7 +120,7 @@ namespace SOSIEL.Entities
 
         public static bool operator ==(DecisionOptionAntecedentPart a, DecisionOptionAntecedentPart b)
         {
-            if (Object.ReferenceEquals(a, b))
+            if (ReferenceEquals(a, b))
                 return true;
 
             // If one is null, but not both, return false.

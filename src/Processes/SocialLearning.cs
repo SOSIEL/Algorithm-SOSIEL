@@ -51,7 +51,7 @@ namespace SOSIEL.Processes
                 AgentState priorIteration;
                 if (!priorIterationState.TryGetValue(neighbour, out priorIteration)) return;
                 var activatedDecisionOptions = priorIteration.DecisionOptionHistories
-                    .SelectMany(rh => rh.Value.Activated).Where(r => r.Layer == layer);
+                    .SelectMany(rh => rh.Value.Activated).Where(r => r.ParentLayer == layer);
                 activatedDecisionOptions.ForEach(decisionOption =>
                 {
                     if (agent.AssignedDecisionOptions.Contains(decisionOption) == false)

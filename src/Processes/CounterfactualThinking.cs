@@ -42,11 +42,12 @@ namespace SOSIEL.Processes
     {
         private static Logger _logger = LogHelper.GetLogger();
 
-        private Goal _selectedGoal;
-        private GoalState _selectedGoalState;
-        private Dictionary<DecisionOption, Dictionary<Goal, double>> _anticipatedInfluences;
-        private DecisionOption[] _matchedDecisionOptions;
-        private DecisionOption _activatedDecisionOption;
+        private class SpecificLogicCustomData
+        {
+            public DecisionOption[] MatchedDecisionOptions { get; set; }
+            public Dictionary<DecisionOption, Dictionary<Goal, double>> AnticipatedInfluence { get; set; }
+            public DecisionOption ActivatedDecisionOption { get; set;  }
+        }
 
         /// <summary>
         /// Executes counterfactual thinking about most important agent goal for specific site
@@ -63,26 +64,25 @@ namespace SOSIEL.Processes
         {
             var prevIterationAgentState = iterationNode.Previous.Value[agent];
 
-            _matchedDecisionOptions = prevIterationAgentState.DecisionOptionHistories[site]
-                .Matched.Where(h => h.Layer == layer).ToArray();
-            if (_matchedDecisionOptions.Length < 2) return false;
+            var matchedDecisionOptions = prevIterationAgentState.DecisionOptionHistories[site]
+                .Matched.Where(h => h.ParentLayer == layer).ToArray();
+            if (matchedDecisionOptions.Length < 2) return false;
 
-            _selectedGoal = goal;
-            _selectedGoalState = iterationNode.Value[agent].GoalStates[_selectedGoal];
-            _selectedGoalState.Confidence = false;
+            var goalState = iterationNode.Value[agent].GoalStates[goal];
+            goalState.Confidence = false;
             var history = prevIterationAgentState.DecisionOptionHistories[site];
-            _activatedDecisionOption = history.Activated.FirstOrDefault(r => r.Layer == layer);
+            var activatedDecisionOption = history.Activated.FirstOrDefault(r => r.ParentLayer == layer);
             
             // First, copy old influences
-            _anticipatedInfluences = new Dictionary<DecisionOption, Dictionary<Goal, double>>();
+            var anticipatedInfluences = new Dictionary<DecisionOption, Dictionary<Goal, double>>();
             foreach (var kvp in prevIterationAgentState.AnticipatedInfluences)
-                _anticipatedInfluences.Add(kvp.Key, new Dictionary<Goal, double>(kvp.Value));
+                anticipatedInfluences.Add(kvp.Key, new Dictionary<Goal, double>(kvp.Value));
 
             // Update with new influences where applicable
             foreach (var kvp in agent.AnticipationInfluence)
             {
                 Dictionary<Goal, double> influences;
-                if (_anticipatedInfluences.TryGetValue(kvp.Key, out influences))
+                if (anticipatedInfluences.TryGetValue(kvp.Key, out influences))
                 {
                     foreach (var kvp2 in kvp.Value)
                         influences[kvp2.Key] = kvp2.Value;
@@ -92,77 +92,93 @@ namespace SOSIEL.Processes
             if (_logger.IsDebugEnabled)
             {
                 _logger.Debug($"CounterfactualThinking.Execute: agent={agent.Id} goal={goal}"
-                    + $" layer={layer.PositionNumber}\n"
-                    + $"  Matched DOs: {string.Join(", ", _matchedDecisionOptions.Select(x => x.Id).OrderBy(x => x))}");
+                    + $" layer={layer.LayerId}\n"
+                    + $"  Matched DOs: {string.Join(", ", matchedDecisionOptions.Select(x => x.Name).OrderBy(x => x))}");
                 _logger.Debug("  AnticipatedInfluences: "
-                    + $"{string.Join(", ", _anticipatedInfluences.Select(x => x.Key.Id).OrderBy(x => x))}\n");
+                    + $"{string.Join(", ", anticipatedInfluences.Select(x => x.Key.Name).OrderBy(x => x))}\n");
             }
-            SpecificLogic(_selectedGoal.Tendency);
-            return _selectedGoalState.Confidence;
+            SpecificLogic(
+                goalState,
+                new SpecificLogicCustomData
+                {
+                    MatchedDecisionOptions = matchedDecisionOptions,
+                    AnticipatedInfluence = anticipatedInfluences,
+                    ActivatedDecisionOption = activatedDecisionOption
+                }
+                );
+            return goalState.Confidence;
         }
 
         #region Specific logic for tendencies
 
-        protected override void EqualToOrAboveFocalValue()
+        protected override object EqualToOrAboveFocalValue(GoalState goalState, object customData)
         {
-            if (_selectedGoalState.PriorValue >= _selectedGoalState.PriorFocalValue) return;
-            var dv = _selectedGoalState.PriorFocalValue - _selectedGoalState.PriorValue;
-            var decisionOptions = (_matchedDecisionOptions.Length > 1)
-                ? _matchedDecisionOptions
-                    .GroupBy(r => GetAnticipatedInfluence(r)[_selectedGoal] - dv)
-                    .OrderBy(hg => hg.Key)
-                    .First()
-                    .ToArray()
-                : _matchedDecisionOptions;
-            _selectedGoalState.Confidence = decisionOptions.Length > 0 
-                && decisionOptions.Any(r => r != _activatedDecisionOption);
-        }
-
-        private Dictionary<Goal, double> GetAnticipatedInfluence(DecisionOption decisionOption)
-        {
-            return _anticipatedInfluences[decisionOption];
-        }
-
-        protected override void Maximize()
-        {
-            if (_matchedDecisionOptions.Length > 0)
+            if (goalState.PriorValue < goalState.PriorFocalValue)
             {
-                var decisionOptions = _matchedDecisionOptions
-                    .GroupBy(r => GetAnticipatedInfluence(r)[_selectedGoal])
+                var dv = goalState.PriorFocalValue - goalState.PriorValue;
+                var data = (SpecificLogicCustomData)customData;
+                var decisionOptions = (data.MatchedDecisionOptions.Length > 1)
+                    ? data.MatchedDecisionOptions
+                        .GroupBy(r => data.AnticipatedInfluence[r][goalState.Goal] - dv)
+                        .OrderBy(hg => hg.Key)
+                        .First()
+                        .ToArray()
+                    : data.MatchedDecisionOptions;
+                goalState.Confidence = decisionOptions.Length > 0
+                    && decisionOptions.Any(r => r != data.ActivatedDecisionOption);
+            }
+            return null;
+        }
+
+        protected override object Maximize(GoalState goalState, object customData)
+        {
+            var data = (SpecificLogicCustomData)customData;
+            if (data.MatchedDecisionOptions.Length > 0)
+            {
+                var decisionOptions = data.MatchedDecisionOptions
+                    .GroupBy(r => data.AnticipatedInfluence[r][goalState.Goal])
                     .OrderByDescending(hg => hg.Key)
                     .First()
                     .ToArray();
-                _selectedGoalState.Confidence = decisionOptions.Length > 0 
-                    && decisionOptions.Any(r => r != _activatedDecisionOption);
+                goalState.Confidence = decisionOptions.Length > 0 
+                    && decisionOptions.Any(r => r != data.ActivatedDecisionOption);
             }
+            return null;
         }
 
-        protected override void Minimize()
+        protected override object Minimize(GoalState goalState, object customData)
         {
-            if (_matchedDecisionOptions.Length > 0)
+            var data = (SpecificLogicCustomData)customData;
+            if (data.MatchedDecisionOptions.Length > 0)
             {
-                var decisionOptions = _matchedDecisionOptions.GroupBy(r => GetAnticipatedInfluence(r)[_selectedGoal])
+                var decisionOptions = data.MatchedDecisionOptions
+                    .GroupBy(r => data.AnticipatedInfluence[r][goalState.Goal])
                     .OrderBy(hg => hg.Key)
                     .First()
                     .ToArray();
-                _selectedGoalState.Confidence = decisionOptions.Length > 0
-                    && decisionOptions.Any(r => r != _activatedDecisionOption);
+                goalState.Confidence = decisionOptions.Length > 0
+                    && decisionOptions.Any(r => r != data.ActivatedDecisionOption);
             }
+            return null;
         }
 
-        protected override void MaintainAtValue()
+        protected override object MaintainAtValue(GoalState goalState, object customData)
         {
-            if (_selectedGoalState.PriorValue == _selectedGoalState.PriorFocalValue) return;
-            var dv = Math.Abs(_selectedGoalState.PriorFocalValue - _selectedGoalState.PriorValue);
-            var decisionOptions = (_matchedDecisionOptions.Length > 1)
-                ? _matchedDecisionOptions
-                    .GroupBy(r => GetAnticipatedInfluence(r)[_selectedGoal] - dv)
-                    .OrderBy(hg => hg.Key)
-                    .First()
-                    .ToArray()
-                : _matchedDecisionOptions;
-            _selectedGoalState.Confidence = decisionOptions.Length > 0
-                && decisionOptions.Any(r => r != _activatedDecisionOption);
+            if (goalState.PriorValue != goalState.PriorFocalValue)
+            {
+                var data = (SpecificLogicCustomData)customData;
+                var dv = Math.Abs(goalState.PriorFocalValue - goalState.PriorValue);
+                var decisionOptions = (data.MatchedDecisionOptions.Length > 1)
+                    ? data.MatchedDecisionOptions
+                        .GroupBy(r => data.AnticipatedInfluence[r][goalState.Goal] - dv)
+                        .OrderBy(hg => hg.Key)
+                        .First()
+                        .ToArray()
+                    : data.MatchedDecisionOptions;
+                goalState.Confidence = decisionOptions.Length > 0
+                    && decisionOptions.Any(r => r != data.ActivatedDecisionOption);
+            }
+            return null;
         }
 
         #endregion

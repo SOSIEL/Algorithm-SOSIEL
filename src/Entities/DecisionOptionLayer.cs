@@ -10,22 +10,24 @@ namespace SOSIEL.Entities
 {
     public class DecisionOptionLayer: IComparable<DecisionOptionLayer>
     {
-        int _indexer = 0;
-        public int PositionNumber { get; set; }
+        int _nextDecisionOptionId = 1;
+        public int LayerId { get; set; }
 
-        public MentalModel Set { get; set; }
+        public MentalModel ParentMentalModel { get; set; }
 
-        public DecisionOptionLayerConfiguration LayerConfiguration { get; private set; }
+        public DecisionOptionLayerConfiguration Configuration { get; private set; }
 
         public List<DecisionOption> DecisionOptions { get; private set; }
 
         public DecisionOptionLayer(DecisionOptionLayerConfiguration configuration)
         {
             DecisionOptions = new List<DecisionOption>(configuration.MaxNumberOfDecisionOptions);
-            LayerConfiguration = configuration;
+            Configuration = configuration;
         }
 
-        public DecisionOptionLayer(DecisionOptionLayerConfiguration parameters, IEnumerable<DecisionOption> decisionOptions) : this(parameters)
+        public DecisionOptionLayer(
+            DecisionOptionLayerConfiguration parameters, IEnumerable<DecisionOption> decisionOptions)
+            : this(parameters)
         {
             decisionOptions.ForEach(r => Add(r));
         }
@@ -36,9 +38,8 @@ namespace SOSIEL.Entities
         /// <param name="decisionOption"></param>
         public void Add(DecisionOption decisionOption)
         {
-            _indexer++;
-            decisionOption.PositionNumber = _indexer;
-            decisionOption.Layer = this;
+            decisionOption.Id = _nextDecisionOptionId++;
+            decisionOption.ParentLayer = this;
             DecisionOptions.Add(decisionOption);
         }
 
@@ -48,13 +49,13 @@ namespace SOSIEL.Entities
         /// <param name="decisionOption"></param>
         public void Remove(DecisionOption decisionOption)
         {
-            decisionOption.Layer = null;
+            decisionOption.ParentLayer = null;
             DecisionOptions.Remove(decisionOption);
         }
 
         public int CompareTo(DecisionOptionLayer other)
         {
-            return this == other ? 0 : other.PositionNumber > PositionNumber ? -1 : 1;
+            return this == other ? 0 : other.LayerId > LayerId ? -1 : 1;
         }
     }
 }

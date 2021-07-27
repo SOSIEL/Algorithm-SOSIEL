@@ -48,10 +48,9 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public double MinValue(IAgent agent)
         {
-            if(string.IsNullOrEmpty(MinConsequentReference) == false)
-                return (double)agent[MinConsequentReference];
-            else
-                return ConsequentValueInterval[0];
+            return string.IsNullOrEmpty(MinConsequentReference)
+                ? ConsequentValueInterval[0]
+                : (double)agent[MinConsequentReference];
         }
 
         /// <summary>
@@ -61,10 +60,9 @@ namespace SOSIEL.Entities
         /// <returns></returns>
         public double MaxValue(IAgent agent)
         {
-            if (string.IsNullOrEmpty(MaxConsequentReference) == false)
-                return (double)agent[MaxConsequentReference];
-            else
-                return ConsequentValueInterval[1];
+            return string.IsNullOrEmpty(MaxConsequentReference)
+                ? ConsequentValueInterval[1]
+                : (double)agent[MaxConsequentReference];
         }
     }
 }
